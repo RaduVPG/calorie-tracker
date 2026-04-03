@@ -403,7 +403,8 @@ select option {
 .meal-item,
 .recipe-card,
 .recipe-draft-card,
-.recipe-preview {
+.recipe-preview,
+.library-meta-card {
   border: 1px solid var(--c-border);
   background: var(--c-surface2);
 }
@@ -557,6 +558,14 @@ select option {
 #tab-recipes,
 #tab-settings {
   padding: 0 20px calc(32px + env(safe-area-inset-bottom));
+}
+
+.library-meta-card {
+  border-radius: 14px;
+  margin-top: 10px;
+  padding: 14px;
+  font-size: 13px;
+  color: var(--c-muted);
 }
 
 .section-header {

@@ -240,6 +240,7 @@
           <span class="section-title">Saved recipes</span>
           <button class="add-btn" id="open-recipe-modal" type="button" aria-label="Add recipe">+</button>
         </div>
+        <div class="library-meta-card" id="library-meta-card">Loading ingredient library…</div>
         <div class="recipes-list" id="recipes-list"></div>
       </div>
       <div class="tab-content" id="tab-settings"></div>
@@ -307,7 +308,9 @@
         <div class="ingredient-builder">
           <div class="field-label">Add ingredient</div>
           <div class="field-group modal-group-small">
-            <input type="text" id="ingredient-name" placeholder="Ingredient name" maxlength="60">
+            <input type="text" id="ingredient-name" placeholder="Ingredient name" maxlength="60" list="ingredient-library-options">
+            <datalist id="ingredient-library-options"></datalist>
+            <p class="setting-hint" id="ingredient-library-hint">Search the saved ingredient library to auto-fill calories per 100g.</p>
           </div>
           <div class="modal-grid modal-grid-ingredient">
             <div class="modal-field"><label for="ingredient-grams">Grams</label><input type="number" id="ingredient-grams" placeholder="200" min="1" max="5000" inputmode="decimal"></div>

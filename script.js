@@ -16,8 +16,11 @@ const QUICK_FOODS = [
 
 const EMOJIS = ['🍚', '🥗', '🍳', '🥩', '🍝', '🥘', '🍜', '🥙', '🫐', '🍌', '🥛', '🍎'];
 const GOAL_LABELS = { '-500': 'Lose weight', '0': 'Maintain', '300': 'Build muscle' };
+const INGREDIENT_LIBRARY_URL = './ingredients-library.json';
 
 let state = loadState();
+let ingredientLibrary = [];
+let ingredientLibraryMap = new Map();
 let heightUnit = 'cm';
 let weightUnit = 'kg';
 let selectedActivity = state.profile?.activityFactor || 1.2;
@@ -40,6 +43,7 @@ const ui = {
   historyTab: document.getElementById('tab-history'),
   recipesTab: document.getElementById('tab-recipes'),
   recipesList: document.getElementById('recipes-list'),
+  libraryMetaCard: document.getElementById('library-meta-card'),
   settingsTab: document.getElementById('tab-settings'),
   quickFoods: document.getElementById('quick-foods'),
   mealModal: document.getElementById('modal'),
@@ -49,6 +53,8 @@ const ui = {
   recipeGrams: document.getElementById('meal-recipe-grams'),
   recipePreview: document.getElementById('meal-recipe-preview'),
   recipeDraft: document.getElementById('recipe-draft'),
+  ingredientLibraryOptions: document.getElementById('ingredient-library-options'),
+  ingredientLibraryHint: document.getElementById('ingredient-library-hint'),
 };
 
 bindEvents();
@@ -80,6 +86,8 @@ function bindEvents() {
   document.getElementById('save-recipe').addEventListener('click', saveRecipe);
   document.getElementById('apply-recipe').addEventListener('click', applySelectedRecipeToMeal);
 
+  document.getElementById('ingredient-name').addEventListener('input', maybeApplyIngredientLibrary);
+  document.getElementById('ingredient-grams').addEventListener('input', maybeApplyIngredientLibrary);
   ui.recipeSelect.addEventListener('change', handleMealRecipeSelection);
   ui.recipeGrams.addEventListener('input', updateMealRecipePreview);
 
@@ -99,13 +107,14 @@ function bindEvents() {
   });
 }
 
-function bootstrap() {
+async function bootstrap() {
   setHeightUnit('cm');
   setWeightUnit('kg');
   rehydrateSelections();
   renderQuickFoods();
   renderRecipeOptions();
   renderRecipeDraft();
+  await loadIngredientLibrary();
 
   if (state.profile) {
     renderResult(state.profile);
@@ -247,6 +256,40 @@ function sanitizeRecipe(recipe) {
 function saveState() {
   pruneHistory(state.history);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+async function loadIngredientLibrary() {
+  try {
+    const response = await fetch(INGREDIENT_LIBRARY_URL, { cache: 'force-cache' });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const raw = await response.json();
+    ingredientLibrary = Array.isArray(raw) ? raw.filter(Boolean) : [];
+    ingredientLibraryMap = new Map(ingredientLibrary.map((item) => [normalizeName(item.name), item]));
+    renderIngredientLibraryOptions();
+    renderLibraryMeta();
+  } catch (error) {
+    console.error('Failed to load ingredient library', error);
+    ingredientLibrary = [];
+    ingredientLibraryMap = new Map();
+    renderIngredientLibraryOptions();
+    renderLibraryMeta('Ingredient library unavailable. You can still enter ingredients manually.');
+  }
+}
+
+function renderIngredientLibraryOptions() {
+  ui.ingredientLibraryOptions.innerHTML = ingredientLibrary
+    .map((item) => `<option value="${escapeHtml(item.name)}"></option>`)
+    .join('');
+}
+
+function renderLibraryMeta(message) {
+  if (message) {
+    ui.libraryMetaCard.textContent = message;
+    return;
+  }
+
+  const count = ingredientLibrary.length.toLocaleString('en-GB');
+  ui.libraryMetaCard.innerHTML = `<strong>${count}</strong> saved ingredients from calories.info are built into the app.`;
 }
 
 function pruneHistory(history) {
@@ -667,6 +710,7 @@ function closeRecipeModal() {
   ['recipe-name', 'recipe-total-weight', 'ingredient-name', 'ingredient-grams', 'ingredient-kcal', 'ingredient-p', 'ingredient-c', 'ingredient-f'].forEach((id) => {
     document.getElementById(id).value = '';
   });
+  ui.ingredientLibraryHint.textContent = 'Search the saved ingredient library to auto-fill calories per 100g.';
   renderRecipeDraft();
 }
 
@@ -767,6 +811,21 @@ function addMeal() {
   renderStreak();
 }
 
+function maybeApplyIngredientLibrary() {
+  const name = document.getElementById('ingredient-name').value;
+  const grams = clampFloat(document.getElementById('ingredient-grams').value, 1, 5000);
+  const item = findIngredientByName(name);
+
+  if (!item) {
+    ui.ingredientLibraryHint.textContent = 'Search the saved ingredient library to auto-fill calories per 100g.';
+    return;
+  }
+
+  const calories = grams ? Math.round((item.caloriesPer100g || 0) * grams / 100) : item.caloriesPer100g;
+  document.getElementById('ingredient-kcal').value = calories ? String(calories) : '';
+  ui.ingredientLibraryHint.textContent = `${item.name} · ${item.caloriesPer100g} kcal / 100g · ${item.category.replaceAll('-', ' ')}`;
+}
+
 function addIngredientToDraft() {
   const ingredient = sanitizeIngredient({
     name: document.getElementById('ingredient-name').value,
@@ -786,6 +845,7 @@ function addIngredientToDraft() {
   ['ingredient-name', 'ingredient-grams', 'ingredient-kcal', 'ingredient-p', 'ingredient-c', 'ingredient-f'].forEach((id) => {
     document.getElementById(id).value = '';
   });
+  ui.ingredientLibraryHint.textContent = 'Search the saved ingredient library to auto-fill calories per 100g.';
   renderRecipeDraft();
 }
 
@@ -947,6 +1007,19 @@ function formatHistoryDate(key) {
     day: 'numeric',
     month: 'short',
   }).format(date);
+}
+
+function normalizeName(value) {
+  return String(value || '')
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+}
+
+function findIngredientByName(name) {
+  return ingredientLibraryMap.get(normalizeName(name)) || null;
 }
 
 function showToast(message) {
