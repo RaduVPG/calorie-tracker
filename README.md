@@ -6,8 +6,10 @@ It runs entirely in the browser, stores data in `localStorage`, and can be deplo
 ## What it does
 
 - onboarding flow for age, sex, height, weight, activity, and goal
+- English / Romanian UI toggle across onboarding, result, and main app screens
 - calculates BMR, TDEE, calorie target, and macro targets
 - daily meal logging with calories, protein, carbs, and fat
+- recipe builder with offline ingredient lookup and macro autofill per 100g / serving
 - local history view with streak tracking
 - privacy-friendly: no login, no server, no cloud sync
 
@@ -18,6 +20,7 @@ It runs entirely in the browser, stores data in `localStorage`, and can be deplo
 - Vanilla JavaScript
 - Browser `localStorage`
 - Static hosting on Vercel
+- bundled offline ingredient dataset (`ingredients-library-full.json`)
 
 ## Project structure
 

@@ -22,6 +22,14 @@
 </head>
 <body>
   <div id="app">
+    <div class="global-lang-wrap" id="global-lang-wrap-onboarding">
+      <span class="global-lang-label" id="global-lang-label-1">Language toggle</span>
+      <div class="lang-toggle" id="global-lang-toggle-onboarding" aria-label="Language toggle">
+        <button class="lang-btn active" data-lang="en" type="button">EN</button>
+        <button class="lang-btn" data-lang="ro" type="button">RO</button>
+      </div>
+    </div>
+
     <div id="s-ob1" class="screen active">
       <div class="ob-header">
         <div class="ob-step-dots" aria-hidden="true">
@@ -29,27 +37,27 @@
           <div class="dot"></div>
           <div class="dot"></div>
         </div>
-        <div class="ob-title">Let’s set your goal</div>
-        <div class="ob-sub">We’ll calculate a personal daily calorie target using your stats and activity level.</div>
+        <div class="ob-title" id="ob1-title">Let’s set your goal</div>
+        <div class="ob-sub" id="ob1-sub">We’ll calculate a personal daily calorie target using your stats and activity level.</div>
       </div>
 
       <div class="ob-body">
         <div class="field-group">
-          <label class="field-label" for="ob-age">Age</label>
+          <label class="field-label" for="ob-age" id="ob-age-label">Age</label>
           <input type="number" id="ob-age" placeholder="25" min="10" max="100" inputmode="numeric">
         </div>
 
         <div class="field-group">
-          <label class="field-label" for="ob-sex">Sex</label>
+          <label class="field-label" for="ob-sex" id="ob-sex-label">Sex</label>
           <select id="ob-sex">
-            <option value="">Select…</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
+            <option value="" id="sex-option-empty">Select…</option>
+            <option value="male" id="sex-option-male">Male</option>
+            <option value="female" id="sex-option-female">Female</option>
           </select>
         </div>
 
         <div class="field-group">
-          <div class="field-label">Height</div>
+          <div class="field-label" id="ob-height-label">Height</div>
           <div class="field-row">
             <input type="number" id="ob-h1" placeholder="175" min="1" inputmode="decimal" aria-label="Height primary value">
             <div class="segmented" role="group" aria-label="Height units">
@@ -63,7 +71,7 @@
         </div>
 
         <div class="field-group">
-          <div class="field-label">Weight</div>
+          <div class="field-label" id="ob-weight-label">Weight</div>
           <div class="field-row">
             <input type="number" id="ob-w" placeholder="70" min="1" inputmode="decimal" aria-label="Weight value">
             <div class="segmented" role="group" aria-label="Weight units">
@@ -86,31 +94,31 @@
           <div class="dot active"></div>
           <div class="dot"></div>
         </div>
-        <div class="ob-title">Activity level</div>
-        <div class="ob-sub">How active are you during a typical week?</div>
+        <div class="ob-title" id="ob2-title">Activity level</div>
+        <div class="ob-sub" id="ob2-sub">How active are you during a typical week?</div>
       </div>
 
       <div class="ob-body">
         <div class="goal-cards" id="activity-cards">
           <button class="goal-card sel" type="button" data-activity="1.2">
             <div class="goal-icon maintain">🛋️</div>
-            <div class="goal-text"><p>Sedentary</p><p>Little or no exercise</p></div>
+            <div class="goal-text"><p id="activity-1-title">Sedentary</p><p id="activity-1-sub">Little or no exercise</p></div>
           </button>
           <button class="goal-card" type="button" data-activity="1.375">
             <div class="goal-icon maintain">🚶</div>
-            <div class="goal-text"><p>Lightly active</p><p>1–3 days / week</p></div>
+            <div class="goal-text"><p id="activity-2-title">Lightly active</p><p id="activity-2-sub">1–3 days / week</p></div>
           </button>
           <button class="goal-card" type="button" data-activity="1.55">
             <div class="goal-icon maintain">🏃</div>
-            <div class="goal-text"><p>Moderately active</p><p>3–5 days / week</p></div>
+            <div class="goal-text"><p id="activity-3-title">Moderately active</p><p id="activity-3-sub">3–5 days / week</p></div>
           </button>
           <button class="goal-card" type="button" data-activity="1.725">
             <div class="goal-icon bulk">💪</div>
-            <div class="goal-text"><p>Very active</p><p>6–7 days / week</p></div>
+            <div class="goal-text"><p id="activity-4-title">Very active</p><p id="activity-4-sub">6–7 days / week</p></div>
           </button>
           <button class="goal-card" type="button" data-activity="1.9">
             <div class="goal-icon bulk">🏋️</div>
-            <div class="goal-text"><p>Extremely active</p><p>Hard training + physical job</p></div>
+            <div class="goal-text"><p id="activity-5-title">Extremely active</p><p id="activity-5-sub">Hard training + physical job</p></div>
           </button>
         </div>
       </div>
@@ -128,23 +136,23 @@
           <div class="dot done"></div>
           <div class="dot active"></div>
         </div>
-        <div class="ob-title">What’s your goal?</div>
-        <div class="ob-sub">We’ll adjust calories and macros for your target.</div>
+        <div class="ob-title" id="ob3-title">What’s your goal?</div>
+        <div class="ob-sub" id="ob3-sub">We’ll adjust calories and macros for your target.</div>
       </div>
 
       <div class="ob-body">
         <div class="goal-cards" id="goal-cards">
           <button class="goal-card sel" type="button" data-goal="-500">
             <div class="goal-icon deficit">🔥</div>
-            <div class="goal-text"><p>Lose weight</p><p>About 500 kcal below TDEE</p></div>
+            <div class="goal-text"><p id="goal-1-title">Lose weight</p><p id="goal-1-sub">About 500 kcal below TDEE</p></div>
           </button>
           <button class="goal-card" type="button" data-goal="0">
             <div class="goal-icon maintain">⚖️</div>
-            <div class="goal-text"><p>Maintain</p><p>Eat around your TDEE</p></div>
+            <div class="goal-text"><p id="goal-2-title">Maintain</p><p id="goal-2-sub">Eat around your TDEE</p></div>
           </button>
           <button class="goal-card" type="button" data-goal="300">
             <div class="goal-icon bulk">📈</div>
-            <div class="goal-text"><p>Build muscle</p><p>About 300 kcal above TDEE</p></div>
+            <div class="goal-text"><p id="goal-3-title">Build muscle</p><p id="goal-3-sub">About 300 kcal above TDEE</p></div>
           </button>
         </div>
       </div>
@@ -158,8 +166,8 @@
     <div id="s-result" class="screen">
       <div class="result-shell">
         <div class="result-intro">
-          <div class="ob-title result-title">Your daily target</div>
-          <div class="ob-sub">Based on your estimated BMR, activity level, and goal.</div>
+          <div class="ob-title result-title" id="result-title">Your daily target</div>
+          <div class="ob-sub" id="result-sub">Based on your estimated BMR, activity level, and goal.</div>
         </div>
 
         <div class="result-hero">
@@ -170,22 +178,22 @@
             </svg>
             <div class="ring-center">
               <div class="ring-kcal" id="res-kcal">—</div>
-              <div class="ring-remaining">kcal / day</div>
+              <div class="ring-remaining" id="result-kcal-unit">kcal / day</div>
             </div>
           </div>
         </div>
 
         <div class="macro-row">
-          <div class="macro-card p"><div class="mv" id="res-p">—g</div><div class="ml">protein</div></div>
-          <div class="macro-card c"><div class="mv" id="res-c">—g</div><div class="ml">carbs</div></div>
-          <div class="macro-card f"><div class="mv" id="res-f">—g</div><div class="ml">fat</div></div>
+          <div class="macro-card p"><div class="mv" id="res-p">—g</div><div class="ml" id="res-p-label">protein</div></div>
+          <div class="macro-card c"><div class="mv" id="res-c">—g</div><div class="ml" id="res-c-label">carbs</div></div>
+          <div class="macro-card f"><div class="mv" id="res-f">—g</div><div class="ml" id="res-f-label">fat</div></div>
         </div>
 
         <div class="result-meta">
-          <div class="meta-row"><span>BMR</span><span id="res-bmr">—</span></div>
-          <div class="meta-row"><span>TDEE</span><span id="res-tdee">—</span></div>
-          <div class="meta-row"><span>BMI</span><span id="res-bmi">—</span></div>
-          <div class="meta-row"><span>Goal</span><span id="res-goal-label">—</span></div>
+          <div class="meta-row"><span id="res-bmr-label">BMR</span><span id="res-bmr">—</span></div>
+          <div class="meta-row"><span id="res-tdee-label">TDEE</span><span id="res-tdee">—</span></div>
+          <div class="meta-row"><span id="res-bmi-label">BMI</span><span id="res-bmi">—</span></div>
+          <div class="meta-row"><span id="res-goal-label-text">Goal</span><span id="res-goal-label">—</span></div>
         </div>
       </div>
 
@@ -201,9 +209,12 @@
           <div class="topbar-date" id="main-date"></div>
         </div>
         <div class="topbar-actions">
-          <div class="lang-toggle" aria-label="Language toggle">
-            <button class="lang-btn active" id="lang-en" type="button">EN</button>
-            <button class="lang-btn" id="lang-ro" type="button">RO</button>
+          <div class="lang-toggle-wrap">
+            <span class="global-lang-label topbar-lang-label" id="global-lang-label-2">Language toggle</span>
+            <div class="lang-toggle" id="global-lang-toggle-main" aria-label="Language toggle">
+              <button class="lang-btn active" data-lang="en" type="button">EN</button>
+              <button class="lang-btn" data-lang="ro" type="button">RO</button>
+            </div>
           </div>
           <div class="streak-badge" id="streak-badge">🔥 0 days</div>
         </div>
@@ -283,9 +294,9 @@
 
         <div class="modal-grid">
           <div class="modal-field"><label for="meal-kcal">Calories</label><input type="number" id="meal-kcal" placeholder="350" min="1" max="5000" inputmode="numeric"></div>
-          <div class="modal-field"><label for="meal-p">Protein (g)</label><input type="number" id="meal-p" placeholder="30" min="0" max="400" inputmode="numeric"></div>
-          <div class="modal-field"><label for="meal-c">Carbs (g)</label><input type="number" id="meal-c" placeholder="20" min="0" max="600" inputmode="numeric"></div>
-          <div class="modal-field"><label for="meal-f">Fat (g)</label><input type="number" id="meal-f" placeholder="10" min="0" max="300" inputmode="numeric"></div>
+          <div class="modal-field"><label for="meal-p">Protein (g)</label><input type="number" id="meal-p" placeholder="30" min="0" max="400" inputmode="decimal"></div>
+          <div class="modal-field"><label for="meal-c">Carbs (g)</label><input type="number" id="meal-c" placeholder="20" min="0" max="600" inputmode="decimal"></div>
+          <div class="modal-field"><label for="meal-f">Fat (g)</label><input type="number" id="meal-f" placeholder="10" min="0" max="300" inputmode="decimal"></div>
         </div>
 
         <div class="modal-actions">
@@ -314,16 +325,16 @@
         <div class="ingredient-builder">
           <div class="field-label" id="ingredient-builder-label">Add ingredient</div>
           <div class="field-group modal-group-small">
-            <input type="text" id="ingredient-name" placeholder="Ingredient name" maxlength="60" list="ingredient-library-options">
+            <input type="text" id="ingredient-name" placeholder="Ingredient name" maxlength="80" list="ingredient-library-options">
             <datalist id="ingredient-library-options"></datalist>
             <p class="setting-hint" id="ingredient-library-hint">Search the saved ingredient library to auto-fill calories per 100g.</p>
           </div>
           <div class="modal-grid modal-grid-ingredient">
             <div class="modal-field"><label for="ingredient-grams">Grams</label><input type="number" id="ingredient-grams" placeholder="200" min="1" max="5000" inputmode="decimal"></div>
-            <div class="modal-field"><label for="ingredient-kcal">Calories</label><input type="number" id="ingredient-kcal" placeholder="220" min="0" max="5000" inputmode="numeric"></div>
-            <div class="modal-field"><label for="ingredient-p">Protein</label><input type="number" id="ingredient-p" placeholder="20" min="0" max="400" inputmode="numeric"></div>
-            <div class="modal-field"><label for="ingredient-c">Carbs</label><input type="number" id="ingredient-c" placeholder="10" min="0" max="600" inputmode="numeric"></div>
-            <div class="modal-field"><label for="ingredient-f">Fat</label><input type="number" id="ingredient-f" placeholder="8" min="0" max="300" inputmode="numeric"></div>
+            <div class="modal-field"><label for="ingredient-kcal">Calories</label><input type="number" id="ingredient-kcal" placeholder="220" min="0" max="5000" inputmode="decimal"></div>
+            <div class="modal-field"><label for="ingredient-p">Protein</label><input type="number" id="ingredient-p" placeholder="20" min="0" max="400" inputmode="decimal"></div>
+            <div class="modal-field"><label for="ingredient-c">Carbs</label><input type="number" id="ingredient-c" placeholder="10" min="0" max="600" inputmode="decimal"></div>
+            <div class="modal-field"><label for="ingredient-f">Fat</label><input type="number" id="ingredient-f" placeholder="8" min="0" max="300" inputmode="decimal"></div>
           </div>
           <button class="btn-ghost btn-inline-wide" id="add-ingredient" type="button">Add ingredient</button>
         </div>

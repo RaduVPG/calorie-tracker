@@ -2,71 +2,143 @@ const STORAGE_KEY = 'caltrack_v3';
 const LEGACY_KEYS = ['caltrak_v2'];
 const RING_CIRCUMFERENCE = 471;
 const MAX_DAYS_HISTORY = 365;
+const INGREDIENT_LIBRARY_URL = './ingredients-library-full.json';
+const LANGUAGE_KEY = 'caltrack_lang';
 
 const QUICK_FOODS = [
-  { n: 'Rice (200g)', k: 260, p: 5, c: 56, f: 1, e: '🍚' },
-  { n: 'Egg', k: 78, p: 6, c: 0, f: 5, e: '🥚' },
-  { n: 'Chicken (150g)', k: 248, p: 38, c: 0, f: 9, e: '🍗' },
-  { n: 'Avocado (100g)', k: 160, p: 2, c: 9, f: 15, e: '🥑' },
-  { n: 'Milk (250ml)', k: 122, p: 8, c: 12, f: 5, e: '🥛' },
-  { n: 'Banana', k: 89, p: 1, c: 23, f: 0, e: '🍌' },
-  { n: 'Beef (150g)', k: 300, p: 36, c: 0, f: 17, e: '🥩' },
-  { n: 'Bread slice', k: 79, p: 3, c: 15, f: 1, e: '🍞' },
+  { name: { en: 'Rice (200g)', ro: 'Orez (200g)' }, k: 260, p: 5, c: 56, f: 1, e: '🍚' },
+  { name: { en: 'Egg', ro: 'Ou' }, k: 78, p: 6, c: 0, f: 5, e: '🥚' },
+  { name: { en: 'Chicken (150g)', ro: 'Pui (150g)' }, k: 248, p: 38, c: 0, f: 9, e: '🍗' },
+  { name: { en: 'Avocado (100g)', ro: 'Avocado (100g)' }, k: 160, p: 2, c: 9, f: 15, e: '🥑' },
+  { name: { en: 'Milk (250ml)', ro: 'Lapte (250ml)' }, k: 122, p: 8, c: 12, f: 5, e: '🥛' },
+  { name: { en: 'Banana', ro: 'Banană' }, k: 89, p: 1, c: 23, f: 0, e: '🍌' },
+  { name: { en: 'Beef (150g)', ro: 'Vită (150g)' }, k: 300, p: 36, c: 0, f: 17, e: '🥩' },
+  { name: { en: 'Bread slice', ro: 'Felie de pâine' }, k: 79, p: 3, c: 15, f: 1, e: '🍞' },
 ];
 
 const EMOJIS = ['🍚', '🥗', '🍳', '🥩', '🍝', '🥘', '🍜', '🥙', '🫐', '🍌', '🥛', '🍎'];
-const GOAL_LABELS = { '-500': 'Lose weight', '0': 'Maintain', '300': 'Build muscle' };
-const INGREDIENT_LIBRARY_URL = './ingredients-library-full.json';
-const LANGUAGE_KEY = 'caltrack_lang';
-const DEFAULT_LIBRARY_HINT = {
-  en: 'Search the saved ingredient library to auto-fill calories per 100g.',
-  ro: 'Caută în biblioteca salvată de ingrediente pentru a completa automat caloriile la 100g.',
+const GOAL_LABELS = {
+  '-500': { en: 'Lose weight', ro: 'Slăbește' },
+  '0': { en: 'Maintain', ro: 'Menține' },
+  '300': { en: 'Build muscle', ro: 'Pune masă musculară' },
 };
 
 const I18N = {
   en: {
+    appTitle: 'CalTrack',
+    appDescription: 'CalTrack is a private, offline-first calorie and macro tracker that runs entirely in your browser.',
     today: 'Today', history: 'History', recipes: 'Recipes', profile: 'Profile', meals: 'Meals', savedRecipes: 'Saved recipes',
+    letsSetGoal: 'Let’s set your goal',
+    letsSetGoalSub: 'We’ll calculate a personal daily calorie target using your stats and activity level.',
+    age: 'Age', sex: 'Sex', selectOption: 'Select…', male: 'Male', female: 'Female',
+    height: 'Height', heightPrimaryLabel: 'Height primary value', heightUnits: 'Height units', heightInchesLabel: 'Height inches',
+    weight: 'Weight', weightValueLabel: 'Weight value', continue: 'Continue', back: 'Back',
+    activityLevel: 'Activity level', typicalWeek: 'How active are you during a typical week?',
+    sedentary: 'Sedentary', sedentarySub: 'Little or no exercise',
+    lightlyActive: 'Lightly active', lightlyActiveSub: '1–3 days / week',
+    moderatelyActive: 'Moderately active', moderatelyActiveSub: '3–5 days / week',
+    veryActive: 'Very active', veryActiveSub: '6–7 days / week',
+    extremelyActive: 'Extremely active', extremelyActiveSub: 'Hard training + physical job',
+    whatsYourGoal: 'What’s your goal?', goalSub: 'We’ll adjust calories and macros for your target.',
+    loseWeight: 'Lose weight', loseWeightSub: 'About 500 kcal below TDEE',
+    maintain: 'Maintain', maintainSub: 'Eat around your TDEE',
+    buildMuscle: 'Build muscle', buildMuscleSub: 'About 300 kcal above TDEE',
+    calculateMyGoal: 'Calculate my goal',
+    yourDailyTarget: 'Your daily target',
+    resultSub: 'Based on your estimated BMR, activity level, and goal.',
+    kcalPerDay: 'kcal / day',
+    protein: 'Protein', carbs: 'Carbs', fat: 'Fat', bmr: 'BMR', tdee: 'TDEE', bmi: 'BMI', goal: 'Goal',
+    startTracking: 'Start tracking',
+    languageToggle: 'Language toggle',
+    sections: 'Sections', addMealAria: 'Add meal', addRecipeAria: 'Add recipe',
     logMeal: 'Log a meal', quickAdd: 'Quick add', savedRecipe: 'Saved recipe', noneManual: 'None — manual entry', servingG: 'Serving (g)', applyRecipe: 'Apply recipe',
     foodName: 'Food name', addMeal: 'Add meal', cancel: 'Cancel', createRecipe: 'Create recipe', recipeName: 'Recipe name',
     totalCookedWeight: 'Total cooked recipe weight (g)', totalCookedWeightHint: 'Use the final cooked weight if water evaporates or ingredients change weight during cooking.',
-    addIngredient: 'Add ingredient', saveRecipe: 'Save recipe', loadingLibrary: 'Loading ingredient library…',
-    libraryLoaded: '{count} saved ingredients from calories.info are built into the app.',
+    addIngredient: 'Add ingredient', ingredientBuilder: 'Add ingredient', saveRecipe: 'Save recipe', loadingLibrary: 'Loading ingredient library…',
+    libraryLoaded: '{count} offline ingredients with calories + macros are built into the app.',
+    libraryLoadedDetail: 'Search works in English and Romanian. Source: calories.info static dataset bundled with the app.',
     libraryUnavailable: 'Ingredient library unavailable. You can still enter ingredients manually.',
     mealsEmpty: 'No meals logged yet. Tap + to add one.', historyEmpty: 'No history yet.', recipesEmpty: 'No saved recipes yet. Tap + to build one from ingredients.',
     recipeDraftEmpty: 'No ingredients added yet.', days: 'days', day: 'day', remaining: 'remaining', over: 'over',
     yourStats: 'Your stats', calorieTargets: 'Calorie targets', macroTargets: 'Macro targets', about: 'About',
     aboutText: 'Your data stays in this browser only. There is no account, backend, or cloud sync in this version.',
-    resetStartOver: 'Reset & start over', protein: 'Protein', carbs: 'Carbs', fat: 'Fat', bmi: 'BMI', age: 'Age', height: 'Height', weight: 'Weight',
-    bmr: 'BMR', tdee: 'TDEE', dailyGoal: 'Daily goal', goalType: 'Goal type', ingredientAdded: 'Ingredient name and grams are required.',
+    dataSourceLabel: 'Food data source',
+    dataSourceText: 'Offline calories.info library bundled as JSON with kcal, protein, carbs, and fat per 100g.',
+    resetStartOver: 'Reset & start over', dailyGoal: 'Daily goal', goalType: 'Goal type',
     recipeSaved: 'Saved recipe: {name}', recipeNameRequired: 'Recipe name is required.', addAtLeastOneIngredient: 'Add at least one ingredient.',
     enterFinalWeight: 'Enter the final recipe weight in grams.', pickSavedRecipe: 'Pick a saved recipe first.', enterServingWeight: 'Enter a serving weight in grams.',
     mealNameCaloriesRequired: 'Meal name and calories are required.', fillStats: 'Please fill in age, sex, height, and weight.', invalidInputs: 'Some inputs are missing or invalid.', unrealisticStats: 'Those stats look unrealistic. Please check them.',
     profileFirst: 'Set up your profile first.', ingredientNameAndGramsRequired: 'Ingredient name and grams are required.',
     recipeIngredients: 'Recipe ingredients', currentTotals: 'Current totals: {kcal} kcal · P {p}g · C {c}g · F {f}g',
     ingredientsCount: '{count} ingredients · {weight}g total', per100g: '/ 100g', deleteRecipeConfirm: 'Delete recipe "{name}"?',
-    ingredientPlaceholder: 'Ingredient name', mealPlaceholder: 'e.g. Chicken breast', recipePlaceholder: 'e.g. Chicken curry'
+    ingredientPlaceholder: 'Ingredient name', mealPlaceholder: 'e.g. Chicken breast', recipePlaceholder: 'e.g. Chicken curry',
+    ingredientSearchPlaceholder: 'Type in English or Romanian',
+    ingredientLibraryHint: 'Search the saved ingredient library to auto-fill calories and macros per 100g.',
+    ingredientMatched: '{name} · {kcal} kcal · P {p}g · C {c}g · F {f}g / 100g · {category}',
+    ingredientNoMatch: 'No exact ingredient match yet. Keep typing in English or Romanian, or enter values manually.',
+    ingredientAutoFilled: 'Autofilled from offline ingredient library.',
+    resetConfirm: 'Reset all local data and start over?',
+    mealCount: '{count} meal', mealCountPlural: '{count} meals',
+    deleteMealAria: 'Delete {name}', deleteRecipeAria: 'Delete {name}',
+    yearsSuffix: 'yrs', cmSuffix: 'cm', kgSuffix: 'kg'
   },
   ro: {
+    appTitle: 'CalTrack',
+    appDescription: 'CalTrack este un tracker privat, offline-first, pentru calorii și macronutrienți, care rulează complet în browser.',
     today: 'Astăzi', history: 'Istoric', recipes: 'Rețete', profile: 'Profil', meals: 'Mese', savedRecipes: 'Rețete salvate',
-    logMeal: 'Adaugă masă', quickAdd: 'Adăugare rapidă', savedRecipe: 'Rețetă salvată', noneManual: 'Niciuna — introducere manuală', servingG: 'Porție (g)', applyRecipe: 'Aplică rețeta',
+    letsSetGoal: 'Hai să-ți setăm obiectivul',
+    letsSetGoalSub: 'Îți calculăm o țintă personală zilnică de calorii pe baza datelor și a nivelului de activitate.',
+    age: 'Vârstă', sex: 'Sex', selectOption: 'Selectează…', male: 'Bărbat', female: 'Femeie',
+    height: 'Înălțime', heightPrimaryLabel: 'Valoare principală înălțime', heightUnits: 'Unități înălțime', heightInchesLabel: 'Inches',
+    weight: 'Greutate', weightValueLabel: 'Valoare greutate', continue: 'Continuă', back: 'Înapoi',
+    activityLevel: 'Nivel de activitate', typicalWeek: 'Cât de activ ești într-o săptămână obișnuită?',
+    sedentary: 'Sedentar', sedentarySub: 'Foarte puțin sau deloc exercițiu',
+    lightlyActive: 'Ușor activ', lightlyActiveSub: '1–3 zile / săptămână',
+    moderatelyActive: 'Moderat activ', moderatelyActiveSub: '3–5 zile / săptămână',
+    veryActive: 'Foarte activ', veryActiveSub: '6–7 zile / săptămână',
+    extremelyActive: 'Extrem de activ', extremelyActiveSub: 'Antrenamente grele + muncă fizică',
+    whatsYourGoal: 'Care este obiectivul tău?', goalSub: 'Vom ajusta caloriile și macronutrienții pentru ținta ta.',
+    loseWeight: 'Slăbește', loseWeightSub: 'Aproximativ 500 kcal sub TDEE',
+    maintain: 'Menține', maintainSub: 'Mănâncă în jurul TDEE-ului tău',
+    buildMuscle: 'Pune masă musculară', buildMuscleSub: 'Aproximativ 300 kcal peste TDEE',
+    calculateMyGoal: 'Calculează obiectivul',
+    yourDailyTarget: 'Ținta ta zilnică',
+    resultSub: 'Bazată pe BMR-ul estimat, nivelul de activitate și obiectiv.',
+    kcalPerDay: 'kcal / zi',
+    protein: 'Proteine', carbs: 'Carbohidrați', fat: 'Grăsimi', bmr: 'BMR', tdee: 'TDEE', bmi: 'IMC', goal: 'Obiectiv',
+    startTracking: 'Începe trackingul',
+    languageToggle: 'Selector limbă',
+    sections: 'Secțiuni', addMealAria: 'Adaugă masă', addRecipeAria: 'Adaugă rețetă',
+    logMeal: 'Adaugă o masă', quickAdd: 'Adăugare rapidă', savedRecipe: 'Rețetă salvată', noneManual: 'Niciuna — introducere manuală', servingG: 'Porție (g)', applyRecipe: 'Aplică rețeta',
     foodName: 'Nume aliment', addMeal: 'Adaugă masa', cancel: 'Anulează', createRecipe: 'Creează rețetă', recipeName: 'Nume rețetă',
     totalCookedWeight: 'Greutatea finală gătită a rețetei (g)', totalCookedWeightHint: 'Folosește greutatea finală gătită dacă apa se evaporă sau ingredientele își schimbă greutatea în timpul gătitului.',
-    addIngredient: 'Adaugă ingredient', saveRecipe: 'Salvează rețeta', loadingLibrary: 'Se încarcă biblioteca de ingrediente…',
-    libraryLoaded: '{count} ingrediente salvate din calories.info sunt incluse în aplicație.',
+    addIngredient: 'Adaugă ingredient', ingredientBuilder: 'Adaugă ingredient', saveRecipe: 'Salvează rețeta', loadingLibrary: 'Se încarcă biblioteca de ingrediente…',
+    libraryLoaded: '{count} ingrediente offline cu calorii + macronutrienți sunt incluse în aplicație.',
+    libraryLoadedDetail: 'Căutarea funcționează în engleză și română. Sursă: dataset static calories.info inclus în aplicație.',
     libraryUnavailable: 'Biblioteca de ingrediente nu este disponibilă. Poți introduce ingredientele manual.',
     mealsEmpty: 'Nu ai mese adăugate încă. Apasă + ca să adaugi una.', historyEmpty: 'Încă nu există istoric.', recipesEmpty: 'Nu ai rețete salvate încă. Apasă + ca să construiești una din ingrediente.',
     recipeDraftEmpty: 'Nu ai adăugat încă niciun ingredient.', days: 'zile', day: 'zi', remaining: 'rămase', over: 'peste',
     yourStats: 'Datele tale', calorieTargets: 'Ținte calorice', macroTargets: 'Ținte macronutrienți', about: 'Despre',
     aboutText: 'Datele tale rămân doar în acest browser. Nu există cont, backend sau sincronizare în cloud în această versiune.',
-    resetStartOver: 'Resetează și reîncepe', protein: 'Proteine', carbs: 'Carbohidrați', fat: 'Grăsimi', bmi: 'IMC', age: 'Vârstă', height: 'Înălțime', weight: 'Greutate',
-    bmr: 'BMR', tdee: 'TDEE', dailyGoal: 'Ținta zilnică', goalType: 'Tip obiectiv', ingredientAdded: 'Numele ingredientului și gramele sunt obligatorii.',
+    dataSourceLabel: 'Sursa datelor alimentare',
+    dataSourceText: 'Bibliotecă offline calories.info inclusă ca JSON cu kcal, proteine, carbohidrați și grăsimi per 100g.',
+    resetStartOver: 'Resetează și reîncepe', dailyGoal: 'Ținta zilnică', goalType: 'Tip obiectiv',
     recipeSaved: 'Rețetă salvată: {name}', recipeNameRequired: 'Numele rețetei este obligatoriu.', addAtLeastOneIngredient: 'Adaugă cel puțin un ingredient.',
     enterFinalWeight: 'Introdu greutatea finală a rețetei în grame.', pickSavedRecipe: 'Alege mai întâi o rețetă salvată.', enterServingWeight: 'Introdu greutatea porției în grame.',
     mealNameCaloriesRequired: 'Numele mesei și caloriile sunt obligatorii.', fillStats: 'Completează vârsta, sexul, înălțimea și greutatea.', invalidInputs: 'Unele date lipsesc sau sunt invalide.', unrealisticStats: 'Valorile par nerealiste. Verifică-le.',
     profileFirst: 'Configurează-ți profilul mai întâi.', ingredientNameAndGramsRequired: 'Numele ingredientului și gramele sunt obligatorii.',
     recipeIngredients: 'Ingredientele rețetei', currentTotals: 'Total curent: {kcal} kcal · P {p}g · C {c}g · F {f}g',
     ingredientsCount: '{count} ingrediente · {weight}g total', per100g: '/ 100g', deleteRecipeConfirm: 'Ștergi rețeta „{name}”?',
-    ingredientPlaceholder: 'Nume ingredient', mealPlaceholder: 'ex. Piept de pui', recipePlaceholder: 'ex. Curry de pui'
+    ingredientPlaceholder: 'Nume ingredient', mealPlaceholder: 'ex. Piept de pui', recipePlaceholder: 'ex. Curry de pui',
+    ingredientSearchPlaceholder: 'Scrie în engleză sau română',
+    ingredientLibraryHint: 'Caută în biblioteca salvată de ingrediente pentru a completa automat caloriile și macronutrienții per 100g.',
+    ingredientMatched: '{name} · {kcal} kcal · P {p}g · C {c}g · F {f}g / 100g · {category}',
+    ingredientNoMatch: 'Încă nu există potrivire exactă. Continuă să scrii în engleză sau română, sau introdu valorile manual.',
+    ingredientAutoFilled: 'Completat automat din biblioteca offline de ingrediente.',
+    resetConfirm: 'Resetezi toate datele locale și reîncepi?',
+    mealCount: '{count} masă', mealCountPlural: '{count} mese',
+    deleteMealAria: 'Șterge {name}', deleteRecipeAria: 'Șterge {name}',
+    yearsSuffix: 'ani', cmSuffix: 'cm', kgSuffix: 'kg'
   }
 };
 
@@ -108,8 +180,8 @@ const ui = {
   recipeDraft: document.getElementById('recipe-draft'),
   ingredientLibraryOptions: document.getElementById('ingredient-library-options'),
   ingredientLibraryHint: document.getElementById('ingredient-library-hint'),
-  langEnBtn: document.getElementById('lang-en'),
-  langRoBtn: document.getElementById('lang-ro'),
+  langButtons: Array.from(document.querySelectorAll('.lang-btn')),
+  onboardingLangWrap: document.getElementById('global-lang-wrap-onboarding'),
 };
 
 bindEvents();
@@ -143,8 +215,7 @@ function bindEvents() {
 
   document.getElementById('ingredient-name').addEventListener('input', maybeApplyIngredientLibrary);
   document.getElementById('ingredient-grams').addEventListener('input', maybeApplyIngredientLibrary);
-  ui.langEnBtn.addEventListener('click', () => setLanguage('en'));
-  ui.langRoBtn.addEventListener('click', () => setLanguage('ro'));
+  ui.langButtons.forEach((button) => button.addEventListener('click', () => setLanguage(button.dataset.lang)));
   ui.recipeSelect.addEventListener('change', handleMealRecipeSelection);
   ui.recipeGrams.addEventListener('input', updateMealRecipePreview);
 
@@ -220,45 +291,124 @@ function setLanguage(lang) {
   renderQuickFoods();
   renderRecipeOptions();
   renderRecipeDraft();
+  renderIngredientLibraryOptions();
   if (ingredientLibrary.length) renderLibraryMeta();
   if (state.profile) {
+    renderResult(state.profile);
     renderMain();
   }
 }
 
 function applyTranslations() {
-  ui.langEnBtn.classList.toggle('active', currentLang === 'en');
-  ui.langRoBtn.classList.toggle('active', currentLang === 'ro');
-  document.getElementById('topbar-title').textContent = t('today');
-  document.getElementById('tab-btn-today').textContent = t('today');
-  document.getElementById('tab-btn-history').textContent = t('history');
-  document.getElementById('tab-btn-recipes').textContent = t('recipes');
-  document.getElementById('tab-btn-settings').textContent = t('profile');
-  document.getElementById('meals-section-title').textContent = t('meals');
-  document.getElementById('recipes-section-title').textContent = t('savedRecipes');
-  document.getElementById('modal-title').textContent = t('logMeal');
-  document.getElementById('quick-add-label').textContent = t('quickAdd');
-  document.getElementById('meal-recipe-label').textContent = t('savedRecipe');
-  document.getElementById('meal-serving-label').textContent = t('servingG');
-  document.getElementById('apply-recipe').textContent = t('applyRecipe');
-  document.getElementById('meal-name-label').textContent = t('foodName');
-  document.getElementById('add-meal').textContent = t('addMeal');
-  document.getElementById('cancel-meal').textContent = t('cancel');
-  document.getElementById('recipe-modal-title').textContent = t('createRecipe');
-  document.getElementById('recipe-name-label').textContent = t('recipeName');
-  document.getElementById('recipe-total-weight-label').textContent = t('totalCookedWeight');
-  document.getElementById('recipe-total-weight-hint').textContent = t('totalCookedWeightHint');
-  document.getElementById('ingredient-builder-label').textContent = t('addIngredient');
-  document.getElementById('add-ingredient').textContent = t('addIngredient');
-  document.getElementById('save-recipe').textContent = t('saveRecipe');
-  document.getElementById('cancel-recipe').textContent = t('cancel');
+  document.documentElement.lang = currentLang;
+  document.title = t('appTitle');
+  document.querySelector('meta[name="description"]')?.setAttribute('content', t('appDescription'));
+  document.querySelector('meta[property="og:description"]')?.setAttribute('content', t('appDescription'));
+  document.querySelector('meta[property="og:title"]')?.setAttribute('content', t('appTitle'));
+  document.querySelector('meta[name="apple-mobile-web-app-title"]')?.setAttribute('content', t('appTitle'));
+
+  ui.langButtons.forEach((button) => button.classList.toggle('active', button.dataset.lang === currentLang));
+
+  const setText = (id, key, vars) => {
+    const node = document.getElementById(id);
+    if (node) node.textContent = t(key, vars);
+  };
+  const setHtml = (id, key, vars) => {
+    const node = document.getElementById(id);
+    if (node) node.innerHTML = t(key, vars);
+  };
+  const setAria = (id, key) => {
+    const node = document.getElementById(id);
+    if (node) node.setAttribute('aria-label', t(key));
+  };
+
+  setText('global-lang-label-1', 'languageToggle');
+  setText('global-lang-label-2', 'languageToggle');
+  setText('ob1-title', 'letsSetGoal');
+  setText('ob1-sub', 'letsSetGoalSub');
+  setText('ob-age-label', 'age');
+  setText('ob-sex-label', 'sex');
+  setText('sex-option-empty', 'selectOption');
+  setText('sex-option-male', 'male');
+  setText('sex-option-female', 'female');
+  setText('ob-height-label', 'height');
+  setAria('ob-h1', 'heightPrimaryLabel');
+  document.querySelector('[aria-label="Height units"]')?.setAttribute('aria-label', t('heightUnits'));
+  document.getElementById('ob-h2')?.setAttribute('aria-label', t('heightInchesLabel'));
+  setText('ob-weight-label', 'weight');
+  document.getElementById('ob-w')?.setAttribute('aria-label', t('weightValueLabel'));
+  setText('step1-next', 'continue');
+  setText('ob2-title', 'activityLevel');
+  setText('ob2-sub', 'typicalWeek');
+  setText('activity-1-title', 'sedentary');
+  setText('activity-1-sub', 'sedentarySub');
+  setText('activity-2-title', 'lightlyActive');
+  setText('activity-2-sub', 'lightlyActiveSub');
+  setText('activity-3-title', 'moderatelyActive');
+  setText('activity-3-sub', 'moderatelyActiveSub');
+  setText('activity-4-title', 'veryActive');
+  setText('activity-4-sub', 'veryActiveSub');
+  setText('activity-5-title', 'extremelyActive');
+  setText('activity-5-sub', 'extremelyActiveSub');
+  setText('step2-next', 'continue');
+  setText('step2-back', 'back');
+  setText('ob3-title', 'whatsYourGoal');
+  setText('ob3-sub', 'goalSub');
+  setText('goal-1-title', 'loseWeight');
+  setText('goal-1-sub', 'loseWeightSub');
+  setText('goal-2-title', 'maintain');
+  setText('goal-2-sub', 'maintainSub');
+  setText('goal-3-title', 'buildMuscle');
+  setText('goal-3-sub', 'buildMuscleSub');
+  setText('step3-finish', 'calculateMyGoal');
+  setText('step3-back', 'back');
+  setText('result-title', 'yourDailyTarget');
+  setText('result-sub', 'resultSub');
+  setText('result-kcal-unit', 'kcalPerDay');
+  setText('res-p-label', 'protein');
+  setText('res-c-label', 'carbs');
+  setText('res-f-label', 'fat');
+  setText('res-bmr-label', 'bmr');
+  setText('res-tdee-label', 'tdee');
+  setText('res-bmi-label', 'bmi');
+  setText('res-goal-label-text', 'goal');
+  setText('start-app', 'startTracking');
+  setAria('global-lang-toggle-onboarding', 'languageToggle');
+  setAria('global-lang-toggle-main', 'languageToggle');
+  setText('topbar-title', 'today');
+  setText('tab-btn-today', 'today');
+  setText('tab-btn-history', 'history');
+  setText('tab-btn-recipes', 'recipes');
+  setText('tab-btn-settings', 'profile');
+  document.querySelector('.tabs')?.setAttribute('aria-label', t('sections'));
+  setText('meals-section-title', 'meals');
+  setAria('open-modal', 'addMealAria');
+  setText('recipes-section-title', 'savedRecipes');
+  setAria('open-recipe-modal', 'addRecipeAria');
+  setText('modal-title', 'logMeal');
+  setText('quick-add-label', 'quickAdd');
+  setText('meal-recipe-label', 'savedRecipe');
+  setText('meal-serving-label', 'servingG');
+  setText('apply-recipe', 'applyRecipe');
+  setText('meal-name-label', 'foodName');
+  setText('add-meal', 'addMeal');
+  setText('cancel-meal', 'cancel');
+  setText('recipe-modal-title', 'createRecipe');
+  setText('recipe-name-label', 'recipeName');
+  setText('recipe-total-weight-label', 'totalCookedWeight');
+  setText('recipe-total-weight-hint', 'totalCookedWeightHint');
+  setText('ingredient-builder-label', 'ingredientBuilder');
+  setText('add-ingredient', 'addIngredient');
+  setText('save-recipe', 'saveRecipe');
+  setText('cancel-recipe', 'cancel');
   document.getElementById('meal-name').placeholder = t('mealPlaceholder');
   document.getElementById('recipe-name').placeholder = t('recipePlaceholder');
-  document.getElementById('ingredient-name').placeholder = t('ingredientPlaceholder');
+  document.getElementById('ingredient-name').placeholder = t('ingredientSearchPlaceholder');
   if (!ingredientLibrary.length) {
     ui.libraryMetaCard.textContent = t('loadingLibrary');
   }
-  ui.ingredientLibraryHint.textContent = DEFAULT_LIBRARY_HINT[currentLang];
+  ui.ingredientLibraryHint.textContent = t('ingredientLibraryHint');
+  renderRecipeOptions();
 }
 
 function sanitizeState(input) {
@@ -309,7 +459,7 @@ function sanitizeProfile(profile) {
     fat,
     activityFactor,
     goalAdj,
-    goalLabel: GOAL_LABELS[String(goalAdj)] || 'Custom',
+    goalLabel: goalLabel(goalAdj),
   };
 }
 
@@ -323,9 +473,9 @@ function sanitizeMeal(meal) {
   return {
     n: name,
     k: kcal,
-    p: clampInt(meal.p, 0, 400),
-    c: clampInt(meal.c, 0, 600),
-    f: clampInt(meal.f, 0, 300),
+    p: clampFloat(meal.p, 0, 400) ?? 0,
+    c: clampFloat(meal.c, 0, 600) ?? 0,
+    f: clampFloat(meal.f, 0, 300) ?? 0,
     emoji: String(meal.emoji || meal.e || '🍽️').slice(0, 2),
     recipeId: meal.recipeId ? String(meal.recipeId) : null,
     grams: clampFloat(meal.grams, 1, 5000),
@@ -334,17 +484,17 @@ function sanitizeMeal(meal) {
 
 function sanitizeIngredient(ingredient) {
   if (!ingredient || typeof ingredient !== 'object') return null;
-  const name = String(ingredient.name || '').trim().slice(0, 60);
+  const name = String(ingredient.name || '').trim().slice(0, 80);
   const grams = clampFloat(ingredient.grams, 1, 5000);
   if (!name || !grams) return null;
 
   return {
     name,
     grams,
-    kcal: clampInt(ingredient.kcal ?? ingredient.k, 0, 5000) ?? 0,
-    p: clampInt(ingredient.p, 0, 400) ?? 0,
-    c: clampInt(ingredient.c, 0, 600) ?? 0,
-    f: clampInt(ingredient.f, 0, 300) ?? 0,
+    kcal: clampFloat(ingredient.kcal ?? ingredient.k, 0, 5000) ?? 0,
+    p: clampFloat(ingredient.p, 0, 400) ?? 0,
+    c: clampFloat(ingredient.c, 0, 600) ?? 0,
+    f: clampFloat(ingredient.f, 0, 300) ?? 0,
   };
 }
 
@@ -378,14 +528,10 @@ async function loadIngredientLibrary() {
     const response = await fetch(INGREDIENT_LIBRARY_URL, { cache: 'force-cache' });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const raw = await response.json();
-    ingredientLibrary = Array.isArray(raw) ? raw.filter(Boolean).map((item) => ({
-      ...item,
-      nameRo: item.nameRo && !String(item.nameRo).startsWith('QUERY LENGTH LIMIT EXCEEDED') ? item.nameRo : item.name,
-    })) : [];
+    ingredientLibrary = Array.isArray(raw) ? raw.filter(Boolean).map(normalizeIngredientItem) : [];
     ingredientLibraryMap = new Map();
     ingredientLibrary.forEach((item) => {
-      ingredientLibraryMap.set(normalizeName(item.name), item);
-      if (item.nameRo) ingredientLibraryMap.set(normalizeName(item.nameRo), item);
+      getIngredientAliases(item).forEach((alias) => ingredientLibraryMap.set(normalizeName(alias), item));
     });
     renderIngredientLibraryOptions();
     renderLibraryMeta();
@@ -398,20 +544,39 @@ async function loadIngredientLibrary() {
   }
 }
 
+function normalizeIngredientItem(item) {
+  const safeRo = item.nameRo && !String(item.nameRo).startsWith('QUERY LENGTH LIMIT EXCEEDED') ? String(item.nameRo).trim() : '';
+  const name = String(item.name || '').trim();
+  return {
+    ...item,
+    name,
+    nameRo: safeRo || name,
+    caloriesPer100g: Number(item.caloriesPer100g || item.calories || 0),
+    proteinPer100g: Number(item.proteinPer100g || item.protein || 0),
+    carbsPer100g: Number(item.carbsPer100g || item.carbs || 0),
+    fatPer100g: Number(item.fatPer100g || item.fat || 0),
+    category: String(item.category || 'other'),
+  };
+}
+
 function displayIngredientName(item) {
   return currentLang === 'ro' && item.nameRo ? item.nameRo : item.name;
+}
+
+function getIngredientAliases(item) {
+  return Array.from(new Set([item.name, item.nameRo].filter(Boolean)));
 }
 
 function renderIngredientLibraryOptions() {
   const seen = new Set();
   const options = [];
   ingredientLibrary.forEach((item) => {
-    for (const label of [displayIngredientName(item), item.name, item.nameRo].filter(Boolean)) {
+    getIngredientAliases(item).forEach((label) => {
       const key = label.toLowerCase();
-      if (seen.has(key)) continue;
+      if (seen.has(key)) return;
       seen.add(key);
       options.push(`<option value="${escapeHtml(label)}"></option>`);
-    }
+    });
   });
   ui.ingredientLibraryOptions.innerHTML = options.join('');
 }
@@ -422,8 +587,11 @@ function renderLibraryMeta(message) {
     return;
   }
 
-  const count = ingredientLibrary.length.toLocaleString('en-GB');
-  ui.libraryMetaCard.innerHTML = t('libraryLoaded', { count: `<strong>${count}</strong>` });
+  const count = ingredientLibrary.length.toLocaleString(currentLang === 'ro' ? 'ro-RO' : 'en-GB');
+  ui.libraryMetaCard.innerHTML = `
+    <strong>${t('libraryLoaded', { count })}</strong>
+    <div class="library-meta-sub">${t('libraryLoadedDetail')}</div>
+  `;
 }
 
 function pruneHistory(history) {
@@ -435,6 +603,7 @@ function pruneHistory(history) {
 
 function showScreen(targetId) {
   ui.screens.forEach((screen) => screen.classList.toggle('active', screen.id === targetId));
+  ui.onboardingLangWrap?.classList.toggle('hidden', targetId === 's-main');
 }
 
 function selectCard(cards, activeCard, className) {
@@ -489,7 +658,7 @@ function calcAndFinish() {
   if (weightUnit === 'lb') weight *= 0.453592;
 
   const heightCm = heightUnit === 'ft'
-    ? heightPrimary * 30.48 + clampFloat(heightSecondary, 0, 11) * 2.54
+    ? heightPrimary * 30.48 + (clampFloat(heightSecondary, 0, 11) || 0) * 2.54
     : heightPrimary;
 
   if (heightCm < 80 || heightCm > 280 || weight < 20 || weight > 350) {
@@ -522,7 +691,7 @@ function calcAndFinish() {
     fat,
     activityFactor: selectedActivity,
     goalAdj: selectedGoalAdj,
-    goalLabel: GOAL_LABELS[String(selectedGoalAdj)] || 'Custom',
+    goalLabel: goalLabel(selectedGoalAdj),
   };
 
   saveState();
@@ -535,7 +704,7 @@ function renderResult(profile) {
   document.getElementById('res-bmr').textContent = `${profile.bmr} kcal`;
   document.getElementById('res-tdee').textContent = `${profile.tdee} kcal`;
   document.getElementById('res-bmi').textContent = profile.bmi;
-  document.getElementById('res-goal-label').textContent = profile.goalLabel;
+  document.getElementById('res-goal-label').textContent = goalLabel(profile.goalAdj);
   document.getElementById('res-p').textContent = `${profile.prot}g`;
   document.getElementById('res-c').textContent = `${profile.carb}g`;
   document.getElementById('res-f').textContent = `${profile.fat}g`;
@@ -563,7 +732,7 @@ function renderMain() {
   renderRecipes();
   renderSettings();
   renderStreak();
-  switchTab('today');
+  switchTab(document.querySelector('.tab.active')?.dataset.tab || 'today');
 }
 
 function todayKey(date = new Date()) {
@@ -605,9 +774,9 @@ function renderTotals() {
     { cls: 'f', label: t('fat'), value: fat, goal: profile.fat },
   ].map((item) => `
     <div class="mm-card ${item.cls}">
-      <div class="mm-val">${item.value}g</div>
+      <div class="mm-val">${formatNumber(item.value)}g</div>
       <div class="mm-bar-bg"><div class="mm-bar" style="width:${Math.min(item.value / Math.max(item.goal, 1), 1) * 100}%"></div></div>
-      <div class="mm-lbl">${item.label} / ${item.goal}g</div>
+      <div class="mm-lbl">${item.label} / ${formatNumber(item.goal)}g</div>
     </div>
   `).join('');
 }
@@ -629,10 +798,10 @@ function renderMeals() {
         <div class="meal-emoji">${emoji}</div>
         <div class="meal-info">
           <div class="meal-name">${name}</div>
-          <div class="meal-macros">P: ${meal.p}g · C: ${meal.c}g · F: ${meal.f}g${gramsNote}</div>
+          <div class="meal-macros">P: ${formatNumber(meal.p)}g · C: ${formatNumber(meal.c)}g · F: ${formatNumber(meal.f)}g${gramsNote}</div>
         </div>
-        <div class="meal-kcal">${meal.k}</div>
-        <button class="meal-del" type="button" data-del-index="${index}" aria-label="Delete ${name}">✕</button>
+        <div class="meal-kcal">${formatNumber(meal.k)}</div>
+        <button class="meal-del" type="button" data-del-index="${index}" aria-label="${escapeHtml(t('deleteMealAria', { name: meal.n }))}">✕</button>
       </div>
     `;
   }).join('');
@@ -670,19 +839,20 @@ function renderHistory() {
     const pct = Math.min(kcal / profile.goal, 1) * 100;
     const color = kcal > profile.goal ? '#f05a5a' : kcal > profile.goal * 0.9 ? '#5edfa8' : '#7c6af7';
     const label = key === todayKey() ? t('today') : formatHistoryDate(key);
+    const mealCountLabel = meals.length === 1 ? t('mealCount', { count: meals.length }) : t('mealCountPlural', { count: meals.length });
 
     return `
       <div class="history-item">
         <div class="hist-top">
           <span class="hist-date">${label}</span>
-          <span class="hist-kcal" style="color:${color}">${kcal} kcal</span>
+          <span class="hist-kcal" style="color:${color}">${formatNumber(kcal)} kcal</span>
         </div>
         <div class="hist-bar-bg"><div class="hist-bar" style="width:${pct}%;background:${color}"></div></div>
         <div class="hist-macros">
-          <span>P: <b>${protein}g</b></span>
-          <span>C: <b>${carbs}g</b></span>
-          <span>F: <b>${fat}g</b></span>
-          <span>${meals.length} meal${meals.length !== 1 ? 's' : ''}</span>
+          <span>P: <b>${formatNumber(protein)}g</b></span>
+          <span>C: <b>${formatNumber(carbs)}g</b></span>
+          <span>F: <b>${formatNumber(fat)}g</b></span>
+          <span>${mealCountLabel}</span>
         </div>
       </div>
     `;
@@ -700,17 +870,17 @@ function renderRecipes() {
     <div class="recipe-card">
       <div class="recipe-card-top">
         <div>
-          <div class="recipe-name">${escapeHtml(currentLang === 'ro' && recipe.nameRo ? recipe.nameRo : recipe.name)}</div>
+          <div class="recipe-name">${escapeHtml(recipe.name)}</div>
           <div class="recipe-meta">${t('ingredientsCount', { count: recipe.ingredients.length, weight: roundTo(recipe.totalWeight, 0) })}</div>
         </div>
-        <button class="meal-del" type="button" data-delete-recipe="${recipe.id}" aria-label="Delete ${escapeHtml(recipe.name)}">✕</button>
+        <button class="meal-del" type="button" data-delete-recipe="${recipe.id}" aria-label="${escapeHtml(t('deleteRecipeAria', { name: recipe.name }))}">✕</button>
       </div>
 
       <div class="recipe-macros-row">
-        <span>${recipe.per100.kcal} kcal</span>
-        <span>P ${recipe.per100.p}g</span>
-        <span>C ${recipe.per100.c}g</span>
-        <span>F ${recipe.per100.f}g</span>
+        <span>${formatNumber(recipe.per100.kcal)} kcal</span>
+        <span>P ${formatNumber(recipe.per100.p)}g</span>
+        <span>C ${formatNumber(recipe.per100.c)}g</span>
+        <span>F ${formatNumber(recipe.per100.f)}g</span>
         <span>${t('per100g')}</span>
       </div>
 
@@ -752,9 +922,9 @@ function renderSettings() {
     <div class="settings-wrap">
       <div class="setting-card">
         <h3>${t('yourStats')}</h3>
-        <div class="setting-row"><span>${t('age')}</span><span>${profile.age} yrs</span></div>
-        <div class="setting-row"><span>${t('height')}</span><span>${profile.heightCm} cm</span></div>
-        <div class="setting-row"><span>${t('weight')}</span><span>${profile.weightKg} kg</span></div>
+        <div class="setting-row"><span>${t('age')}</span><span>${profile.age} ${t('yearsSuffix')}</span></div>
+        <div class="setting-row"><span>${t('height')}</span><span>${profile.heightCm} ${t('cmSuffix')}</span></div>
+        <div class="setting-row"><span>${t('weight')}</span><span>${profile.weightKg} ${t('kgSuffix')}</span></div>
         <div class="setting-row"><span>${t('bmi')}</span><span>${profile.bmi}</span></div>
       </div>
 
@@ -763,7 +933,7 @@ function renderSettings() {
         <div class="setting-row"><span>${t('bmr')}</span><span>${profile.bmr} kcal</span></div>
         <div class="setting-row"><span>${t('tdee')}</span><span>${profile.tdee} kcal</span></div>
         <div class="setting-row"><span>${t('dailyGoal')}</span><span>${profile.goal} kcal</span></div>
-        <div class="setting-row"><span>${t('goalType')}</span><span>${profile.goalLabel}</span></div>
+        <div class="setting-row"><span>${t('goalType')}</span><span>${goalLabel(profile.goalAdj)}</span></div>
       </div>
 
       <div class="setting-card">
@@ -776,6 +946,11 @@ function renderSettings() {
       <div class="setting-card">
         <h3>${t('about')}</h3>
         <p class="help-copy">${t('aboutText')}</p>
+      </div>
+
+      <div class="setting-card">
+        <h3>${t('dataSourceLabel')}</h3>
+        <p class="help-copy">${t('dataSourceText')}</p>
       </div>
 
       <button class="btn-ghost" id="reset-app" type="button" style="color:#f05a5a;border-color:#f05a5a33;">${t('resetStartOver')}</button>
@@ -803,7 +978,7 @@ function switchTab(tabName) {
 
 function renderQuickFoods() {
   ui.quickFoods.innerHTML = QUICK_FOODS.map((food, index) => `
-    <button class="quick-chip" type="button" data-quick-index="${index}">${food.e} ${escapeHtml(food.n)}</button>
+    <button class="quick-chip" type="button" data-quick-index="${index}">${food.e} ${escapeHtml(food.name[currentLang] || food.name.en)}</button>
   `).join('');
 
   ui.quickFoods.querySelectorAll('[data-quick-index]').forEach((button) => {
@@ -813,7 +988,7 @@ function renderQuickFoods() {
 
 function renderRecipeOptions() {
   ui.recipeSelect.innerHTML = [`<option value="">${escapeHtml(t('noneManual'))}</option>`]
-    .concat(state.recipes.map((recipe) => `<option value="${recipe.id}">${escapeHtml(currentLang === 'ro' && recipe.nameRo ? recipe.nameRo : recipe.name)}</option>`))
+    .concat(state.recipes.map((recipe) => `<option value="${recipe.id}">${escapeHtml(recipe.name)}</option>`))
     .join('');
 }
 
@@ -848,7 +1023,7 @@ function closeRecipeModal() {
   ['recipe-name', 'recipe-total-weight', 'ingredient-name', 'ingredient-grams', 'ingredient-kcal', 'ingredient-p', 'ingredient-c', 'ingredient-f'].forEach((id) => {
     document.getElementById(id).value = '';
   });
-  ui.ingredientLibraryHint.textContent = DEFAULT_LIBRARY_HINT[currentLang];
+  ui.ingredientLibraryHint.textContent = t('ingredientLibraryHint');
   renderRecipeDraft();
 }
 
@@ -857,7 +1032,7 @@ function fillQuick(index) {
   if (!food) return;
   ui.recipeSelect.value = '';
   ui.recipePreview.classList.add('hidden');
-  document.getElementById('meal-name').value = food.n;
+  document.getElementById('meal-name').value = food.name[currentLang] || food.name.en;
   document.getElementById('meal-kcal').value = food.k;
   document.getElementById('meal-p').value = food.p;
   document.getElementById('meal-c').value = food.c;
@@ -885,8 +1060,8 @@ function updateMealRecipePreview() {
   const macros = calculateRecipeServing(recipe, grams);
   ui.recipePreview.classList.remove('hidden');
   ui.recipePreview.innerHTML = `
-    <div><strong>${escapeHtml(currentLang === 'ro' && recipe.nameRo ? recipe.nameRo : recipe.name)}</strong> · ${roundTo(grams, 0)}g</div>
-    <div class="recipe-preview-line">${macros.k} kcal · P ${macros.p}g · C ${macros.c}g · F ${macros.f}g</div>
+    <div><strong>${escapeHtml(recipe.name)}</strong> · ${roundTo(grams, 0)}g</div>
+    <div class="recipe-preview-line">${formatNumber(macros.k)} kcal · P ${formatNumber(macros.p)}g · C ${formatNumber(macros.c)}g · F ${formatNumber(macros.f)}g</div>
   `;
 }
 
@@ -903,7 +1078,7 @@ function applySelectedRecipeToMeal() {
   }
 
   const macros = calculateRecipeServing(recipe, grams);
-  document.getElementById('meal-name').value = displayIngredientName({ name: recipe.name, nameRo: recipe.nameRo || recipe.name });
+  document.getElementById('meal-name').value = recipe.name;
   document.getElementById('meal-kcal').value = macros.k;
   document.getElementById('meal-p').value = macros.p;
   document.getElementById('meal-c').value = macros.c;
@@ -952,19 +1127,41 @@ function addMeal() {
 function maybeApplyIngredientLibrary() {
   const name = document.getElementById('ingredient-name').value;
   const grams = clampFloat(document.getElementById('ingredient-grams').value, 1, 5000);
-  const item = findIngredientByName(name);
+  const match = findIngredientByName(name);
 
-  if (!item) {
-    ui.ingredientLibraryHint.textContent = DEFAULT_LIBRARY_HINT[currentLang];
+  if (!match) {
+    ui.ingredientLibraryHint.textContent = name.trim() ? t('ingredientNoMatch') : t('ingredientLibraryHint');
     return;
   }
 
-  const calories = grams ? Math.round((item.caloriesPer100g || 0) * grams / 100) : item.caloriesPer100g;
-  document.getElementById('ingredient-kcal').value = calories ? String(calories) : '';
-  ui.ingredientLibraryHint.textContent = `${displayIngredientName(item)} · ${item.caloriesPer100g} kcal / 100g · ${item.category.replaceAll('-', ' ')}`;
+  applyIngredientMacros(match, grams);
+}
+
+function applyIngredientMacros(item, grams) {
+  const factor = grams ? grams / 100 : 1;
+  const kcal = roundMacroValue(item.caloriesPer100g * factor, 0);
+  const p = roundMacroValue(item.proteinPer100g * factor, 1);
+  const c = roundMacroValue(item.carbsPer100g * factor, 1);
+  const f = roundMacroValue(item.fatPer100g * factor, 1);
+
+  document.getElementById('ingredient-kcal').value = String(kcal);
+  document.getElementById('ingredient-p').value = formatFieldNumber(p);
+  document.getElementById('ingredient-c').value = formatFieldNumber(c);
+  document.getElementById('ingredient-f').value = formatFieldNumber(f);
+  ui.ingredientLibraryHint.textContent = t('ingredientMatched', {
+    name: displayIngredientName(item),
+    kcal: formatNumber(item.caloriesPer100g),
+    p: formatNumber(item.proteinPer100g),
+    c: formatNumber(item.carbsPer100g),
+    f: formatNumber(item.fatPer100g),
+    category: humanizeCategory(item.category),
+  });
 }
 
 function addIngredientToDraft() {
+  const item = findIngredientByName(document.getElementById('ingredient-name').value);
+  if (item) applyIngredientMacros(item, clampFloat(document.getElementById('ingredient-grams').value, 1, 5000));
+
   const ingredient = sanitizeIngredient({
     name: document.getElementById('ingredient-name').value,
     grams: document.getElementById('ingredient-grams').value,
@@ -983,7 +1180,7 @@ function addIngredientToDraft() {
   ['ingredient-name', 'ingredient-grams', 'ingredient-kcal', 'ingredient-p', 'ingredient-c', 'ingredient-f'].forEach((id) => {
     document.getElementById(id).value = '';
   });
-  ui.ingredientLibraryHint.textContent = DEFAULT_LIBRARY_HINT[currentLang];
+  ui.ingredientLibraryHint.textContent = t('ingredientLibraryHint');
   renderRecipeDraft();
 }
 
@@ -1006,7 +1203,7 @@ function renderRecipeDraft() {
           <button class="meal-del" type="button" data-remove-ingredient="${index}">✕</button>
         </div>
       `;}).join('')}
-      <div class="recipe-draft-totals">${t('currentTotals', { kcal: totals.kcal, p: totals.p, c: totals.c, f: totals.f })}</div>
+      <div class="recipe-draft-totals">${t('currentTotals', { kcal: formatNumber(totals.kcal), p: formatNumber(totals.p), c: formatNumber(totals.c), f: formatNumber(totals.f) })}</div>
     </div>
   `;
 
@@ -1068,10 +1265,10 @@ function getRecipeById(recipeId) {
 
 function sumIngredientMacros(ingredients) {
   return ingredients.reduce((acc, ingredient) => ({
-    kcal: acc.kcal + (ingredient.kcal || 0),
-    p: acc.p + (ingredient.p || 0),
-    c: acc.c + (ingredient.c || 0),
-    f: acc.f + (ingredient.f || 0),
+    kcal: acc.kcal + (Number(ingredient.kcal) || 0),
+    p: acc.p + (Number(ingredient.p) || 0),
+    c: acc.c + (Number(ingredient.c) || 0),
+    f: acc.f + (Number(ingredient.f) || 0),
   }), { kcal: 0, p: 0, c: 0, f: 0 });
 }
 
@@ -1096,7 +1293,7 @@ function calculateRecipeServing(recipe, grams) {
 }
 
 function resetApp() {
-  const confirmed = window.confirm('Reset all local data and start over?');
+  const confirmed = window.confirm(t('resetConfirm'));
   if (!confirmed) return;
 
   localStorage.removeItem(STORAGE_KEY);
@@ -1130,7 +1327,11 @@ function clampFloat(value, min, max) {
 }
 
 function roundTo(value, decimals) {
-  return Number(value.toFixed(decimals));
+  return Number(Number(value).toFixed(decimals));
+}
+
+function roundMacroValue(value, decimals) {
+  return decimals === 0 ? Math.round(value) : roundTo(value, decimals);
 }
 
 function formatLongDate(date) {
@@ -1160,7 +1361,36 @@ function normalizeName(value) {
 }
 
 function findIngredientByName(name) {
-  return ingredientLibraryMap.get(normalizeName(name)) || null;
+  const normalized = normalizeName(name);
+  if (!normalized) return null;
+  if (ingredientLibraryMap.has(normalized)) return ingredientLibraryMap.get(normalized) || null;
+
+  const startsWithMatches = ingredientLibrary.filter((item) => getIngredientAliases(item).some((alias) => normalizeName(alias).startsWith(normalized)));
+  if (startsWithMatches.length === 1) return startsWithMatches[0];
+
+  const containsMatches = ingredientLibrary.filter((item) => getIngredientAliases(item).some((alias) => normalizeName(alias).includes(normalized)));
+  if (containsMatches.length === 1) return containsMatches[0];
+
+  return null;
+}
+
+function goalLabel(goalAdj) {
+  return GOAL_LABELS[String(goalAdj)]?.[currentLang] || GOAL_LABELS[String(goalAdj)]?.en || 'Custom';
+}
+
+function humanizeCategory(category) {
+  return String(category || '')
+    .replaceAll('-', ' ')
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+function formatNumber(value) {
+  return Number(value || 0).toLocaleString(currentLang === 'ro' ? 'ro-RO' : 'en-GB', { maximumFractionDigits: 1 });
+}
+
+function formatFieldNumber(value) {
+  if (!Number.isFinite(Number(value))) return '';
+  return Number.isInteger(Number(value)) ? String(Number(value)) : String(Number(value).toFixed(1));
 }
 
 function showToast(message) {

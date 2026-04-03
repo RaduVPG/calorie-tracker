@@ -52,6 +52,26 @@ button {
   min-height: 100vh;
   max-width: 420px;
   margin: 0 auto;
+  position: relative;
+}
+
+.global-lang-wrap {
+  position: fixed;
+  top: calc(12px + env(safe-area-inset-top));
+  right: 16px;
+  z-index: 20;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.global-lang-label {
+  font-size: 11px;
+  color: var(--c-muted);
+}
+
+.topbar-lang-label {
+  display: none;
 }
 
 .screen {
@@ -67,6 +87,10 @@ button {
 
 .main-screen {
   padding: 0;
+}
+
+.global-lang-wrap.hidden {
+  display: none;
 }
 
 .ob-header {
@@ -500,6 +524,12 @@ select option {
   gap: 8px;
 }
 
+.lang-toggle-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .lang-toggle {
   display: inline-flex;
   border: 1px solid var(--c-border);
@@ -595,6 +625,13 @@ select option {
   padding: 14px;
   font-size: 13px;
   color: var(--c-muted);
+}
+
+.library-meta-sub {
+  margin-top: 6px;
+  color: var(--c-muted);
+  font-size: 13px;
+  line-height: 1.5;
 }
 
 .section-header {
