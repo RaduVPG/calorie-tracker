@@ -1712,6 +1712,13 @@ function saveMealFromModal() {
   showToast(t(isEditing ? 'mealUpdated' : 'mealSaved'));
 }
 
+function setIngredientMacroFields(kcal = 0, p = 0, c = 0, f = 0) {
+  document.getElementById('ingredient-kcal').value = String(kcal);
+  document.getElementById('ingredient-p').value = formatFieldNumber(p);
+  document.getElementById('ingredient-c').value = formatFieldNumber(c);
+  document.getElementById('ingredient-f').value = formatFieldNumber(f);
+}
+
 function maybeApplyIngredientLibrary() {
   const name = document.getElementById('ingredient-name').value;
   const grams = clampFloat(document.getElementById('ingredient-grams').value, 1, 5000);
@@ -1719,6 +1726,7 @@ function maybeApplyIngredientLibrary() {
   updateFavoriteToggleButton();
 
   if (!match) {
+    if (!name.trim() || !grams) setIngredientMacroFields(0, 0, 0, 0);
     ui.ingredientLibraryHint.textContent = name.trim() ? t('ingredientNoMatch') : t('ingredientLibraryHint');
     return;
   }
@@ -1727,16 +1735,27 @@ function maybeApplyIngredientLibrary() {
 }
 
 function applyIngredientMacros(item, grams) {
-  const factor = grams ? grams / 100 : 1;
+  if (!grams) {
+    setIngredientMacroFields(0, 0, 0, 0);
+    ui.ingredientLibraryHint.textContent = t('ingredientMatched', {
+      name: displayIngredientName(item),
+      kcal: formatNumber(item.caloriesPer100g),
+      p: formatNumber(item.proteinPer100g),
+      c: formatNumber(item.carbsPer100g),
+      f: formatNumber(item.fatPer100g),
+      category: humanizeCategory(item.category),
+    });
+    updateFavoriteToggleButton();
+    return;
+  }
+
+  const factor = grams / 100;
   const kcal = roundMacroValue(item.caloriesPer100g * factor, 0);
   const p = roundMacroValue(item.proteinPer100g * factor, 1);
   const c = roundMacroValue(item.carbsPer100g * factor, 1);
   const f = roundMacroValue(item.fatPer100g * factor, 1);
 
-  document.getElementById('ingredient-kcal').value = String(kcal);
-  document.getElementById('ingredient-p').value = formatFieldNumber(p);
-  document.getElementById('ingredient-c').value = formatFieldNumber(c);
-  document.getElementById('ingredient-f').value = formatFieldNumber(f);
+  setIngredientMacroFields(kcal, p, c, f);
   ui.ingredientLibraryHint.textContent = t('ingredientMatched', {
     name: displayIngredientName(item),
     kcal: formatNumber(item.caloriesPer100g),
@@ -1744,7 +1763,7 @@ function applyIngredientMacros(item, grams) {
     c: formatNumber(item.carbsPer100g),
     f: formatNumber(item.fatPer100g),
     category: humanizeCategory(item.category),
-  }) + (grams ? ` · ${formatNumber(grams)}g → ${formatNumber(kcal)} kcal / P ${formatNumber(p)}g / C ${formatNumber(c)}g / F ${formatNumber(f)}g` : '');
+  }) + ` · ${formatNumber(grams)}g → ${formatNumber(kcal)} kcal / P ${formatNumber(p)}g / C ${formatNumber(c)}g / F ${formatNumber(f)}g`;
   updateFavoriteToggleButton();
 }
 
