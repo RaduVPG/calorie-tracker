@@ -1588,9 +1588,12 @@ function openRecipeModal(recipeId = null) {
 }
 
 function clearRecipeBuilderFields() {
-  ['ingredient-name', 'ingredient-grams', 'ingredient-kcal', 'ingredient-p', 'ingredient-c', 'ingredient-f'].forEach((id) => {
-    document.getElementById(id).value = '';
-  });
+  document.getElementById('ingredient-name').value = '';
+  document.getElementById('ingredient-grams').value = '0';
+  document.getElementById('ingredient-kcal').value = '0';
+  document.getElementById('ingredient-p').value = '0';
+  document.getElementById('ingredient-c').value = '0';
+  document.getElementById('ingredient-f').value = '0';
   updateFavoriteToggleButton();
 }
 
