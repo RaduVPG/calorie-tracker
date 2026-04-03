@@ -1435,7 +1435,6 @@ function renderRecipes() {
       <div class="recipe-card-top">
         <div>
           <div class="recipe-name">${escapeHtml(recipe.name)}</div>
-          <div class="recipe-meta">${t('ingredientsCount', { count: recipe.ingredients.length, weight: roundTo(recipe.totalWeight, 0) })}</div>
         </div>
         <div class="item-actions-row">
           <button class="icon-btn" type="button" data-edit-recipe="${recipe.id}" aria-label="${escapeHtml(t('editRecipeAria', { name: recipe.name }))}">✎</button>
