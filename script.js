@@ -740,7 +740,7 @@ async function hydratePersistentProfile() {
     const parsed = sanitizeProfile(typeof raw === 'string' ? JSON.parse(raw) : raw);
     if (parsed) {
       state.profile = parsed;
-      saveState();
+      await saveState();
     }
   } catch {}
 }
@@ -1004,13 +1004,14 @@ function sanitizeRecipe(recipe) {
   };
 }
 
-function saveState() {
+async function saveState() {
   pruneHistory(state.history);
   persistProfileFallback();
+  await idbSet(STATE_IDB_KEY, JSON.stringify(state));
   if (state?.profile) {
-    void idbSet(PROFILE_IDB_KEY, JSON.stringify(state.profile));
+    await idbSet(PROFILE_IDB_KEY, JSON.stringify(state.profile));
   } else {
-    void idbDelete(PROFILE_IDB_KEY);
+    await idbDelete(PROFILE_IDB_KEY);
   }
   const ok = safeSetLocalStorage(STORAGE_KEY, JSON.stringify(state));
   if (!ok) {
@@ -1714,7 +1715,7 @@ function applySelectedRecipeToMeal() {
   updateMealRecipePreview();
 }
 
-function saveMealFromModal() {
+async function saveMealFromModal() {
   const selectedRecipe = getRecipeById(ui.recipeSelect.value);
   const grams = clampFloat(ui.recipeGrams.value, 1, 3000);
 
@@ -1969,7 +1970,7 @@ function getFavoriteIngredientItems() {
     .sort((a, b) => a.label.localeCompare(b.label, currentLang === 'ro' ? 'ro' : 'en'));
 }
 
-function toggleCurrentIngredientFavorite() {
+async function toggleCurrentIngredientFavorite() {
   const rawName = document.getElementById('ingredient-name').value;
   const match = findIngredientByName(rawName);
   const name = match?.name || rawName;
@@ -1981,7 +1982,7 @@ function toggleCurrentIngredientFavorite() {
   if (hadFavorite) favorites.delete(normalized);
   else favorites.add(normalized);
   state.favoriteIngredients = Array.from(favorites);
-  saveState();
+  await saveState();
   renderFavoriteIngredients();
   updateFavoriteToggleButton();
   showToast(t(hadFavorite ? 'ingredientUnfavorited' : 'ingredientFavorited', { name: match ? displayIngredientName(match) : rawName.trim() }));
