@@ -301,10 +301,13 @@ select option {
 
 .hidden-row,
 .hidden,
-.tab-content,
 .modal-overlay.hidden,
 .toast.hidden {
   display: none !important;
+}
+
+.tab-content {
+  display: none;
 }
 
 .result-shell {
