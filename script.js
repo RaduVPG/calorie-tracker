@@ -1425,23 +1425,11 @@ function renderRecipes() {
       </div>
 
       <div class="recipe-macros-row">
-        <span>${formatNumber(recipe.per100.kcal)} kcal</span>
-        <span>P ${formatNumber(recipe.per100.p)}g</span>
-        <span>C ${formatNumber(recipe.per100.c)}g</span>
-        <span>F ${formatNumber(recipe.per100.f)}g</span>
-        <span>${t('per100g')}</span>
+        <span>${formatNumber(recipe.per100.kcal)} kcal ${t('per100g')}</span>
+        <span>${t('proteinWord')} ${formatNumber(recipe.per100.p)}g</span>
+        <span>${t('carbsWord')} ${formatNumber(recipe.per100.c)}g</span>
+        <span>${t('fatWord')} ${formatNumber(recipe.per100.f)}g</span>
       </div>
-
-      <div class="recipe-ingredients">${recipe.ingredients.map((ingredient) => {
-        const lib = findIngredientByName(ingredient.name);
-        const ingName = lib ? displayIngredientName(lib) : ingredient.name;
-        const favorite = isFavoriteIngredient(ingredient.name);
-        return `
-        <div class="ingredient-row">
-          <span>${favorite ? '★ ' : ''}${escapeHtml(ingName)}</span>
-          <span>${roundTo(ingredient.grams, 0)}g</span>
-        </div>
-      `;}).join('')}</div>
     </div>
   `).join('');
 
