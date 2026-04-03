@@ -1602,8 +1602,10 @@ function closeRecipeModal() {
   ui.recipeModal.setAttribute('aria-hidden', 'true');
   recipeDraftIngredients = [];
   recipeEditId = null;
-  ['recipe-name', 'recipe-total-weight', 'ingredient-name', 'ingredient-grams', 'ingredient-kcal', 'ingredient-p', 'ingredient-c', 'ingredient-f'].forEach((id) => {
-    document.getElementById(id).value = '';
+  document.getElementById('recipe-name').value = '';
+  document.getElementById('recipe-total-weight').value = '0';
+  ['ingredient-name', 'ingredient-grams', 'ingredient-kcal', 'ingredient-p', 'ingredient-c', 'ingredient-f'].forEach((id) => {
+    document.getElementById(id).value = id === 'ingredient-name' ? '' : '0';
   });
   ui.ingredientLibraryHint.textContent = t('ingredientLibraryHint');
   renderRecipeDraft();
