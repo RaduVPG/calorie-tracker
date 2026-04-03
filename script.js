@@ -511,7 +511,10 @@ function bindEvents() {
   document.getElementById('apply-recipe').addEventListener('click', applySelectedRecipeToMeal);
 
   document.getElementById('ingredient-name').addEventListener('input', maybeApplyIngredientLibrary);
+  document.getElementById('ingredient-name').addEventListener('change', maybeApplyIngredientLibrary);
   document.getElementById('ingredient-grams').addEventListener('input', maybeApplyIngredientLibrary);
+  document.getElementById('ingredient-grams').addEventListener('change', maybeApplyIngredientLibrary);
+  document.getElementById('ingredient-grams').addEventListener('blur', maybeApplyIngredientLibrary);
   ui.toggleIngredientFavorite?.addEventListener('click', toggleCurrentIngredientFavorite);
   ui.langButtons.forEach((button) => button.addEventListener('click', () => setLanguage(button.dataset.lang)));
   ui.recipeSelect.addEventListener('change', handleMealRecipeSelection);
@@ -1741,13 +1744,14 @@ function applyIngredientMacros(item, grams) {
     c: formatNumber(item.carbsPer100g),
     f: formatNumber(item.fatPer100g),
     category: humanizeCategory(item.category),
-  });
+  }) + (grams ? ` · ${formatNumber(grams)}g → ${formatNumber(kcal)} kcal / P ${formatNumber(p)}g / C ${formatNumber(c)}g / F ${formatNumber(f)}g` : '');
   updateFavoriteToggleButton();
 }
 
 function addIngredientToDraft() {
   const item = findIngredientByName(document.getElementById('ingredient-name').value);
-  if (item) applyIngredientMacros(item, clampFloat(document.getElementById('ingredient-grams').value, 1, 5000));
+  const grams = clampFloat(document.getElementById('ingredient-grams').value, 1, 5000);
+  if (item) applyIngredientMacros(item, grams);
 
   const ingredient = sanitizeIngredient({
     name: document.getElementById('ingredient-name').value,
