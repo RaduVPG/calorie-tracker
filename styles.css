@@ -615,7 +615,8 @@ select option {
 
 #tab-history,
 #tab-recipes,
-#tab-settings {
+#tab-settings,
+#tab-help {
   padding: 0 20px calc(32px + env(safe-area-inset-bottom));
 }
 
@@ -892,6 +893,42 @@ select option {
 .help-copy,
 .setting-hint {
   line-height: 1.5;
+}
+
+.help-wrap {
+  padding-top: 14px;
+}
+
+.help-hero-card,
+.help-step-card,
+.help-tips-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.help-hero-card::before,
+.help-step-card::before,
+.help-tips-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: linear-gradient(180deg, var(--c-accent), var(--c-accent2));
+  opacity: 0.9;
+}
+
+.help-hero-card h3,
+.help-step-card h3,
+.help-tips-card h3 {
+  margin-bottom: 10px;
+  padding-left: 12px;
+}
+
+.help-hero-card .help-copy,
+.help-step-card .help-copy,
+.help-tips-card .help-copy {
+  padding-left: 12px;
+  font-size: 13px;
 }
 
 .linkish-btn {

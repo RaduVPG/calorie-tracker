@@ -11,6 +11,7 @@ It runs entirely in the browser, stores data in `localStorage`, and can be deplo
 - daily meal logging with calories, protein, carbs, and fat
 - recipe builder with offline ingredient lookup and macro autofill per 100g / serving
 - local history view with streak tracking
+- in-app Help tab with a bilingual walkthrough for onboarding, meal logging, recipes, ingredient search/favorites, and history/profile flows
 - privacy-friendly: no login, no server, no cloud sync
 
 ## Tech

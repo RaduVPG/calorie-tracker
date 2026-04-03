@@ -312,7 +312,7 @@ const I18N = {
   en: {
     appTitle: 'CalTrack',
     appDescription: 'CalTrack is a private, offline-first calorie and macro tracker that runs entirely in your browser.',
-    today: 'Today', history: 'History', recipes: 'Recipes', profile: 'Profile', meals: 'Meals', savedRecipes: 'Saved recipes',
+    today: 'Today', history: 'History', recipes: 'Recipes', profile: 'Profile', help: 'Help', meals: 'Meals', savedRecipes: 'Saved recipes',
     letsSetGoal: 'Let’s set your goal',
     letsSetGoalSub: 'We’ll calculate a personal daily calorie target using your stats and activity level.',
     age: 'Age', sex: 'Sex', selectOption: 'Select…', male: 'Male', female: 'Female',
@@ -346,6 +346,13 @@ const I18N = {
     mealsEmpty: 'No meals logged yet. Tap + to add one.', historyEmpty: 'No history yet.', recipesEmpty: 'No saved recipes yet. Tap + to build one from ingredients.',
     recipeDraftEmpty: 'No ingredients added yet.', days: 'days', day: 'day', remaining: 'remaining', over: 'over',
     yourStats: 'Your stats', calorieTargets: 'Calorie targets', macroTargets: 'Macro targets', about: 'About',
+    helpTitle: 'How to use CalTrack', helpIntro: 'A quick walkthrough of the main flows so you can start logging fast without guessing.',
+    helpStep1Title: '1. Set your profile and goal', helpStep1Body: 'Complete the onboarding once with age, sex, height, weight, activity, and your goal. CalTrack uses this to calculate your daily calories plus protein, carbs, and fat targets.',
+    helpStep2Title: '2. Log meals from Today', helpStep2Body: 'Open the Today tab and tap + to add a meal. You can quick-add common foods, enter macros manually, or apply a saved recipe by grams.',
+    helpStep3Title: '3. Build recipes once, reuse them later', helpStep3Body: 'In Recipes, tap + to create a recipe, add ingredients, and enter the final cooked weight. After saving, you can log that recipe in seconds from the meal screen.',
+    helpStep4Title: '4. Use ingredient search and favorites', helpStep4Body: 'When building a recipe, start typing an ingredient in English or Romanian. CalTrack auto-fills values from the offline library. Star ingredients you use often so they stay one tap away.',
+    helpStep5Title: '5. Check history and profile', helpStep5Body: 'History shows past days and macros, while Profile keeps your targets and stats in one place. If your body weight or goal changes, reset and set up again with the new numbers.',
+    helpTipsTitle: 'Helpful tips', helpTipsBody: 'Data stays only on this device/browser. Recipes scale by grams, so weighing cooked food gives the most reliable logs. Use favorites for repeat ingredients and recipes for repeat meals.',
     aboutText: 'Your data stays in this browser only. There is no account, backend, or cloud sync in this version.',
     dataSourceLabel: 'Food data source',
     dataSourceText: 'Offline calories.info library bundled as JSON with kcal, protein, carbs, and fat per 100g.',
@@ -374,7 +381,7 @@ const I18N = {
   ro: {
     appTitle: 'CalTrack',
     appDescription: 'CalTrack este un tracker privat, offline-first, pentru calorii și macronutrienți, care rulează complet în browser.',
-    today: 'Astăzi', history: 'Istoric', recipes: 'Rețete', profile: 'Profil', meals: 'Mese', savedRecipes: 'Rețete salvate',
+    today: 'Astăzi', history: 'Istoric', recipes: 'Rețete', profile: 'Profil', help: 'Ajutor', meals: 'Mese', savedRecipes: 'Rețete salvate',
     letsSetGoal: 'Hai să-ți setăm obiectivul',
     letsSetGoalSub: 'Îți calculăm o țintă personală zilnică de calorii pe baza datelor și a nivelului de activitate.',
     age: 'Vârstă', sex: 'Sex', selectOption: 'Selectează…', male: 'Bărbat', female: 'Femeie',
@@ -408,6 +415,13 @@ const I18N = {
     mealsEmpty: 'Nu ai mese adăugate încă. Apasă + ca să adaugi una.', historyEmpty: 'Încă nu există istoric.', recipesEmpty: 'Nu ai rețete salvate încă. Apasă + ca să construiești una din ingrediente.',
     recipeDraftEmpty: 'Nu ai adăugat încă niciun ingredient.', days: 'zile', day: 'zi', remaining: 'rămase', over: 'peste',
     yourStats: 'Datele tale', calorieTargets: 'Ținte calorice', macroTargets: 'Ținte macronutrienți', about: 'Despre',
+    helpTitle: 'Cum folosești CalTrack', helpIntro: 'Un ghid scurt pentru fluxurile principale, ca să începi rapid fără să bâjbâi.',
+    helpStep1Title: '1. Setează profilul și obiectivul', helpStep1Body: 'Completează onboardingul o singură dată cu vârstă, sex, înălțime, greutate, activitate și obiectiv. CalTrack folosește aceste date pentru a calcula ținta zilnică de calorii plus proteine, carbohidrați și grăsimi.',
+    helpStep2Title: '2. Adaugă mesele din Astăzi', helpStep2Body: 'Deschide tabul Astăzi și apasă + ca să adaugi o masă. Poți folosi adăugarea rapidă, poți introduce manual macronutrienții sau poți aplica o rețetă salvată în funcție de grame.',
+    helpStep3Title: '3. Creează rețete o dată, refolosește-le apoi', helpStep3Body: 'În Rețete, apasă + ca să creezi o rețetă, adaugă ingredientele și introdu greutatea finală gătită. După salvare, poți loga rețeta în câteva secunde din ecranul de masă.',
+    helpStep4Title: '4. Folosește căutarea de ingrediente și favoritele', helpStep4Body: 'Când construiești o rețetă, începe să scrii un ingredient în engleză sau română. CalTrack completează automat valorile din biblioteca offline. Pune stea ingredientelor folosite des ca să le ai la un tap distanță.',
+    helpStep5Title: '5. Verifică istoricul și profilul', helpStep5Body: 'Istoric arată zilele trecute și macronutrienții, iar Profil păstrează la un loc țintele și datele tale. Dacă ți se schimbă greutatea sau obiectivul, resetează și configurează din nou cu noile valori.',
+    helpTipsTitle: 'Sfaturi utile', helpTipsBody: 'Datele rămân doar pe acest device/browser. Rețetele se scalează după grame, deci cântărirea alimentelor gătite oferă cele mai bune loguri. Folosește favorite pentru ingrediente repetate și rețete pentru mesele recurente.',
     aboutText: 'Datele tale rămân doar în acest browser. Nu există cont, backend sau sincronizare în cloud în această versiune.',
     dataSourceLabel: 'Sursa datelor alimentare',
     dataSourceText: 'Bibliotecă offline calories.info inclusă ca JSON cu kcal, proteine, carbohidrați și grăsimi per 100g.',
@@ -465,6 +479,7 @@ const ui = {
   recipesList: document.getElementById('recipes-list'),
   libraryMetaCard: document.getElementById('library-meta-card'),
   settingsTab: document.getElementById('tab-settings'),
+  helpTab: document.getElementById('tab-help'),
   quickFoods: document.getElementById('quick-foods'),
   mealModal: document.getElementById('modal'),
   recipeModal: document.getElementById('recipe-modal'),
@@ -831,6 +846,7 @@ function applyTranslations() {
   setText('tab-btn-history', 'history');
   setText('tab-btn-recipes', 'recipes');
   setText('tab-btn-settings', 'profile');
+  setText('tab-btn-help', 'help');
   document.querySelector('.tabs')?.setAttribute('aria-label', t('sections'));
   setText('meals-section-title', 'meals');
   setAria('open-modal', 'addMealAria');
@@ -1237,6 +1253,7 @@ function renderMain() {
   renderHistory();
   renderRecipes();
   renderSettings();
+  renderHelp();
   renderStreak();
   renderFavoriteIngredients();
   switchTab(document.querySelector('.tab.active')?.dataset.tab || 'today');
@@ -1496,6 +1513,30 @@ function switchTab(tabName) {
   if (tabName === 'history') renderHistory();
   if (tabName === 'recipes') renderRecipes();
   if (tabName === 'settings') renderSettings();
+  if (tabName === 'help') renderHelp();
+}
+
+function renderHelp() {
+  ui.helpTab.innerHTML = `
+    <div class="settings-wrap help-wrap">
+      <div class="setting-card help-hero-card">
+        <h3>${t('helpTitle')}</h3>
+        <p class="help-copy">${t('helpIntro')}</p>
+      </div>
+
+      ${[1, 2, 3, 4, 5].map((step) => `
+        <div class="setting-card help-step-card">
+          <h3>${t(`helpStep${step}Title`)}</h3>
+          <p class="help-copy">${t(`helpStep${step}Body`)}</p>
+        </div>
+      `).join('')}
+
+      <div class="setting-card help-tips-card">
+        <h3>${t('helpTipsTitle')}</h3>
+        <p class="help-copy">${t('helpTipsBody')}</p>
+      </div>
+    </div>
+  `;
 }
 
 function renderQuickFoods() {
