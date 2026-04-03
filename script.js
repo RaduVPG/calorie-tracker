@@ -2048,6 +2048,7 @@ function resetApp() {
   deleteCookie(PROFILE_COOKIE_KEY);
   deleteCookie(LANGUAGE_COOKIE_KEY);
   void idbDelete(PROFILE_IDB_KEY);
+  void idbDelete(STATE_IDB_KEY);
   state = { profile: null, history: {}, recipes: [], favoriteIngredients: [] };
   selectedActivity = 1.2;
   selectedGoalAdj = -500;
