@@ -718,6 +718,25 @@ select option {
   overflow-wrap: anywhere;
 }
 
+.recipe-draft-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.draft-badge {
+  border: 1px solid rgba(124, 106, 247, 0.28);
+  border-radius: 999px;
+  background: rgba(124, 106, 247, 0.12);
+  color: var(--c-accent);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 4px 8px;
+}
+
 .meal-macros,
 .empty-state,
 .hist-macros,
@@ -737,20 +756,42 @@ select option {
 }
 
 .meal-del,
-.linkish-btn {
+.linkish-btn,
+.icon-btn {
   border: none;
   background: none;
   color: var(--c-muted);
 }
 
-.meal-del {
+.meal-del,
+.icon-btn {
   font-size: 18px;
   padding: 4px;
 }
 
 .meal-del:hover,
-.linkish-btn:hover {
+.linkish-btn:hover,
+.icon-btn:hover,
+.icon-btn.danger {
   color: var(--c-danger);
+}
+
+.icon-btn {
+  color: var(--c-accent2);
+}
+
+.item-actions-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2px;
+}
+
+.meal-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
 }
 
 .empty-state {
@@ -896,6 +937,56 @@ select option {
 .modal-group,
 .ingredient-builder {
   margin-bottom: 18px;
+}
+
+.ingredient-input-row {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+}
+
+.favorite-toggle-btn,
+.icon-btn,
+.favorite-chip {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.favorite-toggle-btn {
+  width: 52px;
+  flex-shrink: 0;
+  border: 1px solid var(--c-border);
+  border-radius: 12px;
+  background: var(--c-surface2);
+  color: var(--c-warn);
+  font-size: 20px;
+}
+
+.favorite-toggle-btn.active {
+  border-color: var(--c-warn);
+  background: rgba(240, 160, 74, 0.12);
+}
+
+.favorite-ingredients-wrap {
+  margin: 4px 0 14px;
+}
+
+.favorite-ingredients {
+  margin-top: 8px;
+}
+
+.favorite-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.favorite-chip {
+  border: 1px solid rgba(240, 160, 74, 0.24);
+  border-radius: 999px;
+  background: rgba(240, 160, 74, 0.08);
+  color: var(--c-text);
+  padding: 8px 12px;
+  font-size: 13px;
 }
 
 .modal-group-small {

@@ -51,10 +51,10 @@ const I18N = {
     startTracking: 'Start tracking',
     languageToggle: 'Language toggle',
     sections: 'Sections', addMealAria: 'Add meal', addRecipeAria: 'Add recipe',
-    logMeal: 'Log a meal', quickAdd: 'Quick add', savedRecipe: 'Saved recipe', noneManual: 'None — manual entry', servingG: 'Serving (g)', applyRecipe: 'Apply recipe',
-    foodName: 'Food name', addMeal: 'Add meal', cancel: 'Cancel', createRecipe: 'Create recipe', recipeName: 'Recipe name',
+    logMeal: 'Log a meal', editMeal: 'Edit meal', quickAdd: 'Quick add', savedRecipe: 'Saved recipe', noneManual: 'None — manual entry', servingG: 'Serving (g)', applyRecipe: 'Apply recipe',
+    foodName: 'Food name', addMeal: 'Add meal', updateMeal: 'Save meal', cancel: 'Cancel', createRecipe: 'Create recipe', editRecipe: 'Edit recipe', recipeName: 'Recipe name',
     totalCookedWeight: 'Total cooked recipe weight (g)', totalCookedWeightHint: 'Use the final cooked weight if water evaporates or ingredients change weight during cooking.',
-    addIngredient: 'Add ingredient', ingredientBuilder: 'Add ingredient', saveRecipe: 'Save recipe', loadingLibrary: 'Loading ingredient library…',
+    addIngredient: 'Add ingredient', ingredientBuilder: 'Add ingredient', saveRecipe: 'Save recipe', updateRecipe: 'Save recipe changes', loadingLibrary: 'Loading ingredient library…',
     libraryLoaded: '{count} offline ingredients with calories + macros are built into the app.',
     libraryLoadedDetail: 'Search works in English and Romanian. Source: calories.info static dataset bundled with the app.',
     libraryUnavailable: 'Ingredient library unavailable. You can still enter ingredients manually.',
@@ -65,7 +65,7 @@ const I18N = {
     dataSourceLabel: 'Food data source',
     dataSourceText: 'Offline calories.info library bundled as JSON with kcal, protein, carbs, and fat per 100g.',
     resetStartOver: 'Reset & start over', dailyGoal: 'Daily goal', goalType: 'Goal type',
-    recipeSaved: 'Saved recipe: {name}', recipeNameRequired: 'Recipe name is required.', addAtLeastOneIngredient: 'Add at least one ingredient.',
+    recipeSaved: 'Saved recipe: {name}', recipeUpdated: 'Updated recipe: {name}', mealSaved: 'Meal saved.', mealUpdated: 'Meal updated.', recipeNameRequired: 'Recipe name is required.', addAtLeastOneIngredient: 'Add at least one ingredient.',
     enterFinalWeight: 'Enter the final recipe weight in grams.', pickSavedRecipe: 'Pick a saved recipe first.', enterServingWeight: 'Enter a serving weight in grams.',
     mealNameCaloriesRequired: 'Meal name and calories are required.', fillStats: 'Please fill in age, sex, height, and weight.', invalidInputs: 'Some inputs are missing or invalid.', unrealisticStats: 'Those stats look unrealistic. Please check them.',
     profileFirst: 'Set up your profile first.', ingredientNameAndGramsRequired: 'Ingredient name and grams are required.',
@@ -79,8 +79,12 @@ const I18N = {
     ingredientAutoFilled: 'Autofilled from offline ingredient library.',
     resetConfirm: 'Reset all local data and start over?',
     mealCount: '{count} meal', mealCountPlural: '{count} meals',
-    deleteMealAria: 'Delete {name}', deleteRecipeAria: 'Delete {name}',
-    yearsSuffix: 'yrs', cmSuffix: 'cm', kgSuffix: 'kg'
+    deleteMealAria: 'Delete {name}', deleteRecipeAria: 'Delete {name}', editMealAria: 'Edit {name}', editRecipeAria: 'Edit {name}',
+    yearsSuffix: 'yrs', cmSuffix: 'cm', kgSuffix: 'kg',
+    favoriteIngredients: 'Favorite ingredients', noFavoriteIngredients: 'Star ingredients to keep them handy here.',
+    favoriteIngredientAria: 'Favorite ingredient {name}', unfavoriteIngredientAria: 'Remove {name} from favorites', toggleFavoriteIngredient: 'Toggle ingredient favorite',
+    ingredientFavorited: '{name} added to favorites.', ingredientUnfavorited: '{name} removed from favorites.',
+    editingBadge: 'Editing', duplicateRecipeNamesFixed: 'Recipe names stay unique and linked meals keep working after edits.'
   },
   ro: {
     appTitle: 'CalTrack',
@@ -109,10 +113,10 @@ const I18N = {
     startTracking: 'Începe trackingul',
     languageToggle: 'Selector limbă',
     sections: 'Secțiuni', addMealAria: 'Adaugă masă', addRecipeAria: 'Adaugă rețetă',
-    logMeal: 'Adaugă o masă', quickAdd: 'Adăugare rapidă', savedRecipe: 'Rețetă salvată', noneManual: 'Niciuna — introducere manuală', servingG: 'Porție (g)', applyRecipe: 'Aplică rețeta',
-    foodName: 'Nume aliment', addMeal: 'Adaugă masa', cancel: 'Anulează', createRecipe: 'Creează rețetă', recipeName: 'Nume rețetă',
+    logMeal: 'Adaugă o masă', editMeal: 'Editează masa', quickAdd: 'Adăugare rapidă', savedRecipe: 'Rețetă salvată', noneManual: 'Niciuna — introducere manuală', servingG: 'Porție (g)', applyRecipe: 'Aplică rețeta',
+    foodName: 'Nume aliment', addMeal: 'Adaugă masa', updateMeal: 'Salvează masa', cancel: 'Anulează', createRecipe: 'Creează rețetă', editRecipe: 'Editează rețeta', recipeName: 'Nume rețetă',
     totalCookedWeight: 'Greutatea finală gătită a rețetei (g)', totalCookedWeightHint: 'Folosește greutatea finală gătită dacă apa se evaporă sau ingredientele își schimbă greutatea în timpul gătitului.',
-    addIngredient: 'Adaugă ingredient', ingredientBuilder: 'Adaugă ingredient', saveRecipe: 'Salvează rețeta', loadingLibrary: 'Se încarcă biblioteca de ingrediente…',
+    addIngredient: 'Adaugă ingredient', ingredientBuilder: 'Adaugă ingredient', saveRecipe: 'Salvează rețeta', updateRecipe: 'Salvează modificările', loadingLibrary: 'Se încarcă biblioteca de ingrediente…',
     libraryLoaded: '{count} ingrediente offline cu calorii + macronutrienți sunt incluse în aplicație.',
     libraryLoadedDetail: 'Căutarea funcționează în engleză și română. Sursă: dataset static calories.info inclus în aplicație.',
     libraryUnavailable: 'Biblioteca de ingrediente nu este disponibilă. Poți introduce ingredientele manual.',
@@ -123,7 +127,7 @@ const I18N = {
     dataSourceLabel: 'Sursa datelor alimentare',
     dataSourceText: 'Bibliotecă offline calories.info inclusă ca JSON cu kcal, proteine, carbohidrați și grăsimi per 100g.',
     resetStartOver: 'Resetează și reîncepe', dailyGoal: 'Ținta zilnică', goalType: 'Tip obiectiv',
-    recipeSaved: 'Rețetă salvată: {name}', recipeNameRequired: 'Numele rețetei este obligatoriu.', addAtLeastOneIngredient: 'Adaugă cel puțin un ingredient.',
+    recipeSaved: 'Rețetă salvată: {name}', recipeUpdated: 'Rețetă actualizată: {name}', mealSaved: 'Masă salvată.', mealUpdated: 'Masă actualizată.', recipeNameRequired: 'Numele rețetei este obligatoriu.', addAtLeastOneIngredient: 'Adaugă cel puțin un ingredient.',
     enterFinalWeight: 'Introdu greutatea finală a rețetei în grame.', pickSavedRecipe: 'Alege mai întâi o rețetă salvată.', enterServingWeight: 'Introdu greutatea porției în grame.',
     mealNameCaloriesRequired: 'Numele mesei și caloriile sunt obligatorii.', fillStats: 'Completează vârsta, sexul, înălțimea și greutatea.', invalidInputs: 'Unele date lipsesc sau sunt invalide.', unrealisticStats: 'Valorile par nerealiste. Verifică-le.',
     profileFirst: 'Configurează-ți profilul mai întâi.', ingredientNameAndGramsRequired: 'Numele ingredientului și gramele sunt obligatorii.',
@@ -137,8 +141,12 @@ const I18N = {
     ingredientAutoFilled: 'Completat automat din biblioteca offline de ingrediente.',
     resetConfirm: 'Resetezi toate datele locale și reîncepi?',
     mealCount: '{count} masă', mealCountPlural: '{count} mese',
-    deleteMealAria: 'Șterge {name}', deleteRecipeAria: 'Șterge {name}',
-    yearsSuffix: 'ani', cmSuffix: 'cm', kgSuffix: 'kg'
+    deleteMealAria: 'Șterge {name}', deleteRecipeAria: 'Șterge {name}', editMealAria: 'Editează {name}', editRecipeAria: 'Editează {name}',
+    yearsSuffix: 'ani', cmSuffix: 'cm', kgSuffix: 'kg',
+    favoriteIngredients: 'Ingrediente favorite', noFavoriteIngredients: 'Pune stea ingredientelor ca să le ai rapid aici.',
+    favoriteIngredientAria: 'Ingredient favorit {name}', unfavoriteIngredientAria: 'Scoate {name} din favorite', toggleFavoriteIngredient: 'Schimbă starea de favorit',
+    ingredientFavorited: '{name} a fost adăugat la favorite.', ingredientUnfavorited: '{name} a fost scos din favorite.',
+    editingBadge: 'Editare', duplicateRecipeNamesFixed: 'Numele rețetelor rămân unice, iar mesele legate de ele continuă să funcționeze după editări.'
   }
 };
 
@@ -152,6 +160,8 @@ let selectedActivity = state.profile?.activityFactor || 1.2;
 let selectedGoalAdj = state.profile?.goalAdj || -500;
 let toastTimer = null;
 let recipeDraftIngredients = [];
+let mealEditIndex = null;
+let recipeEditId = null;
 
 const ui = {
   screens: Array.from(document.querySelectorAll('.screen')),
@@ -182,6 +192,8 @@ const ui = {
   ingredientLibraryHint: document.getElementById('ingredient-library-hint'),
   langButtons: Array.from(document.querySelectorAll('.lang-btn')),
   onboardingLangWrap: document.getElementById('global-lang-wrap-onboarding'),
+  favoriteIngredients: document.getElementById('favorite-ingredients'),
+  toggleIngredientFavorite: document.getElementById('toggle-ingredient-favorite'),
 };
 
 bindEvents();
@@ -204,10 +216,10 @@ function bindEvents() {
   ui.goalCards.forEach((card) => card.addEventListener('click', () => selectCard(ui.goalCards, card, 'sel')));
   ui.tabs.forEach((tab) => tab.addEventListener('click', () => switchTab(tab.dataset.tab)));
 
-  document.getElementById('open-modal').addEventListener('click', openMealModal);
+  document.getElementById('open-modal').addEventListener('click', () => openMealModal());
   document.getElementById('cancel-meal').addEventListener('click', closeMealModal);
-  document.getElementById('add-meal').addEventListener('click', addMeal);
-  document.getElementById('open-recipe-modal').addEventListener('click', openRecipeModal);
+  document.getElementById('add-meal').addEventListener('click', saveMealFromModal);
+  document.getElementById('open-recipe-modal').addEventListener('click', () => openRecipeModal());
   document.getElementById('cancel-recipe').addEventListener('click', closeRecipeModal);
   document.getElementById('add-ingredient').addEventListener('click', addIngredientToDraft);
   document.getElementById('save-recipe').addEventListener('click', saveRecipe);
@@ -215,6 +227,7 @@ function bindEvents() {
 
   document.getElementById('ingredient-name').addEventListener('input', maybeApplyIngredientLibrary);
   document.getElementById('ingredient-grams').addEventListener('input', maybeApplyIngredientLibrary);
+  ui.toggleIngredientFavorite?.addEventListener('click', toggleCurrentIngredientFavorite);
   ui.langButtons.forEach((button) => button.addEventListener('click', () => setLanguage(button.dataset.lang)));
   ui.recipeSelect.addEventListener('change', handleMealRecipeSelection);
   ui.recipeGrams.addEventListener('input', updateMealRecipePreview);
@@ -243,6 +256,7 @@ async function bootstrap() {
   renderQuickFoods();
   renderRecipeOptions();
   renderRecipeDraft();
+  renderFavoriteIngredients();
   await loadIngredientLibrary();
 
   if (state.profile) {
@@ -255,7 +269,7 @@ async function bootstrap() {
 }
 
 function loadState() {
-  const fallback = { profile: null, history: {}, recipes: [] };
+  const fallback = { profile: null, history: {}, recipes: [], favoriteIngredients: [] };
 
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -292,6 +306,7 @@ function setLanguage(lang) {
   renderRecipeOptions();
   renderRecipeDraft();
   renderIngredientLibraryOptions();
+  renderFavoriteIngredients();
   if (ingredientLibrary.length) renderLibraryMeta();
   if (state.profile) {
     renderResult(state.profile);
@@ -312,10 +327,6 @@ function applyTranslations() {
   const setText = (id, key, vars) => {
     const node = document.getElementById(id);
     if (node) node.textContent = t(key, vars);
-  };
-  const setHtml = (id, key, vars) => {
-    const node = document.getElementById(id);
-    if (node) node.innerHTML = t(key, vars);
   };
   const setAria = (id, key) => {
     const node = document.getElementById(id);
@@ -385,25 +396,27 @@ function applyTranslations() {
   setAria('open-modal', 'addMealAria');
   setText('recipes-section-title', 'savedRecipes');
   setAria('open-recipe-modal', 'addRecipeAria');
-  setText('modal-title', 'logMeal');
+  setText('modal-title', mealEditIndex === null ? 'logMeal' : 'editMeal');
   setText('quick-add-label', 'quickAdd');
   setText('meal-recipe-label', 'savedRecipe');
   setText('meal-serving-label', 'servingG');
   setText('apply-recipe', 'applyRecipe');
   setText('meal-name-label', 'foodName');
-  setText('add-meal', 'addMeal');
+  setText('add-meal', mealEditIndex === null ? 'addMeal' : 'updateMeal');
   setText('cancel-meal', 'cancel');
-  setText('recipe-modal-title', 'createRecipe');
+  setText('recipe-modal-title', recipeEditId ? 'editRecipe' : 'createRecipe');
   setText('recipe-name-label', 'recipeName');
   setText('recipe-total-weight-label', 'totalCookedWeight');
   setText('recipe-total-weight-hint', 'totalCookedWeightHint');
   setText('ingredient-builder-label', 'ingredientBuilder');
+  setText('favorite-ingredients-label', 'favoriteIngredients');
   setText('add-ingredient', 'addIngredient');
-  setText('save-recipe', 'saveRecipe');
+  setText('save-recipe', recipeEditId ? 'updateRecipe' : 'saveRecipe');
   setText('cancel-recipe', 'cancel');
   document.getElementById('meal-name').placeholder = t('mealPlaceholder');
   document.getElementById('recipe-name').placeholder = t('recipePlaceholder');
   document.getElementById('ingredient-name').placeholder = t('ingredientSearchPlaceholder');
+  ui.toggleIngredientFavorite?.setAttribute('aria-label', t('toggleFavoriteIngredient'));
   if (!ingredientLibrary.length) {
     ui.libraryMetaCard.textContent = t('loadingLibrary');
   }
@@ -415,6 +428,9 @@ function sanitizeState(input) {
   const profile = sanitizeProfile(input?.profile);
   const history = {};
   const recipes = Array.isArray(input?.recipes) ? input.recipes.map(sanitizeRecipe).filter(Boolean) : [];
+  const favoriteIngredients = Array.isArray(input?.favoriteIngredients)
+    ? Array.from(new Set(input.favoriteIngredients.map((item) => normalizeName(item)).filter(Boolean)))
+    : [];
 
   if (input?.history && typeof input.history === 'object') {
     for (const [key, day] of Object.entries(input.history)) {
@@ -425,7 +441,7 @@ function sanitizeState(input) {
   }
 
   pruneHistory(history);
-  return { profile, history, recipes };
+  return { profile, history, recipes, favoriteIngredients };
 }
 
 function sanitizeProfile(profile) {
@@ -471,6 +487,7 @@ function sanitizeMeal(meal) {
   if (!name || !kcal) return null;
 
   return {
+    id: String(meal.id || `meal_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`),
     n: name,
     k: kcal,
     p: clampFloat(meal.p, 0, 400) ?? 0,
@@ -520,7 +537,12 @@ function sanitizeRecipe(recipe) {
 
 function saveState() {
   pruneHistory(state.history);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch (error) {
+    console.error('Failed to save local state', error);
+    showToast('Storage unavailable');
+  }
 }
 
 async function loadIngredientLibrary() {
@@ -535,11 +557,13 @@ async function loadIngredientLibrary() {
     });
     renderIngredientLibraryOptions();
     renderLibraryMeta();
+    renderFavoriteIngredients();
   } catch (error) {
     console.error('Failed to load ingredient library', error);
     ingredientLibrary = [];
     ingredientLibraryMap = new Map();
     renderIngredientLibraryOptions();
+    renderFavoriteIngredients();
     renderLibraryMeta(t('libraryUnavailable'));
   }
 }
@@ -591,6 +615,7 @@ function renderLibraryMeta(message) {
   ui.libraryMetaCard.innerHTML = `
     <strong>${t('libraryLoaded', { count })}</strong>
     <div class="library-meta-sub">${t('libraryLoadedDetail')}</div>
+    <div class="library-meta-sub">${t('duplicateRecipeNamesFixed')}</div>
   `;
 }
 
@@ -646,7 +671,7 @@ function goStep2() {
 function calcAndFinish() {
   const age = clampInt(document.getElementById('ob-age').value, 10, 100);
   const sex = document.getElementById('ob-sex').value;
-  let heightPrimary = Number(document.getElementById('ob-h1').value);
+  const heightPrimary = Number(document.getElementById('ob-h1').value);
   const heightSecondary = Number(document.getElementById('ob-h2').value || 0);
   let weight = Number(document.getElementById('ob-w').value);
 
@@ -732,6 +757,7 @@ function renderMain() {
   renderRecipes();
   renderSettings();
   renderStreak();
+  renderFavoriteIngredients();
   switchTab(document.querySelector('.tab.active')?.dataset.tab || 'today');
 }
 
@@ -800,14 +826,22 @@ function renderMeals() {
           <div class="meal-name">${name}</div>
           <div class="meal-macros">P: ${formatNumber(meal.p)}g · C: ${formatNumber(meal.c)}g · F: ${formatNumber(meal.f)}g${gramsNote}</div>
         </div>
-        <div class="meal-kcal">${formatNumber(meal.k)}</div>
-        <button class="meal-del" type="button" data-del-index="${index}" aria-label="${escapeHtml(t('deleteMealAria', { name: meal.n }))}">✕</button>
+        <div class="meal-actions">
+          <div class="meal-kcal">${formatNumber(meal.k)}</div>
+          <div class="item-actions-row">
+            <button class="icon-btn" type="button" data-edit-meal="${index}" aria-label="${escapeHtml(t('editMealAria', { name: meal.n }))}">✎</button>
+            <button class="icon-btn danger" type="button" data-del-index="${index}" aria-label="${escapeHtml(t('deleteMealAria', { name: meal.n }))}">✕</button>
+          </div>
+        </div>
       </div>
     `;
   }).join('');
 
   ui.mealsList.querySelectorAll('[data-del-index]').forEach((button) => {
     button.addEventListener('click', () => deleteMeal(Number(button.dataset.delIndex)));
+  });
+  ui.mealsList.querySelectorAll('[data-edit-meal]').forEach((button) => {
+    button.addEventListener('click', () => openMealModal(Number(button.dataset.editMeal)));
   });
 }
 
@@ -873,7 +907,10 @@ function renderRecipes() {
           <div class="recipe-name">${escapeHtml(recipe.name)}</div>
           <div class="recipe-meta">${t('ingredientsCount', { count: recipe.ingredients.length, weight: roundTo(recipe.totalWeight, 0) })}</div>
         </div>
-        <button class="meal-del" type="button" data-delete-recipe="${recipe.id}" aria-label="${escapeHtml(t('deleteRecipeAria', { name: recipe.name }))}">✕</button>
+        <div class="item-actions-row">
+          <button class="icon-btn" type="button" data-edit-recipe="${recipe.id}" aria-label="${escapeHtml(t('editRecipeAria', { name: recipe.name }))}">✎</button>
+          <button class="icon-btn danger" type="button" data-delete-recipe="${recipe.id}" aria-label="${escapeHtml(t('deleteRecipeAria', { name: recipe.name }))}">✕</button>
+        </div>
       </div>
 
       <div class="recipe-macros-row">
@@ -887,9 +924,10 @@ function renderRecipes() {
       <div class="recipe-ingredients">${recipe.ingredients.map((ingredient) => {
         const lib = findIngredientByName(ingredient.name);
         const ingName = lib ? displayIngredientName(lib) : ingredient.name;
+        const favorite = isFavoriteIngredient(ingredient.name);
         return `
         <div class="ingredient-row">
-          <span>${escapeHtml(ingName)}</span>
+          <span>${favorite ? '★ ' : ''}${escapeHtml(ingName)}</span>
           <span>${roundTo(ingredient.grams, 0)}g</span>
         </div>
       `;}).join('')}</div>
@@ -898,6 +936,9 @@ function renderRecipes() {
 
   ui.recipesList.querySelectorAll('[data-delete-recipe]').forEach((button) => {
     button.addEventListener('click', () => deleteRecipe(button.dataset.deleteRecipe));
+  });
+  ui.recipesList.querySelectorAll('[data-edit-recipe]').forEach((button) => {
+    button.addEventListener('click', () => openRecipeModal(button.dataset.editRecipe));
   });
 }
 
@@ -987,21 +1028,31 @@ function renderQuickFoods() {
 }
 
 function renderRecipeOptions() {
+  const current = ui.recipeSelect.value;
   ui.recipeSelect.innerHTML = [`<option value="">${escapeHtml(t('noneManual'))}</option>`]
     .concat(state.recipes.map((recipe) => `<option value="${recipe.id}">${escapeHtml(recipe.name)}</option>`))
     .join('');
+  if (current && state.recipes.some((recipe) => recipe.id === current)) ui.recipeSelect.value = current;
 }
 
-function openMealModal() {
+function openMealModal(index = null) {
+  mealEditIndex = Number.isInteger(index) ? index : null;
+  applyTranslations();
+  renderRecipeOptions();
   ui.mealModal.classList.remove('hidden');
   ui.mealModal.setAttribute('aria-hidden', 'false');
-  renderRecipeOptions();
+
+  if (mealEditIndex !== null) {
+    const meal = getMealsForDay()[mealEditIndex];
+    if (meal) fillMealModal(meal);
+  } else {
+    clearMealModal();
+  }
+
   document.getElementById('meal-name').focus();
 }
 
-function closeMealModal() {
-  ui.mealModal.classList.add('hidden');
-  ui.mealModal.setAttribute('aria-hidden', 'true');
+function clearMealModal() {
   ['meal-name', 'meal-kcal', 'meal-p', 'meal-c', 'meal-f', 'meal-recipe-grams'].forEach((id) => {
     document.getElementById(id).value = '';
   });
@@ -1010,21 +1061,70 @@ function closeMealModal() {
   ui.recipePreview.innerHTML = '';
 }
 
-function openRecipeModal() {
+function fillMealModal(meal) {
+  document.getElementById('meal-name').value = meal.n || '';
+  document.getElementById('meal-kcal').value = meal.k || '';
+  document.getElementById('meal-p').value = formatFieldNumber(meal.p);
+  document.getElementById('meal-c').value = formatFieldNumber(meal.c);
+  document.getElementById('meal-f').value = formatFieldNumber(meal.f);
+  ui.recipeSelect.value = meal.recipeId || '';
+  document.getElementById('meal-recipe-grams').value = meal.grams ? String(roundTo(meal.grams, 0)) : '';
+  updateMealRecipePreview();
+}
+
+function closeMealModal() {
+  ui.mealModal.classList.add('hidden');
+  ui.mealModal.setAttribute('aria-hidden', 'true');
+  mealEditIndex = null;
+  clearMealModal();
+  applyTranslations();
+}
+
+function openRecipeModal(recipeId = null) {
+  recipeEditId = recipeId || null;
+  recipeDraftIngredients = [];
+  clearRecipeBuilderFields();
+
+  if (recipeEditId) {
+    const recipe = getRecipeById(recipeEditId);
+    if (recipe) {
+      document.getElementById('recipe-name').value = recipe.name;
+      document.getElementById('recipe-total-weight').value = formatFieldNumber(recipe.totalWeight);
+      recipeDraftIngredients = recipe.ingredients.map((ingredient) => ({ ...ingredient }));
+    }
+  } else {
+    document.getElementById('recipe-name').value = '';
+    document.getElementById('recipe-total-weight').value = '';
+  }
+
   ui.recipeModal.classList.remove('hidden');
   ui.recipeModal.setAttribute('aria-hidden', 'false');
+  ui.ingredientLibraryHint.textContent = t('ingredientLibraryHint');
+  renderRecipeDraft();
+  renderFavoriteIngredients();
+  applyTranslations();
   document.getElementById('recipe-name').focus();
+}
+
+function clearRecipeBuilderFields() {
+  ['ingredient-name', 'ingredient-grams', 'ingredient-kcal', 'ingredient-p', 'ingredient-c', 'ingredient-f'].forEach((id) => {
+    document.getElementById(id).value = '';
+  });
+  updateFavoriteToggleButton();
 }
 
 function closeRecipeModal() {
   ui.recipeModal.classList.add('hidden');
   ui.recipeModal.setAttribute('aria-hidden', 'true');
   recipeDraftIngredients = [];
+  recipeEditId = null;
   ['recipe-name', 'recipe-total-weight', 'ingredient-name', 'ingredient-grams', 'ingredient-kcal', 'ingredient-p', 'ingredient-c', 'ingredient-f'].forEach((id) => {
     document.getElementById(id).value = '';
   });
   ui.ingredientLibraryHint.textContent = t('ingredientLibraryHint');
   renderRecipeDraft();
+  renderFavoriteIngredients();
+  applyTranslations();
 }
 
 function fillQuick(index) {
@@ -1086,7 +1186,7 @@ function applySelectedRecipeToMeal() {
   updateMealRecipePreview();
 }
 
-function addMeal() {
+function saveMealFromModal() {
   const selectedRecipe = getRecipeById(ui.recipeSelect.value);
   const grams = clampFloat(ui.recipeGrams.value, 1, 3000);
 
@@ -1099,13 +1199,15 @@ function addMeal() {
     document.getElementById('meal-f').value = macros.f;
   }
 
+  const existingMeal = mealEditIndex !== null ? getMealsForDay()[mealEditIndex] : null;
   const meal = sanitizeMeal({
+    id: existingMeal?.id,
     n: document.getElementById('meal-name').value,
     k: document.getElementById('meal-kcal').value,
     p: document.getElementById('meal-p').value,
     c: document.getElementById('meal-c').value,
     f: document.getElementById('meal-f').value,
-    emoji: EMOJIS[Math.floor(Math.random() * EMOJIS.length)],
+    emoji: existingMeal?.emoji || EMOJIS[Math.floor(Math.random() * EMOJIS.length)],
     recipeId: selectedRecipe?.id || null,
     grams: selectedRecipe && grams ? grams : null,
   });
@@ -1115,19 +1217,25 @@ function addMeal() {
     return;
   }
 
-  getMealsForDay().push(meal);
+  const meals = getMealsForDay();
+  const isEditing = mealEditIndex !== null;
+  if (isEditing) meals[mealEditIndex] = meal;
+  else meals.push(meal);
+
   saveState();
   closeMealModal();
   renderTotals();
   renderMeals();
   renderHistory();
   renderStreak();
+  showToast(t(isEditing ? 'mealUpdated' : 'mealSaved'));
 }
 
 function maybeApplyIngredientLibrary() {
   const name = document.getElementById('ingredient-name').value;
   const grams = clampFloat(document.getElementById('ingredient-grams').value, 1, 5000);
   const match = findIngredientByName(name);
+  updateFavoriteToggleButton();
 
   if (!match) {
     ui.ingredientLibraryHint.textContent = name.trim() ? t('ingredientNoMatch') : t('ingredientLibraryHint');
@@ -1156,6 +1264,7 @@ function applyIngredientMacros(item, grams) {
     f: formatNumber(item.fatPer100g),
     category: humanizeCategory(item.category),
   });
+  updateFavoriteToggleButton();
 }
 
 function addIngredientToDraft() {
@@ -1177,9 +1286,7 @@ function addIngredientToDraft() {
   }
 
   recipeDraftIngredients.push(ingredient);
-  ['ingredient-name', 'ingredient-grams', 'ingredient-kcal', 'ingredient-p', 'ingredient-c', 'ingredient-f'].forEach((id) => {
-    document.getElementById(id).value = '';
-  });
+  clearRecipeBuilderFields();
   ui.ingredientLibraryHint.textContent = t('ingredientLibraryHint');
   renderRecipeDraft();
 }
@@ -1193,13 +1300,17 @@ function renderRecipeDraft() {
   const totals = sumIngredientMacros(recipeDraftIngredients);
   ui.recipeDraft.innerHTML = `
     <div class="recipe-draft-card">
-      <div class="recipe-draft-title">${t('recipeIngredients')}</div>
+      <div class="recipe-draft-title-row">
+        <div class="recipe-draft-title">${t('recipeIngredients')}</div>
+        ${recipeEditId ? `<span class="draft-badge">${t('editingBadge')}</span>` : ''}
+      </div>
       ${recipeDraftIngredients.map((ingredient, index) => {
         const lib = findIngredientByName(ingredient.name);
         const ingName = lib ? displayIngredientName(lib) : ingredient.name;
+        const favorite = isFavoriteIngredient(ingredient.name);
         return `
         <div class="ingredient-row ingredient-row-strong">
-          <span>${escapeHtml(ingName)} · ${roundTo(ingredient.grams, 0)}g</span>
+          <span>${favorite ? '★ ' : ''}${escapeHtml(ingName)} · ${roundTo(ingredient.grams, 0)}g</span>
           <button class="meal-del" type="button" data-remove-ingredient="${index}">✕</button>
         </div>
       `;}).join('')}
@@ -1233,18 +1344,24 @@ function saveRecipe() {
   }
 
   const recipe = sanitizeRecipe({
-    id: `recipe_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+    id: recipeEditId || `recipe_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
     name,
     totalWeight,
     ingredients: recipeDraftIngredients,
   });
 
-  state.recipes.unshift(recipe);
+  const isEditing = Boolean(recipeEditId);
+  if (isEditing) {
+    state.recipes = state.recipes.map((item) => item.id === recipeEditId ? recipe : item);
+  } else {
+    state.recipes.unshift(recipe);
+  }
+
   saveState();
   renderRecipeOptions();
   renderRecipes();
   closeRecipeModal();
-  showToast(t('recipeSaved', { name: recipe.name }));
+  showToast(t(isEditing ? 'recipeUpdated' : 'recipeSaved', { name: recipe.name }));
 }
 
 function deleteRecipe(recipeId) {
@@ -1254,13 +1371,94 @@ function deleteRecipe(recipeId) {
   if (!confirmed) return;
 
   state.recipes = state.recipes.filter((item) => item.id !== recipeId);
+  for (const day of Object.values(state.history)) {
+    day.meals = (day.meals || []).map((meal) => meal.recipeId === recipeId ? { ...meal, recipeId: null } : meal);
+  }
   saveState();
   renderRecipeOptions();
   renderRecipes();
+  renderMeals();
 }
 
 function getRecipeById(recipeId) {
   return state.recipes.find((recipe) => recipe.id === recipeId) || null;
+}
+
+function renderFavoriteIngredients() {
+  if (!ui.favoriteIngredients) return;
+  const favorites = getFavoriteIngredientItems();
+  if (!favorites.length) {
+    ui.favoriteIngredients.innerHTML = `<div class="empty-state recipe-empty">${t('noFavoriteIngredients')}</div>`;
+    return;
+  }
+
+  ui.favoriteIngredients.innerHTML = `
+    <div class="favorite-chip-list">
+      ${favorites.map((item) => `
+        <button class="favorite-chip" type="button" data-favorite-name="${escapeHtml(item.key)}" aria-label="${escapeHtml(t('favoriteIngredientAria', { name: item.label }))}">
+          ★ ${escapeHtml(item.label)}
+        </button>
+      `).join('')}
+    </div>
+  `;
+
+  ui.favoriteIngredients.querySelectorAll('[data-favorite-name]').forEach((button) => {
+    button.addEventListener('click', () => applyFavoriteIngredient(button.dataset.favoriteName));
+  });
+}
+
+function getFavoriteIngredientItems() {
+  return (state.favoriteIngredients || [])
+    .map((name) => {
+      const item = ingredientLibraryMap.get(normalizeName(name));
+      return {
+        key: name,
+        item,
+        label: item ? displayIngredientName(item) : name,
+      };
+    })
+    .filter((item) => item.label)
+    .sort((a, b) => a.label.localeCompare(b.label, currentLang === 'ro' ? 'ro' : 'en'));
+}
+
+function toggleCurrentIngredientFavorite() {
+  const rawName = document.getElementById('ingredient-name').value;
+  const match = findIngredientByName(rawName);
+  const name = match?.name || rawName;
+  const normalized = normalizeName(name);
+  if (!normalized) return;
+
+  const favorites = new Set(state.favoriteIngredients || []);
+  const hadFavorite = favorites.has(normalized);
+  if (hadFavorite) favorites.delete(normalized);
+  else favorites.add(normalized);
+  state.favoriteIngredients = Array.from(favorites);
+  saveState();
+  renderFavoriteIngredients();
+  updateFavoriteToggleButton();
+  showToast(t(hadFavorite ? 'ingredientUnfavorited' : 'ingredientFavorited', { name: match ? displayIngredientName(match) : rawName.trim() }));
+}
+
+function updateFavoriteToggleButton() {
+  if (!ui.toggleIngredientFavorite) return;
+  const rawName = document.getElementById('ingredient-name').value;
+  const match = findIngredientByName(rawName);
+  const normalized = normalizeName(match?.name || rawName);
+  const active = normalized && isFavoriteIngredient(normalized);
+  ui.toggleIngredientFavorite.textContent = active ? '★' : '☆';
+  ui.toggleIngredientFavorite.classList.toggle('active', Boolean(active));
+}
+
+function isFavoriteIngredient(name) {
+  return (state.favoriteIngredients || []).includes(normalizeName(name));
+}
+
+function applyFavoriteIngredient(name) {
+  const item = findIngredientByName(name);
+  document.getElementById('ingredient-name').value = item ? displayIngredientName(item) : name;
+  if (!document.getElementById('ingredient-grams').value) document.getElementById('ingredient-grams').value = '100';
+  maybeApplyIngredientLibrary();
+  document.getElementById('ingredient-grams').focus();
 }
 
 function sumIngredientMacros(ingredients) {
@@ -1298,7 +1496,7 @@ function resetApp() {
 
   localStorage.removeItem(STORAGE_KEY);
   LEGACY_KEYS.forEach((key) => localStorage.removeItem(key));
-  state = { profile: null, history: {}, recipes: [] };
+  state = { profile: null, history: {}, recipes: [], favoriteIngredients: [] };
   selectedActivity = 1.2;
   selectedGoalAdj = -500;
   recipeDraftIngredients = [];

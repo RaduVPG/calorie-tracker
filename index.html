@@ -325,9 +325,16 @@
         <div class="ingredient-builder">
           <div class="field-label" id="ingredient-builder-label">Add ingredient</div>
           <div class="field-group modal-group-small">
-            <input type="text" id="ingredient-name" placeholder="Ingredient name" maxlength="80" list="ingredient-library-options">
+            <div class="ingredient-input-row">
+              <input type="text" id="ingredient-name" placeholder="Ingredient name" maxlength="80" list="ingredient-library-options">
+              <button class="favorite-toggle-btn" id="toggle-ingredient-favorite" type="button" aria-label="Toggle ingredient favorite">☆</button>
+            </div>
             <datalist id="ingredient-library-options"></datalist>
             <p class="setting-hint" id="ingredient-library-hint">Search the saved ingredient library to auto-fill calories per 100g.</p>
+          </div>
+          <div class="favorite-ingredients-wrap">
+            <div class="field-label" id="favorite-ingredients-label">Favorite ingredients</div>
+            <div class="favorite-ingredients" id="favorite-ingredients"></div>
           </div>
           <div class="modal-grid modal-grid-ingredient">
             <div class="modal-field"><label for="ingredient-grams">Grams</label><input type="number" id="ingredient-grams" placeholder="200" min="1" max="5000" inputmode="decimal"></div>
