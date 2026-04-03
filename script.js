@@ -23,6 +23,7 @@ let weightUnit = 'kg';
 let selectedActivity = state.profile?.activityFactor || 1.2;
 let selectedGoalAdj = state.profile?.goalAdj || -500;
 let toastTimer = null;
+let recipeDraftIngredients = [];
 
 const ui = {
   screens: Array.from(document.querySelectorAll('.screen')),
@@ -37,10 +38,17 @@ const ui = {
   tabContents: Array.from(document.querySelectorAll('.tab-content')),
   mealsList: document.getElementById('meals-list'),
   historyTab: document.getElementById('tab-history'),
+  recipesTab: document.getElementById('tab-recipes'),
+  recipesList: document.getElementById('recipes-list'),
   settingsTab: document.getElementById('tab-settings'),
   quickFoods: document.getElementById('quick-foods'),
-  modal: document.getElementById('modal'),
+  mealModal: document.getElementById('modal'),
+  recipeModal: document.getElementById('recipe-modal'),
   toast: document.getElementById('toast'),
+  recipeSelect: document.getElementById('meal-recipe-select'),
+  recipeGrams: document.getElementById('meal-recipe-grams'),
+  recipePreview: document.getElementById('meal-recipe-preview'),
+  recipeDraft: document.getElementById('recipe-draft'),
 };
 
 bindEvents();
@@ -59,28 +67,35 @@ function bindEvents() {
   document.getElementById('step3-finish').addEventListener('click', calcAndFinish);
   document.getElementById('start-app').addEventListener('click', startApp);
 
-  ui.activityCards.forEach((card) => {
-    card.addEventListener('click', () => selectCard(ui.activityCards, card, 'sel'));
-  });
-
-  ui.goalCards.forEach((card) => {
-    card.addEventListener('click', () => selectCard(ui.goalCards, card, 'sel'));
-  });
-
+  ui.activityCards.forEach((card) => card.addEventListener('click', () => selectCard(ui.activityCards, card, 'sel')));
+  ui.goalCards.forEach((card) => card.addEventListener('click', () => selectCard(ui.goalCards, card, 'sel')));
   ui.tabs.forEach((tab) => tab.addEventListener('click', () => switchTab(tab.dataset.tab)));
 
-  document.getElementById('open-modal').addEventListener('click', openModal);
-  document.getElementById('cancel-meal').addEventListener('click', closeModal);
+  document.getElementById('open-modal').addEventListener('click', openMealModal);
+  document.getElementById('cancel-meal').addEventListener('click', closeMealModal);
   document.getElementById('add-meal').addEventListener('click', addMeal);
+  document.getElementById('open-recipe-modal').addEventListener('click', openRecipeModal);
+  document.getElementById('cancel-recipe').addEventListener('click', closeRecipeModal);
+  document.getElementById('add-ingredient').addEventListener('click', addIngredientToDraft);
+  document.getElementById('save-recipe').addEventListener('click', saveRecipe);
+  document.getElementById('apply-recipe').addEventListener('click', applySelectedRecipeToMeal);
 
-  ui.modal.addEventListener('click', (event) => {
-    if (event.target === ui.modal) closeModal();
+  ui.recipeSelect.addEventListener('change', handleMealRecipeSelection);
+  ui.recipeGrams.addEventListener('input', updateMealRecipePreview);
+
+  [ui.mealModal, ui.recipeModal].forEach((modal) => {
+    modal.addEventListener('click', (event) => {
+      if (event.target === modal) {
+        if (modal === ui.mealModal) closeMealModal();
+        if (modal === ui.recipeModal) closeRecipeModal();
+      }
+    });
   });
 
   document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && !ui.modal.classList.contains('hidden')) {
-      closeModal();
-    }
+    if (event.key !== 'Escape') return;
+    if (!ui.mealModal.classList.contains('hidden')) closeMealModal();
+    if (!ui.recipeModal.classList.contains('hidden')) closeRecipeModal();
   });
 }
 
@@ -89,6 +104,8 @@ function bootstrap() {
   setWeightUnit('kg');
   rehydrateSelections();
   renderQuickFoods();
+  renderRecipeOptions();
+  renderRecipeDraft();
 
   if (state.profile) {
     renderResult(state.profile);
@@ -100,13 +117,11 @@ function bootstrap() {
 }
 
 function loadState() {
-  const fallback = { profile: null, history: {} };
+  const fallback = { profile: null, history: {}, recipes: [] };
 
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      return sanitizeState(JSON.parse(raw));
-    }
+    if (raw) return sanitizeState(JSON.parse(raw));
 
     for (const key of LEGACY_KEYS) {
       const legacyRaw = localStorage.getItem(key);
@@ -125,6 +140,7 @@ function loadState() {
 function sanitizeState(input) {
   const profile = sanitizeProfile(input?.profile);
   const history = {};
+  const recipes = Array.isArray(input?.recipes) ? input.recipes.map(sanitizeRecipe).filter(Boolean) : [];
 
   if (input?.history && typeof input.history === 'object') {
     for (const [key, day] of Object.entries(input.history)) {
@@ -135,7 +151,7 @@ function sanitizeState(input) {
   }
 
   pruneHistory(history);
-  return { profile, history };
+  return { profile, history, recipes };
 }
 
 function sanitizeProfile(profile) {
@@ -176,7 +192,7 @@ function sanitizeProfile(profile) {
 function sanitizeMeal(meal) {
   if (!meal || typeof meal !== 'object') return null;
 
-  const name = String(meal.n || '').trim().slice(0, 60);
+  const name = String(meal.n || '').trim().slice(0, 80);
   const kcal = clampInt(meal.k, 1, 5000);
   if (!name || !kcal) return null;
 
@@ -187,6 +203,44 @@ function sanitizeMeal(meal) {
     c: clampInt(meal.c, 0, 600),
     f: clampInt(meal.f, 0, 300),
     emoji: String(meal.emoji || meal.e || '🍽️').slice(0, 2),
+    recipeId: meal.recipeId ? String(meal.recipeId) : null,
+    grams: clampFloat(meal.grams, 1, 5000),
+  };
+}
+
+function sanitizeIngredient(ingredient) {
+  if (!ingredient || typeof ingredient !== 'object') return null;
+  const name = String(ingredient.name || '').trim().slice(0, 60);
+  const grams = clampFloat(ingredient.grams, 1, 5000);
+  if (!name || !grams) return null;
+
+  return {
+    name,
+    grams,
+    kcal: clampInt(ingredient.kcal ?? ingredient.k, 0, 5000) ?? 0,
+    p: clampInt(ingredient.p, 0, 400) ?? 0,
+    c: clampInt(ingredient.c, 0, 600) ?? 0,
+    f: clampInt(ingredient.f, 0, 300) ?? 0,
+  };
+}
+
+function sanitizeRecipe(recipe) {
+  if (!recipe || typeof recipe !== 'object') return null;
+  const name = String(recipe.name || recipe.n || '').trim().slice(0, 60);
+  const totalWeight = clampFloat(recipe.totalWeight, 1, 20000);
+  const ingredients = Array.isArray(recipe.ingredients) ? recipe.ingredients.map(sanitizeIngredient).filter(Boolean) : [];
+  if (!name || !totalWeight || !ingredients.length) return null;
+
+  const totals = sumIngredientMacros(ingredients);
+  const per100 = calculatePer100(totals, totalWeight);
+
+  return {
+    id: String(recipe.id || `recipe_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`),
+    name,
+    totalWeight,
+    ingredients,
+    totals,
+    per100,
   };
 }
 
@@ -210,13 +264,8 @@ function selectCard(cards, activeCard, className) {
   cards.forEach((card) => card.classList.remove(className));
   activeCard.classList.add(className);
 
-  if (activeCard.dataset.activity) {
-    selectedActivity = Number(activeCard.dataset.activity);
-  }
-
-  if (activeCard.dataset.goal) {
-    selectedGoalAdj = Number(activeCard.dataset.goal);
-  }
+  if (activeCard.dataset.activity) selectedActivity = Number(activeCard.dataset.activity);
+  if (activeCard.dataset.goal) selectedGoalAdj = Number(activeCard.dataset.goal);
 }
 
 function setHeightUnit(unit) {
@@ -329,9 +378,11 @@ function startApp() {
 function renderMain() {
   document.getElementById('main-date').textContent = formatLongDate(new Date());
   renderQuickFoods();
+  renderRecipeOptions();
   renderTotals();
   renderMeals();
   renderHistory();
+  renderRecipes();
   renderSettings();
   renderStreak();
   switchTab('today');
@@ -345,9 +396,7 @@ function todayKey(date = new Date()) {
 }
 
 function ensureDay(key = todayKey()) {
-  if (!state.history[key]) {
-    state.history[key] = { meals: [] };
-  }
+  if (!state.history[key]) state.history[key] = { meals: [] };
   return state.history[key];
 }
 
@@ -396,12 +445,13 @@ function renderMeals() {
   ui.mealsList.innerHTML = meals.map((meal, index) => {
     const name = escapeHtml(meal.n);
     const emoji = escapeHtml(meal.emoji || '🍽️');
+    const gramsNote = meal.grams ? ` · ${roundTo(meal.grams, 0)}g` : '';
     return `
       <div class="meal-item">
         <div class="meal-emoji">${emoji}</div>
         <div class="meal-info">
           <div class="meal-name">${name}</div>
-          <div class="meal-macros">P: ${meal.p}g · C: ${meal.c}g · F: ${meal.f}g</div>
+          <div class="meal-macros">P: ${meal.p}g · C: ${meal.c}g · F: ${meal.f}g${gramsNote}</div>
         </div>
         <div class="meal-kcal">${meal.k}</div>
         <button class="meal-del" type="button" data-del-index="${index}" aria-label="Delete ${name}">✕</button>
@@ -459,6 +509,45 @@ function renderHistory() {
       </div>
     `;
   }).join('')}</div>`;
+}
+
+function renderRecipes() {
+  const recipes = state.recipes || [];
+  if (!recipes.length) {
+    ui.recipesList.innerHTML = '<div class="empty-state">No saved recipes yet. Tap + to build one from ingredients.</div>';
+    return;
+  }
+
+  ui.recipesList.innerHTML = recipes.map((recipe) => `
+    <div class="recipe-card">
+      <div class="recipe-card-top">
+        <div>
+          <div class="recipe-name">${escapeHtml(recipe.name)}</div>
+          <div class="recipe-meta">${recipe.ingredients.length} ingredients · ${roundTo(recipe.totalWeight, 0)}g total</div>
+        </div>
+        <button class="meal-del" type="button" data-delete-recipe="${recipe.id}" aria-label="Delete ${escapeHtml(recipe.name)}">✕</button>
+      </div>
+
+      <div class="recipe-macros-row">
+        <span>${recipe.per100.kcal} kcal</span>
+        <span>P ${recipe.per100.p}g</span>
+        <span>C ${recipe.per100.c}g</span>
+        <span>F ${recipe.per100.f}g</span>
+        <span>/ 100g</span>
+      </div>
+
+      <div class="recipe-ingredients">${recipe.ingredients.map((ingredient) => `
+        <div class="ingredient-row">
+          <span>${escapeHtml(ingredient.name)}</span>
+          <span>${roundTo(ingredient.grams, 0)}g</span>
+        </div>
+      `).join('')}</div>
+    </div>
+  `).join('');
+
+  ui.recipesList.querySelectorAll('[data-delete-recipe]').forEach((button) => {
+    button.addEventListener('click', () => deleteRecipe(button.dataset.deleteRecipe));
+  });
 }
 
 function renderStreak() {
@@ -527,6 +616,7 @@ function switchTab(tabName) {
   });
 
   if (tabName === 'history') renderHistory();
+  if (tabName === 'recipes') renderRecipes();
   if (tabName === 'settings') renderSettings();
 }
 
@@ -540,23 +630,51 @@ function renderQuickFoods() {
   });
 }
 
-function openModal() {
-  ui.modal.classList.remove('hidden');
-  ui.modal.setAttribute('aria-hidden', 'false');
+function renderRecipeOptions() {
+  ui.recipeSelect.innerHTML = ['<option value="">None — manual entry</option>']
+    .concat(state.recipes.map((recipe) => `<option value="${recipe.id}">${escapeHtml(recipe.name)}</option>`))
+    .join('');
+}
+
+function openMealModal() {
+  ui.mealModal.classList.remove('hidden');
+  ui.mealModal.setAttribute('aria-hidden', 'false');
+  renderRecipeOptions();
   document.getElementById('meal-name').focus();
 }
 
-function closeModal() {
-  ui.modal.classList.add('hidden');
-  ui.modal.setAttribute('aria-hidden', 'true');
-  ['meal-name', 'meal-kcal', 'meal-p', 'meal-c', 'meal-f'].forEach((id) => {
+function closeMealModal() {
+  ui.mealModal.classList.add('hidden');
+  ui.mealModal.setAttribute('aria-hidden', 'true');
+  ['meal-name', 'meal-kcal', 'meal-p', 'meal-c', 'meal-f', 'meal-recipe-grams'].forEach((id) => {
     document.getElementById(id).value = '';
   });
+  ui.recipeSelect.value = '';
+  ui.recipePreview.classList.add('hidden');
+  ui.recipePreview.innerHTML = '';
+}
+
+function openRecipeModal() {
+  ui.recipeModal.classList.remove('hidden');
+  ui.recipeModal.setAttribute('aria-hidden', 'false');
+  document.getElementById('recipe-name').focus();
+}
+
+function closeRecipeModal() {
+  ui.recipeModal.classList.add('hidden');
+  ui.recipeModal.setAttribute('aria-hidden', 'true');
+  recipeDraftIngredients = [];
+  ['recipe-name', 'recipe-total-weight', 'ingredient-name', 'ingredient-grams', 'ingredient-kcal', 'ingredient-p', 'ingredient-c', 'ingredient-f'].forEach((id) => {
+    document.getElementById(id).value = '';
+  });
+  renderRecipeDraft();
 }
 
 function fillQuick(index) {
   const food = QUICK_FOODS[index];
   if (!food) return;
+  ui.recipeSelect.value = '';
+  ui.recipePreview.classList.add('hidden');
   document.getElementById('meal-name').value = food.n;
   document.getElementById('meal-kcal').value = food.k;
   document.getElementById('meal-p').value = food.p;
@@ -564,7 +682,66 @@ function fillQuick(index) {
   document.getElementById('meal-f').value = food.f;
 }
 
+function handleMealRecipeSelection() {
+  if (!ui.recipeSelect.value) {
+    ui.recipePreview.classList.add('hidden');
+    return;
+  }
+
+  if (!ui.recipeGrams.value) ui.recipeGrams.value = '100';
+  applySelectedRecipeToMeal();
+}
+
+function updateMealRecipePreview() {
+  const recipe = getRecipeById(ui.recipeSelect.value);
+  const grams = clampFloat(ui.recipeGrams.value, 1, 3000);
+  if (!recipe || !grams) {
+    ui.recipePreview.classList.add('hidden');
+    return;
+  }
+
+  const macros = calculateRecipeServing(recipe, grams);
+  ui.recipePreview.classList.remove('hidden');
+  ui.recipePreview.innerHTML = `
+    <div><strong>${escapeHtml(recipe.name)}</strong> · ${roundTo(grams, 0)}g</div>
+    <div class="recipe-preview-line">${macros.k} kcal · P ${macros.p}g · C ${macros.c}g · F ${macros.f}g</div>
+  `;
+}
+
+function applySelectedRecipeToMeal() {
+  const recipe = getRecipeById(ui.recipeSelect.value);
+  const grams = clampFloat(ui.recipeGrams.value, 1, 3000);
+  if (!recipe) {
+    showToast('Pick a saved recipe first.');
+    return;
+  }
+  if (!grams) {
+    showToast('Enter a serving weight in grams.');
+    return;
+  }
+
+  const macros = calculateRecipeServing(recipe, grams);
+  document.getElementById('meal-name').value = recipe.name;
+  document.getElementById('meal-kcal').value = macros.k;
+  document.getElementById('meal-p').value = macros.p;
+  document.getElementById('meal-c').value = macros.c;
+  document.getElementById('meal-f').value = macros.f;
+  updateMealRecipePreview();
+}
+
 function addMeal() {
+  const selectedRecipe = getRecipeById(ui.recipeSelect.value);
+  const grams = clampFloat(ui.recipeGrams.value, 1, 3000);
+
+  if (selectedRecipe && grams) {
+    const macros = calculateRecipeServing(selectedRecipe, grams);
+    document.getElementById('meal-name').value = selectedRecipe.name;
+    document.getElementById('meal-kcal').value = macros.k;
+    document.getElementById('meal-p').value = macros.p;
+    document.getElementById('meal-c').value = macros.c;
+    document.getElementById('meal-f').value = macros.f;
+  }
+
   const meal = sanitizeMeal({
     n: document.getElementById('meal-name').value,
     k: document.getElementById('meal-kcal').value,
@@ -572,6 +749,8 @@ function addMeal() {
     c: document.getElementById('meal-c').value,
     f: document.getElementById('meal-f').value,
     emoji: EMOJIS[Math.floor(Math.random() * EMOJIS.length)],
+    recipeId: selectedRecipe?.id || null,
+    grams: selectedRecipe && grams ? grams : null,
   });
 
   if (!meal) {
@@ -581,11 +760,138 @@ function addMeal() {
 
   getMealsForDay().push(meal);
   saveState();
-  closeModal();
+  closeMealModal();
   renderTotals();
   renderMeals();
   renderHistory();
   renderStreak();
+}
+
+function addIngredientToDraft() {
+  const ingredient = sanitizeIngredient({
+    name: document.getElementById('ingredient-name').value,
+    grams: document.getElementById('ingredient-grams').value,
+    kcal: document.getElementById('ingredient-kcal').value || 0,
+    p: document.getElementById('ingredient-p').value || 0,
+    c: document.getElementById('ingredient-c').value || 0,
+    f: document.getElementById('ingredient-f').value || 0,
+  });
+
+  if (!ingredient) {
+    showToast('Ingredient name and grams are required.');
+    return;
+  }
+
+  recipeDraftIngredients.push(ingredient);
+  ['ingredient-name', 'ingredient-grams', 'ingredient-kcal', 'ingredient-p', 'ingredient-c', 'ingredient-f'].forEach((id) => {
+    document.getElementById(id).value = '';
+  });
+  renderRecipeDraft();
+}
+
+function renderRecipeDraft() {
+  if (!recipeDraftIngredients.length) {
+    ui.recipeDraft.innerHTML = '<div class="empty-state recipe-empty">No ingredients added yet.</div>';
+    return;
+  }
+
+  const totals = sumIngredientMacros(recipeDraftIngredients);
+  ui.recipeDraft.innerHTML = `
+    <div class="recipe-draft-card">
+      <div class="recipe-draft-title">Recipe ingredients</div>
+      ${recipeDraftIngredients.map((ingredient, index) => `
+        <div class="ingredient-row ingredient-row-strong">
+          <span>${escapeHtml(ingredient.name)} · ${roundTo(ingredient.grams, 0)}g</span>
+          <button class="meal-del" type="button" data-remove-ingredient="${index}">✕</button>
+        </div>
+      `).join('')}
+      <div class="recipe-draft-totals">Current totals: ${totals.kcal} kcal · P ${totals.p}g · C ${totals.c}g · F ${totals.f}g</div>
+    </div>
+  `;
+
+  ui.recipeDraft.querySelectorAll('[data-remove-ingredient]').forEach((button) => {
+    button.addEventListener('click', () => {
+      recipeDraftIngredients.splice(Number(button.dataset.removeIngredient), 1);
+      renderRecipeDraft();
+    });
+  });
+}
+
+function saveRecipe() {
+  const name = String(document.getElementById('recipe-name').value || '').trim().slice(0, 60);
+  const totalWeight = clampFloat(document.getElementById('recipe-total-weight').value, 1, 20000);
+
+  if (!name) {
+    showToast('Recipe name is required.');
+    return;
+  }
+  if (!recipeDraftIngredients.length) {
+    showToast('Add at least one ingredient.');
+    return;
+  }
+  if (!totalWeight) {
+    showToast('Enter the final recipe weight in grams.');
+    return;
+  }
+
+  const recipe = sanitizeRecipe({
+    id: `recipe_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+    name,
+    totalWeight,
+    ingredients: recipeDraftIngredients,
+  });
+
+  state.recipes.unshift(recipe);
+  saveState();
+  renderRecipeOptions();
+  renderRecipes();
+  closeRecipeModal();
+  showToast(`Saved recipe: ${recipe.name}`);
+}
+
+function deleteRecipe(recipeId) {
+  const recipe = getRecipeById(recipeId);
+  if (!recipe) return;
+  const confirmed = window.confirm(`Delete recipe "${recipe.name}"?`);
+  if (!confirmed) return;
+
+  state.recipes = state.recipes.filter((item) => item.id !== recipeId);
+  saveState();
+  renderRecipeOptions();
+  renderRecipes();
+}
+
+function getRecipeById(recipeId) {
+  return state.recipes.find((recipe) => recipe.id === recipeId) || null;
+}
+
+function sumIngredientMacros(ingredients) {
+  return ingredients.reduce((acc, ingredient) => ({
+    kcal: acc.kcal + (ingredient.kcal || 0),
+    p: acc.p + (ingredient.p || 0),
+    c: acc.c + (ingredient.c || 0),
+    f: acc.f + (ingredient.f || 0),
+  }), { kcal: 0, p: 0, c: 0, f: 0 });
+}
+
+function calculatePer100(totals, totalWeight) {
+  const factor = 100 / totalWeight;
+  return {
+    kcal: Math.round(totals.kcal * factor),
+    p: roundTo(totals.p * factor, 1),
+    c: roundTo(totals.c * factor, 1),
+    f: roundTo(totals.f * factor, 1),
+  };
+}
+
+function calculateRecipeServing(recipe, grams) {
+  const factor = grams / 100;
+  return {
+    k: Math.round(recipe.per100.kcal * factor),
+    p: roundTo(recipe.per100.p * factor, 1),
+    c: roundTo(recipe.per100.c * factor, 1),
+    f: roundTo(recipe.per100.f * factor, 1),
+  };
 }
 
 function resetApp() {
@@ -594,9 +900,10 @@ function resetApp() {
 
   localStorage.removeItem(STORAGE_KEY);
   LEGACY_KEYS.forEach((key) => localStorage.removeItem(key));
-  state = { profile: null, history: {} };
+  state = { profile: null, history: {}, recipes: [] };
   selectedActivity = 1.2;
   selectedGoalAdj = -500;
+  recipeDraftIngredients = [];
   window.location.reload();
 }
 
@@ -646,9 +953,7 @@ function showToast(message) {
   ui.toast.textContent = message;
   ui.toast.classList.remove('hidden');
   window.clearTimeout(toastTimer);
-  toastTimer = window.setTimeout(() => {
-    ui.toast.classList.add('hidden');
-  }, 2400);
+  toastTimer = window.setTimeout(() => ui.toast.classList.add('hidden'), 2400);
 }
 
 function escapeHtml(value) {
