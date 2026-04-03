@@ -2,6 +2,9 @@ const STORAGE_KEY = 'caltrack_v3';
 const LEGACY_KEYS = ['caltrak_v2'];
 const PROFILE_COOKIE_KEY = 'caltrack_profile_v1';
 const LANGUAGE_COOKIE_KEY = 'caltrack_lang_v1';
+const IDB_NAME = 'caltrack_storage';
+const IDB_STORE = 'kv';
+const PROFILE_IDB_KEY = 'profile';
 const RING_CIRCUMFERENCE = 471;
 const MAX_DAYS_HISTORY = 365;
 const INGREDIENT_LIBRARY_URL = './ingredients-library-full.json';
@@ -253,6 +256,7 @@ function bindEvents() {
 async function bootstrap() {
   setHeightUnit('cm');
   setWeightUnit('kg');
+  await hydratePersistentProfile();
   rehydrateSelections();
   applyTranslations();
   renderQuickFoods();
@@ -354,6 +358,91 @@ function persistProfileFallback() {
   } else {
     deleteCookie(PROFILE_COOKIE_KEY);
   }
+}
+
+function openIdb() {
+  return new Promise((resolve, reject) => {
+    if (!window.indexedDB) return reject(new Error('indexedDB unavailable'));
+    const request = indexedDB.open(IDB_NAME, 1);
+    request.onupgradeneeded = () => {
+      const db = request.result;
+      if (!db.objectStoreNames.contains(IDB_STORE)) db.createObjectStore(IDB_STORE);
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error || new Error('indexedDB open failed'));
+  });
+}
+
+async function idbGet(key) {
+  try {
+    const db = await openIdb();
+    return await new Promise((resolve, reject) => {
+      const tx = db.transaction(IDB_STORE, 'readonly');
+      const req = tx.objectStore(IDB_STORE).get(key);
+      req.onsuccess = () => resolve(req.result ?? null);
+      req.onerror = () => reject(req.error || new Error('indexedDB get failed'));
+    });
+  } catch {
+    return null;
+  }
+}
+
+async function idbSet(key, value) {
+  try {
+    const db = await openIdb();
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction(IDB_STORE, 'readwrite');
+      const req = tx.objectStore(IDB_STORE).put(value, key);
+      req.onsuccess = () => resolve(true);
+      req.onerror = () => reject(req.error || new Error('indexedDB put failed'));
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function idbDelete(key) {
+  try {
+    const db = await openIdb();
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction(IDB_STORE, 'readwrite');
+      const req = tx.objectStore(IDB_STORE).delete(key);
+      req.onsuccess = () => resolve(true);
+      req.onerror = () => reject(req.error || new Error('indexedDB delete failed'));
+    });
+  } catch {}
+}
+
+async function hydratePersistentProfile() {
+  if (state.profile) return;
+
+  const cookieProfile = mergeProfileFallback(state).profile;
+  if (cookieProfile) {
+    state.profile = cookieProfile;
+    return;
+  }
+
+  try {
+    const raw = await idbGet(PROFILE_IDB_KEY);
+    if (!raw) return;
+    const parsed = sanitizeProfile(typeof raw === 'string' ? JSON.parse(raw) : raw);
+    if (parsed) {
+      state.profile = parsed;
+      saveState();
+    }
+  } catch {}
+}
+
+function storageStatusSummary() {
+  const local = safeSetLocalStorage('__caltrack_test__', '1');
+  if (local) safeRemoveLocalStorage('__caltrack_test__');
+  const cookieBefore = getCookie('__caltrack_cookie_test__');
+  setCookie('__caltrack_cookie_test__', '1', 1);
+  const cookieOk = getCookie('__caltrack_cookie_test__') === '1';
+  deleteCookie('__caltrack_cookie_test__');
+  if (cookieBefore) setCookie('__caltrack_cookie_test__', cookieBefore, 1);
+  return { local, cookie: cookieOk, indexedDb: Boolean(window.indexedDB) };
 }
 
 function t(key, vars = {}) {
@@ -606,10 +695,16 @@ function sanitizeRecipe(recipe) {
 function saveState() {
   pruneHistory(state.history);
   persistProfileFallback();
+  if (state?.profile) {
+    void idbSet(PROFILE_IDB_KEY, JSON.stringify(state.profile));
+  } else {
+    void idbDelete(PROFILE_IDB_KEY);
+  }
   const ok = safeSetLocalStorage(STORAGE_KEY, JSON.stringify(state));
   if (!ok) {
     console.error('Failed to save local state');
-    showToast('Storage unavailable. Profile fallback saved.');
+    const status = storageStatusSummary();
+    showToast(`Storage issue — local:${status.local ? 'ok' : 'no'} cookie:${status.cookie ? 'ok' : 'no'} idb:${status.indexedDb ? 'yes' : 'no'}`);
   }
 }
 
@@ -1567,6 +1662,7 @@ function resetApp() {
   safeRemoveLocalStorage(LANGUAGE_KEY);
   deleteCookie(PROFILE_COOKIE_KEY);
   deleteCookie(LANGUAGE_COOKIE_KEY);
+  void idbDelete(PROFILE_IDB_KEY);
   state = { profile: null, history: {}, recipes: [], favoriteIngredients: [] };
   selectedActivity = 1.2;
   selectedGoalAdj = -500;
