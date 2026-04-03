@@ -5,6 +5,7 @@ const LANGUAGE_COOKIE_KEY = 'caltrack_lang_v1';
 const IDB_NAME = 'caltrack_storage';
 const IDB_STORE = 'kv';
 const PROFILE_IDB_KEY = 'profile';
+const STATE_IDB_KEY = 'app_state';
 const RING_CIRCUMFERENCE = 471;
 const MAX_DAYS_HISTORY = 365;
 const INGREDIENT_LIBRARY_URL = './ingredients-library-full.json';
@@ -567,7 +568,7 @@ function bindEvents() {
 async function bootstrap() {
   setHeightUnit('cm');
   setWeightUnit('kg');
-  await hydratePersistentProfile();
+  await hydratePersistentState();
   rehydrateSelections();
   applyTranslations();
   renderQuickFoods();
@@ -725,21 +726,38 @@ async function idbDelete(key) {
   } catch {}
 }
 
-async function hydratePersistentProfile() {
-  if (state.profile) return;
-
-  const cookieProfile = mergeProfileFallback(state).profile;
-  if (cookieProfile) {
-    state.profile = cookieProfile;
-    return;
+async function hydratePersistentState() {
+  if (!state.profile) {
+    const cookieProfile = mergeProfileFallback(state).profile;
+    if (cookieProfile) state.profile = cookieProfile;
   }
 
   try {
-    const raw = await idbGet(PROFILE_IDB_KEY);
-    if (!raw) return;
-    const parsed = sanitizeProfile(typeof raw === 'string' ? JSON.parse(raw) : raw);
-    if (parsed) {
-      state.profile = parsed;
+    const rawState = await idbGet(STATE_IDB_KEY);
+    if (rawState) {
+      const parsedState = sanitizeState(typeof rawState === 'string' ? JSON.parse(rawState) : rawState);
+      const hasLocalState = Boolean(state.profile) || Boolean(Object.keys(state.history || {}).length) || Boolean((state.recipes || []).length) || Boolean((state.favoriteIngredients || []).length);
+      if (!hasLocalState) {
+        state = parsedState;
+      } else {
+        state = {
+          profile: state.profile || parsedState.profile,
+          history: Object.keys(state.history || {}).length ? state.history : (parsedState.history || {}),
+          recipes: (state.recipes || []).length ? state.recipes : (parsedState.recipes || []),
+          favoriteIngredients: (state.favoriteIngredients || []).length ? state.favoriteIngredients : (parsedState.favoriteIngredients || []),
+        };
+      }
+    }
+  } catch {}
+
+  if (state.profile) return;
+
+  try {
+    const rawProfile = await idbGet(PROFILE_IDB_KEY);
+    if (!rawProfile) return;
+    const parsedProfile = sanitizeProfile(typeof rawProfile === 'string' ? JSON.parse(rawProfile) : rawProfile);
+    if (parsedProfile) {
+      state.profile = parsedProfile;
       await saveState();
     }
   } catch {}
@@ -1179,7 +1197,7 @@ function goStep2() {
   showScreen('s-ob2');
 }
 
-function calcAndFinish() {
+async function calcAndFinish() {
   const age = clampInt(document.getElementById('ob-age').value, 10, 100);
   const sex = document.getElementById('ob-sex').value;
   const heightPrimary = Number(document.getElementById('ob-h1').value);
@@ -1230,7 +1248,7 @@ function calcAndFinish() {
     goalLabel: goalLabel(selectedGoalAdj),
   };
 
-  saveState();
+  await saveState();
   renderResult(state.profile);
   showScreen('s-result');
 }
@@ -1751,7 +1769,7 @@ async function saveMealFromModal() {
   if (isEditing) meals[mealEditIndex] = meal;
   else meals.push(meal);
 
-  saveState();
+  await saveState();
   closeMealModal();
   renderTotals();
   renderMeals();
@@ -1875,7 +1893,7 @@ function renderRecipeDraft() {
   });
 }
 
-function saveRecipe() {
+async function saveRecipe() {
   const name = String(document.getElementById('recipe-name').value || '').trim().slice(0, 60);
   const totalWeight = clampFloat(document.getElementById('recipe-total-weight').value, 1, 20000);
 
@@ -1906,14 +1924,14 @@ function saveRecipe() {
     state.recipes.unshift(recipe);
   }
 
-  saveState();
+  await saveState();
   renderRecipeOptions();
   renderRecipes();
   closeRecipeModal();
   showToast(t(isEditing ? 'recipeUpdated' : 'recipeSaved', { name: recipe.name }));
 }
 
-function deleteRecipe(recipeId) {
+async function deleteRecipe(recipeId) {
   const recipe = getRecipeById(recipeId);
   if (!recipe) return;
   const confirmed = window.confirm(t('deleteRecipeConfirm', { name: recipe.name }));
@@ -1923,7 +1941,7 @@ function deleteRecipe(recipeId) {
   for (const day of Object.values(state.history)) {
     day.meals = (day.meals || []).map((meal) => meal.recipeId === recipeId ? { ...meal, recipeId: null } : meal);
   }
-  saveState();
+  await saveState();
   renderRecipeOptions();
   renderRecipes();
   renderMeals();
