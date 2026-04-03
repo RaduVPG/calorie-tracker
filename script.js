@@ -22,6 +22,286 @@ const QUICK_FOODS = [
 ];
 
 const EMOJIS = ['🍚', '🥗', '🍳', '🥩', '🍝', '🥘', '🍜', '🥙', '🫐', '🍌', '🥛', '🍎'];
+
+
+const CURATED_INGREDIENTS = [
+  {
+    name: 'Greek Yogurt',
+    nameRo: 'Iaurt grecesc',
+    category: 'milk-dairy-products',
+    serving: '100 g',
+    calories: 73,
+    caloriesPer100g: 73,
+    proteinPer100g: 10,
+    carbsPer100g: 3.8,
+    fatPer100g: 2,
+    aliases: ['greek yogurt', 'greek yoghurt', 'iaurt grecesc', 'iaurt grecesc simplu'],
+    source: 'curated',
+  },
+  {
+    name: 'Greek Yogurt, 2% fat',
+    nameRo: 'Iaurt grecesc 2% grăsime',
+    category: 'milk-dairy-products',
+    serving: '100 g',
+    calories: 73,
+    caloriesPer100g: 73,
+    proteinPer100g: 10,
+    carbsPer100g: 3.8,
+    fatPer100g: 2,
+    aliases: ['2 greek yogurt', '2% greek yogurt', '2 percent greek yogurt', '2 percent fat greek yogurt', '2% fat greek yogurt', 'low fat greek yogurt', 'iaurt grecesc 2', 'iaurt grecesc 2 la suta', 'iaurt grecesc 2% grasime'],
+    source: 'curated',
+  },
+  {
+    name: 'Greek Yogurt, 0% fat',
+    nameRo: 'Iaurt grecesc 0% grăsime',
+    category: 'milk-dairy-products',
+    serving: '100 g',
+    calories: 59,
+    caloriesPer100g: 59,
+    proteinPer100g: 10.3,
+    carbsPer100g: 3.6,
+    fatPer100g: 0.4,
+    aliases: ['0 greek yogurt', '0% greek yogurt', 'fat free greek yogurt', 'nonfat greek yogurt', 'greek yogurt 0', 'iaurt grecesc 0', 'iaurt grecesc 0% grasime', 'iaurt grecesc degresat'],
+    source: 'curated',
+  },
+  {
+    name: 'Plain Yogurt',
+    nameRo: 'Iaurt simplu',
+    category: 'yogurt',
+    serving: '100 g',
+    calories: 61,
+    caloriesPer100g: 61,
+    proteinPer100g: 3.5,
+    carbsPer100g: 4.7,
+    fatPer100g: 3.3,
+    aliases: ['yogurt', 'yoghurt', 'plain yogurt', 'plain yoghurt', 'natural yogurt', 'natural yoghurt', 'iaurt', 'iaurt simplu', 'iaurt natural'],
+    source: 'curated',
+  },
+  {
+    name: 'Skyr',
+    nameRo: 'Skyr',
+    category: 'yogurt',
+    serving: '100 g',
+    calories: 63,
+    caloriesPer100g: 63,
+    proteinPer100g: 11,
+    carbsPer100g: 3.8,
+    fatPer100g: 0.2,
+    aliases: ['skyr', 'skyr yogurt', 'skyr yoghurt'],
+    source: 'curated',
+  },
+  {
+    name: 'Milk, whole',
+    nameRo: 'Lapte integral',
+    category: 'milk-dairy-products',
+    serving: '100 ml',
+    calories: 61,
+    caloriesPer100g: 61,
+    proteinPer100g: 3.2,
+    carbsPer100g: 4.8,
+    fatPer100g: 3.3,
+    aliases: ['milk', 'whole milk', 'full fat milk', 'lapte', 'lapte integral'],
+    source: 'curated',
+  },
+  {
+    name: 'Milk, 1.5% fat',
+    nameRo: 'Lapte 1,5% grăsime',
+    category: 'milk-dairy-products',
+    serving: '100 ml',
+    calories: 47,
+    caloriesPer100g: 47,
+    proteinPer100g: 3.4,
+    carbsPer100g: 4.9,
+    fatPer100g: 1.5,
+    aliases: ['1.5 milk', 'milk 1.5%', '1.5% milk', 'lapte 1.5', 'lapte 1,5', 'lapte 1.5% grasime', 'lapte 1,5% grasime'],
+    source: 'curated',
+  },
+  {
+    name: 'Milk, 2% fat',
+    nameRo: 'Lapte 2% grăsime',
+    category: 'milk-dairy-products',
+    serving: '100 ml',
+    calories: 50,
+    caloriesPer100g: 50,
+    proteinPer100g: 3.4,
+    carbsPer100g: 4.9,
+    fatPer100g: 2,
+    aliases: ['2 milk', 'milk 2%', '2% milk', 'lapte 2', 'lapte 2% grasime', 'lapte 2 la suta'],
+    source: 'curated',
+  },
+  {
+    name: 'Rice, white uncooked',
+    nameRo: 'Orez alb crud',
+    category: 'rice-products',
+    serving: '100 g',
+    calories: 356,
+    caloriesPer100g: 356,
+    proteinPer100g: 6.7,
+    carbsPer100g: 79,
+    fatPer100g: 0.6,
+    aliases: ['rice', 'white rice', 'orez', 'orez alb', 'orez crud', 'white rice uncooked'],
+    source: 'curated',
+  },
+  {
+    name: 'Rice, white cooked',
+    nameRo: 'Orez alb gătit',
+    category: 'rice-products',
+    serving: '100 g',
+    calories: 130,
+    caloriesPer100g: 130,
+    proteinPer100g: 2.4,
+    carbsPer100g: 28.7,
+    fatPer100g: 0.3,
+    aliases: ['cooked rice', 'white rice cooked', 'orez gatit', 'orez fiert', 'orez alb gatit'],
+    source: 'curated',
+  },
+  {
+    name: 'Chicken Breast, skinless',
+    nameRo: 'Piept de pui fără piele',
+    category: 'poultry-chicken-turkey',
+    serving: '100 g',
+    calories: 120,
+    caloriesPer100g: 120,
+    proteinPer100g: 22.5,
+    carbsPer100g: 0,
+    fatPer100g: 2.6,
+    aliases: ['chicken breast', 'chicken', 'pui', 'piept de pui', 'piept pui', 'chicken breast raw'],
+    source: 'curated',
+  },
+  {
+    name: 'Chicken Thigh, skinless',
+    nameRo: 'Pulpa de pui fără piele',
+    category: 'poultry-chicken-turkey',
+    serving: '100 g',
+    calories: 177,
+    caloriesPer100g: 177,
+    proteinPer100g: 20.7,
+    carbsPer100g: 0,
+    fatPer100g: 10.9,
+    aliases: ['chicken thigh', 'pulpa de pui', 'pulpe de pui', 'chicken thighs'],
+    source: 'curated',
+  },
+  {
+    name: 'Egg',
+    nameRo: 'Ou',
+    category: 'flour-grains-baking-ingredients',
+    serving: '100 g',
+    calories: 143,
+    caloriesPer100g: 143,
+    proteinPer100g: 12.6,
+    carbsPer100g: 0.7,
+    fatPer100g: 9.5,
+    aliases: ['egg', 'eggs', 'ou', 'oua', 'ouă'],
+    source: 'curated',
+  },
+  {
+    name: 'Egg White',
+    nameRo: 'Albuș de ou',
+    category: 'flour-grains-baking-ingredients',
+    serving: '100 g',
+    calories: 52,
+    caloriesPer100g: 52,
+    proteinPer100g: 10.9,
+    carbsPer100g: 0.7,
+    fatPer100g: 0.2,
+    aliases: ['egg white', 'egg whites', 'albus', 'albus de ou'],
+    source: 'curated',
+  },
+  {
+    name: 'Ground Beef, lean',
+    nameRo: 'Carne tocată de vită slabă',
+    category: 'beef-veal',
+    serving: '100 g',
+    calories: 176,
+    caloriesPer100g: 176,
+    proteinPer100g: 20,
+    carbsPer100g: 0,
+    fatPer100g: 10,
+    aliases: ['beef', 'ground beef', 'lean beef', 'vita', 'vită', 'carne de vita', 'carne de vită', 'carne tocata de vita', 'carne tocată de vită'],
+    source: 'curated',
+  },
+  {
+    name: 'Beef Sirloin',
+    nameRo: 'Mușchi de vită',
+    category: 'beef-veal',
+    serving: '100 g',
+    calories: 217,
+    caloriesPer100g: 217,
+    proteinPer100g: 26,
+    carbsPer100g: 0,
+    fatPer100g: 12,
+    aliases: ['beef steak', 'sirloin', 'beef sirloin', 'muschi de vita', 'mușchi de vită', 'antricot vita'],
+    source: 'curated',
+  },
+  {
+    name: 'Olive Oil',
+    nameRo: 'Ulei de măsline',
+    category: 'oils-fats',
+    serving: '100 g',
+    calories: 884,
+    caloriesPer100g: 884,
+    proteinPer100g: 0,
+    carbsPer100g: 0,
+    fatPer100g: 100,
+    aliases: ['olive oil', 'oil', 'ulei', 'ulei de masline', 'ulei de măsline'],
+    source: 'curated',
+  },
+  {
+    name: 'Sunflower Oil',
+    nameRo: 'Ulei de floarea-soarelui',
+    category: 'oils-fats',
+    serving: '100 g',
+    calories: 884,
+    caloriesPer100g: 884,
+    proteinPer100g: 0,
+    carbsPer100g: 0,
+    fatPer100g: 100,
+    aliases: ['sunflower oil', 'vegetable oil', 'ulei floarea soarelui', 'ulei de floarea soarelui'],
+    source: 'curated',
+  },
+  {
+    name: 'Oats',
+    nameRo: 'Ovăz',
+    category: 'flour-grains-baking-ingredients',
+    serving: '100 g',
+    calories: 389,
+    caloriesPer100g: 389,
+    proteinPer100g: 16.9,
+    carbsPer100g: 66.3,
+    fatPer100g: 6.9,
+    aliases: ['oats', 'rolled oats', 'ovaz', 'ovăz', 'fulgi de ovaz', 'fulgi de ovăz', 'oat flakes'],
+    source: 'curated',
+  },
+  {
+    name: 'Potato',
+    nameRo: 'Cartof',
+    category: 'potato-products',
+    serving: '100 g',
+    calories: 77,
+    caloriesPer100g: 77,
+    proteinPer100g: 2,
+    carbsPer100g: 17.5,
+    fatPer100g: 0.1,
+    aliases: ['potato', 'potatoes', 'cartof', 'cartofi', 'white potato'],
+    source: 'curated',
+  },
+  {
+    name: 'Potato, boiled',
+    nameRo: 'Cartof fiert',
+    category: 'potato-products',
+    serving: '100 g',
+    calories: 87,
+    caloriesPer100g: 87,
+    proteinPer100g: 1.9,
+    carbsPer100g: 20.1,
+    fatPer100g: 0.1,
+    aliases: ['boiled potato', 'potato boiled', 'cartof fiert', 'cartofi fierti', 'cartofi fierți'],
+    source: 'curated',
+  },
+];
+
+const LOW_SIGNAL_CATEGORIES = new Set(['liquor-cocktails', 'beer', 'wine', 'juice-soft-drinks', 'coffee']);
+
 const GOAL_LABELS = {
   '-500': { en: 'Lose weight', ro: 'Slăbește' },
   '0': { en: 'Maintain', ro: 'Menține' },
@@ -713,10 +993,14 @@ async function loadIngredientLibrary() {
     const response = await fetch(INGREDIENT_LIBRARY_URL, { cache: 'force-cache' });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const raw = await response.json();
-    ingredientLibrary = Array.isArray(raw) ? raw.filter(Boolean).map(normalizeIngredientItem) : [];
+    ingredientLibrary = buildIngredientLibrary(Array.isArray(raw) ? raw : []);
     ingredientLibraryMap = new Map();
     ingredientLibrary.forEach((item) => {
-      getIngredientAliases(item).forEach((alias) => ingredientLibraryMap.set(normalizeName(alias), item));
+      getIngredientAliases(item).forEach((alias) => {
+        const key = normalizeName(alias);
+        const existing = ingredientLibraryMap.get(key);
+        if (!existing || compareIngredientQuality(item, existing) > 0) ingredientLibraryMap.set(key, item);
+      });
     });
     renderIngredientLibraryOptions();
     renderLibraryMeta();
@@ -743,7 +1027,38 @@ function normalizeIngredientItem(item) {
     carbsPer100g: Number(item.carbsPer100g || item.carbs || 0),
     fatPer100g: Number(item.fatPer100g || item.fat || 0),
     category: String(item.category || 'other'),
+    aliases: Array.isArray(item.aliases) ? item.aliases.map((alias) => String(alias || '').trim()).filter(Boolean) : [],
   };
+}
+
+function buildIngredientLibrary(raw) {
+  const normalized = raw.filter(Boolean).map(normalizeIngredientItem);
+  const curated = CURATED_INGREDIENTS.map(normalizeIngredientItem);
+  return [...curated, ...normalized];
+}
+
+function ingredientMacroDensity(item) {
+  return (Number(item.proteinPer100g) || 0) + (Number(item.carbsPer100g) || 0) + (Number(item.fatPer100g) || 0);
+}
+
+function hasSuspiciousZeroMacros(item) {
+  const kcal = Number(item.caloriesPer100g || 0);
+  if (kcal < 40) return false;
+  if (LOW_SIGNAL_CATEGORIES.has(String(item.category || ''))) return false;
+  return ingredientMacroDensity(item) === 0;
+}
+
+function compareIngredientQuality(a, b) {
+  return ingredientQualityScore(a) - ingredientQualityScore(b);
+}
+
+function ingredientQualityScore(item) {
+  let score = 0;
+  score += ingredientMacroDensity(item) > 0 ? 100 : 0;
+  score += hasSuspiciousZeroMacros(item) ? -200 : 0;
+  score += item.source === 'curated' ? 60 : 0;
+  score += Math.min((Number(item.proteinPer100g) || 0) + (Number(item.carbsPer100g) || 0) + (Number(item.fatPer100g) || 0), 100);
+  return score;
 }
 
 function displayIngredientName(item) {
@@ -751,7 +1066,7 @@ function displayIngredientName(item) {
 }
 
 function getIngredientAliases(item) {
-  return Array.from(new Set([item.name, item.nameRo].filter(Boolean)));
+  return Array.from(new Set([item.name, item.nameRo, ...(Array.isArray(item.aliases) ? item.aliases : [])].filter(Boolean)));
 }
 
 function renderIngredientLibraryOptions() {
@@ -1730,13 +2045,38 @@ function findIngredientByName(name) {
   if (!normalized) return null;
   if (ingredientLibraryMap.has(normalized)) return ingredientLibraryMap.get(normalized) || null;
 
-  const startsWithMatches = ingredientLibrary.filter((item) => getIngredientAliases(item).some((alias) => normalizeName(alias).startsWith(normalized)));
-  if (startsWithMatches.length === 1) return startsWithMatches[0];
+  const scored = ingredientLibrary
+    .map((item) => ({ item, score: scoreIngredientMatch(item, normalized) }))
+    .filter((entry) => entry.score > 0)
+    .sort((a, b) => b.score - a.score);
 
-  const containsMatches = ingredientLibrary.filter((item) => getIngredientAliases(item).some((alias) => normalizeName(alias).includes(normalized)));
-  if (containsMatches.length === 1) return containsMatches[0];
+  if (!scored.length) return null;
+  if (scored.length === 1) return scored[0].item;
+  if (scored[0].score - scored[1].score >= 25) return scored[0].item;
+  return scored[0].item;
+}
 
-  return null;
+function scoreIngredientMatch(item, normalizedQuery) {
+  const aliases = getIngredientAliases(item).map((alias) => normalizeName(alias)).filter(Boolean);
+  if (!aliases.length) return 0;
+
+  let best = 0;
+  aliases.forEach((alias) => {
+    if (alias === normalizedQuery) best = Math.max(best, 1000);
+    else if (alias.startsWith(normalizedQuery)) best = Math.max(best, 700 - Math.max(alias.length - normalizedQuery.length, 0));
+    else if (alias.includes(normalizedQuery)) best = Math.max(best, 500 - Math.max(alias.length - normalizedQuery.length, 0));
+    else if (normalizedQuery.startsWith(alias)) best = Math.max(best, 420 - Math.max(normalizedQuery.length - alias.length, 0));
+    else {
+      const queryTokens = normalizedQuery.split(' ').filter(Boolean);
+      const aliasTokens = alias.split(' ').filter(Boolean);
+      const tokenHits = queryTokens.filter((token) => aliasTokens.includes(token)).length;
+      if (tokenHits) best = Math.max(best, 220 + tokenHits * 40 - Math.max(aliasTokens.length - tokenHits, 0) * 5);
+    }
+  });
+
+  best += ingredientQualityScore(item);
+  if (hasSuspiciousZeroMacros(item)) best -= 400;
+  return best;
 }
 
 function goalLabel(goalAdj) {
