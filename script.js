@@ -1,5 +1,7 @@
 const STORAGE_KEY = 'caltrack_v3';
 const LEGACY_KEYS = ['caltrak_v2'];
+const PROFILE_COOKIE_KEY = 'caltrack_profile_v1';
+const LANGUAGE_COOKIE_KEY = 'caltrack_lang_v1';
 const RING_CIRCUMFERENCE = 471;
 const MAX_DAYS_HISTORY = 365;
 const INGREDIENT_LIBRARY_URL = './ingredients-library-full.json';
@@ -153,7 +155,7 @@ const I18N = {
 let state = loadState();
 let ingredientLibrary = [];
 let ingredientLibraryMap = new Map();
-let currentLang = localStorage.getItem(LANGUAGE_KEY) || 'en';
+let currentLang = safeGetLocalStorage(LANGUAGE_KEY) || getCookie(LANGUAGE_COOKIE_KEY) || 'en';
 let heightUnit = 'cm';
 let weightUnit = 'kg';
 let selectedActivity = state.profile?.activityFactor || 1.2;
@@ -272,21 +274,86 @@ function loadState() {
   const fallback = { profile: null, history: {}, recipes: [], favoriteIngredients: [] };
 
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return sanitizeState(JSON.parse(raw));
+    const raw = safeGetLocalStorage(STORAGE_KEY);
+    if (raw) return mergeProfileFallback(sanitizeState(JSON.parse(raw)));
 
     for (const key of LEGACY_KEYS) {
-      const legacyRaw = localStorage.getItem(key);
+      const legacyRaw = safeGetLocalStorage(key);
       if (!legacyRaw) continue;
       const migrated = sanitizeState(JSON.parse(legacyRaw));
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated));
-      return migrated;
+      safeSetLocalStorage(STORAGE_KEY, JSON.stringify(migrated));
+      return mergeProfileFallback(migrated);
     }
   } catch (error) {
     console.error('Failed to load local state', error);
   }
 
-  return fallback;
+  return mergeProfileFallback(fallback);
+}
+
+function safeGetLocalStorage(key) {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function safeSetLocalStorage(key, value) {
+  try {
+    localStorage.setItem(key, value);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function safeRemoveLocalStorage(key) {
+  try {
+    localStorage.removeItem(key);
+  } catch {}
+}
+
+function setCookie(name, value, days = 365) {
+  try {
+    const expires = new Date(Date.now() + days * 864e5).toUTCString();
+    document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax`;
+  } catch {}
+}
+
+function getCookie(name) {
+  try {
+    const match = document.cookie.match(new RegExp(`(?:^|; )${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}=([^;]*)`));
+    return match ? decodeURIComponent(match[1]) : null;
+  } catch {
+    return null;
+  }
+}
+
+function deleteCookie(name) {
+  try {
+    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; SameSite=Lax`;
+  } catch {}
+}
+
+function mergeProfileFallback(baseState) {
+  if (baseState.profile) return baseState;
+  try {
+    const rawProfile = getCookie(PROFILE_COOKIE_KEY);
+    if (!rawProfile) return baseState;
+    const parsedProfile = sanitizeProfile(JSON.parse(rawProfile));
+    return { ...baseState, profile: parsedProfile || null };
+  } catch {
+    return baseState;
+  }
+}
+
+function persistProfileFallback() {
+  if (state?.profile) {
+    setCookie(PROFILE_COOKIE_KEY, JSON.stringify(state.profile));
+  } else {
+    deleteCookie(PROFILE_COOKIE_KEY);
+  }
 }
 
 function t(key, vars = {}) {
@@ -300,7 +367,8 @@ function t(key, vars = {}) {
 
 function setLanguage(lang) {
   currentLang = lang === 'ro' ? 'ro' : 'en';
-  localStorage.setItem(LANGUAGE_KEY, currentLang);
+  safeSetLocalStorage(LANGUAGE_KEY, currentLang);
+  setCookie(LANGUAGE_COOKIE_KEY, currentLang);
   applyTranslations();
   renderQuickFoods();
   renderRecipeOptions();
@@ -537,11 +605,11 @@ function sanitizeRecipe(recipe) {
 
 function saveState() {
   pruneHistory(state.history);
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  } catch (error) {
-    console.error('Failed to save local state', error);
-    showToast('Storage unavailable');
+  persistProfileFallback();
+  const ok = safeSetLocalStorage(STORAGE_KEY, JSON.stringify(state));
+  if (!ok) {
+    console.error('Failed to save local state');
+    showToast('Storage unavailable. Profile fallback saved.');
   }
 }
 
@@ -1494,8 +1562,11 @@ function resetApp() {
   const confirmed = window.confirm(t('resetConfirm'));
   if (!confirmed) return;
 
-  localStorage.removeItem(STORAGE_KEY);
-  LEGACY_KEYS.forEach((key) => localStorage.removeItem(key));
+  safeRemoveLocalStorage(STORAGE_KEY);
+  LEGACY_KEYS.forEach((key) => safeRemoveLocalStorage(key));
+  safeRemoveLocalStorage(LANGUAGE_KEY);
+  deleteCookie(PROFILE_COOKIE_KEY);
+  deleteCookie(LANGUAGE_COOKIE_KEY);
   state = { profile: null, history: {}, recipes: [], favoriteIngredients: [] };
   selectedActivity = 1.2;
   selectedGoalAdj = -500;
