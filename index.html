@@ -283,7 +283,7 @@
         </div>
 
         <div class="modal-grid modal-grid-inline">
-          <div class="modal-field"><label for="meal-recipe-grams" id="meal-serving-label">Serving (g)</label><input type="number" id="meal-recipe-grams" placeholder="0" min="1" max="3000" inputmode="decimal" value="0"></div>
+          <div class="modal-field"><label for="meal-recipe-grams" id="meal-serving-label">Serving (g)</label><input type="number" id="meal-recipe-grams" placeholder="0" min="1" max="3000" step="0.1" inputmode="decimal" value="0"></div>
           <div class="modal-field modal-field-end"><button class="btn-ghost btn-inline" id="apply-recipe" type="button">Apply recipe</button></div>
         </div>
 
@@ -296,9 +296,9 @@
 
         <div class="modal-grid">
           <div class="modal-field"><label for="meal-kcal">Calories</label><input type="number" id="meal-kcal" placeholder="0" min="1" max="5000" inputmode="numeric" value="0"></div>
-          <div class="modal-field"><label for="meal-p">Protein (g)</label><input type="number" id="meal-p" placeholder="0" min="0" max="400" inputmode="decimal" value="0"></div>
-          <div class="modal-field"><label for="meal-c">Carbs (g)</label><input type="number" id="meal-c" placeholder="0" min="0" max="600" inputmode="decimal" value="0"></div>
-          <div class="modal-field"><label for="meal-f">Fat (g)</label><input type="number" id="meal-f" placeholder="0" min="0" max="300" inputmode="decimal" value="0"></div>
+          <div class="modal-field"><label for="meal-p">Protein (g)</label><input type="number" id="meal-p" placeholder="0" min="0" max="400" step="0.1" inputmode="decimal" value="0"></div>
+          <div class="modal-field"><label for="meal-c">Carbs (g)</label><input type="number" id="meal-c" placeholder="0" min="0" max="600" step="0.1" inputmode="decimal" value="0"></div>
+          <div class="modal-field"><label for="meal-f">Fat (g)</label><input type="number" id="meal-f" placeholder="0" min="0" max="300" step="0.1" inputmode="decimal" value="0"></div>
         </div>
 
         <div class="modal-actions">
@@ -320,7 +320,7 @@
 
         <div class="field-group modal-group">
           <label class="field-label" for="recipe-total-weight" id="recipe-total-weight-label">Total cooked recipe weight (g)</label>
-          <input type="number" id="recipe-total-weight" placeholder="0" min="1" max="20000" inputmode="decimal" value="0">
+          <input type="number" id="recipe-total-weight" placeholder="0" min="1" max="20000" step="0.1" inputmode="decimal" value="0">
           <p class="setting-hint" id="recipe-total-weight-hint">Use the final cooked weight if water evaporates or ingredients change weight during cooking.</p>
         </div>
 
@@ -339,11 +339,11 @@
             <div class="favorite-ingredients" id="favorite-ingredients"></div>
           </div>
           <div class="modal-grid modal-grid-ingredient">
-            <div class="modal-field"><label for="ingredient-grams">Grams</label><input type="number" id="ingredient-grams" placeholder="0" min="1" max="5000" inputmode="decimal" value="0"></div>
-            <div class="modal-field"><label for="ingredient-kcal">Calories</label><input type="number" id="ingredient-kcal" placeholder="0" min="0" max="5000" inputmode="decimal" value="0"></div>
-            <div class="modal-field"><label for="ingredient-p">Protein</label><input type="number" id="ingredient-p" placeholder="0" min="0" max="400" inputmode="decimal" value="0"></div>
-            <div class="modal-field"><label for="ingredient-c">Carbs</label><input type="number" id="ingredient-c" placeholder="0" min="0" max="600" inputmode="decimal" value="0"></div>
-            <div class="modal-field"><label for="ingredient-f">Fat</label><input type="number" id="ingredient-f" placeholder="0" min="0" max="300" inputmode="decimal" value="0"></div>
+            <div class="modal-field"><label for="ingredient-grams">Grams</label><input type="number" id="ingredient-grams" placeholder="0" min="1" max="5000" step="0.1" inputmode="decimal" value="0"></div>
+            <div class="modal-field"><label for="ingredient-kcal">Calories</label><input type="number" id="ingredient-kcal" placeholder="0" min="0" max="5000" step="0.1" inputmode="decimal" value="0"></div>
+            <div class="modal-field"><label for="ingredient-p">Protein</label><input type="number" id="ingredient-p" placeholder="0" min="0" max="400" step="0.1" inputmode="decimal" value="0"></div>
+            <div class="modal-field"><label for="ingredient-c">Carbs</label><input type="number" id="ingredient-c" placeholder="0" min="0" max="600" step="0.1" inputmode="decimal" value="0"></div>
+            <div class="modal-field"><label for="ingredient-f">Fat</label><input type="number" id="ingredient-f" placeholder="0" min="0" max="300" step="0.1" inputmode="decimal" value="0"></div>
           </div>
           <button class="btn-ghost btn-inline-wide" id="add-ingredient" type="button">Add ingredient</button>
         </div>
