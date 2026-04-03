@@ -197,17 +197,23 @@
     <div id="s-main" class="screen main-screen">
       <div class="topbar">
         <div>
-          <div class="topbar-title">Today</div>
+          <div class="topbar-title" id="topbar-title">Today</div>
           <div class="topbar-date" id="main-date"></div>
         </div>
-        <div class="streak-badge" id="streak-badge">🔥 0 days</div>
+        <div class="topbar-actions">
+          <div class="lang-toggle" aria-label="Language toggle">
+            <button class="lang-btn active" id="lang-en" type="button">EN</button>
+            <button class="lang-btn" id="lang-ro" type="button">RO</button>
+          </div>
+          <div class="streak-badge" id="streak-badge">🔥 0 days</div>
+        </div>
       </div>
 
       <div class="tabs" role="tablist" aria-label="Sections">
-        <button class="tab active" data-tab="today" type="button" role="tab" aria-selected="true">Today</button>
-        <button class="tab" data-tab="history" type="button" role="tab" aria-selected="false">History</button>
-        <button class="tab" data-tab="recipes" type="button" role="tab" aria-selected="false">Recipes</button>
-        <button class="tab" data-tab="settings" type="button" role="tab" aria-selected="false">Profile</button>
+        <button class="tab active" id="tab-btn-today" data-tab="today" type="button" role="tab" aria-selected="true">Today</button>
+        <button class="tab" id="tab-btn-history" data-tab="history" type="button" role="tab" aria-selected="false">History</button>
+        <button class="tab" id="tab-btn-recipes" data-tab="recipes" type="button" role="tab" aria-selected="false">Recipes</button>
+        <button class="tab" id="tab-btn-settings" data-tab="settings" type="button" role="tab" aria-selected="false">Profile</button>
       </div>
 
       <div class="tab-content active" id="tab-today">
@@ -227,7 +233,7 @@
         <div class="macro-mini" id="macro-mini"></div>
 
         <div class="section-header">
-          <span class="section-title">Meals</span>
+          <span class="section-title" id="meals-section-title">Meals</span>
           <button class="add-btn" id="open-modal" type="button" aria-label="Add meal">+</button>
         </div>
 
@@ -237,7 +243,7 @@
       <div class="tab-content" id="tab-history"></div>
       <div class="tab-content" id="tab-recipes">
         <div class="section-header section-header-tight">
-          <span class="section-title">Saved recipes</span>
+          <span class="section-title" id="recipes-section-title">Saved recipes</span>
           <button class="add-btn" id="open-recipe-modal" type="button" aria-label="Add recipe">+</button>
         </div>
         <div class="library-meta-card" id="library-meta-card">Loading ingredient library…</div>
@@ -252,26 +258,26 @@
         <div class="modal-title" id="modal-title">Log a meal</div>
 
         <div class="quick-section">
-          <div class="field-label">Quick add</div>
+          <div class="field-label" id="quick-add-label">Quick add</div>
           <div class="quick-foods" id="quick-foods"></div>
         </div>
 
         <div class="field-group modal-group">
-          <label class="field-label" for="meal-recipe-select">Saved recipe</label>
+          <label class="field-label" for="meal-recipe-select" id="meal-recipe-label">Saved recipe</label>
           <select id="meal-recipe-select">
             <option value="">None — manual entry</option>
           </select>
         </div>
 
         <div class="modal-grid modal-grid-inline">
-          <div class="modal-field"><label for="meal-recipe-grams">Serving (g)</label><input type="number" id="meal-recipe-grams" placeholder="300" min="1" max="3000" inputmode="decimal"></div>
+          <div class="modal-field"><label for="meal-recipe-grams" id="meal-serving-label">Serving (g)</label><input type="number" id="meal-recipe-grams" placeholder="300" min="1" max="3000" inputmode="decimal"></div>
           <div class="modal-field modal-field-end"><button class="btn-ghost btn-inline" id="apply-recipe" type="button">Apply recipe</button></div>
         </div>
 
         <div class="recipe-preview hidden" id="meal-recipe-preview"></div>
 
         <div class="field-group modal-group">
-          <label class="field-label" for="meal-name">Food name</label>
+          <label class="field-label" for="meal-name" id="meal-name-label">Food name</label>
           <input type="text" id="meal-name" placeholder="e.g. Chicken breast" maxlength="60">
         </div>
 
@@ -295,18 +301,18 @@
         <div class="modal-title" id="recipe-modal-title">Create recipe</div>
 
         <div class="field-group modal-group">
-          <label class="field-label" for="recipe-name">Recipe name</label>
+          <label class="field-label" for="recipe-name" id="recipe-name-label">Recipe name</label>
           <input type="text" id="recipe-name" placeholder="e.g. Chicken curry" maxlength="60">
         </div>
 
         <div class="field-group modal-group">
-          <label class="field-label" for="recipe-total-weight">Total cooked recipe weight (g)</label>
+          <label class="field-label" for="recipe-total-weight" id="recipe-total-weight-label">Total cooked recipe weight (g)</label>
           <input type="number" id="recipe-total-weight" placeholder="1200" min="1" max="20000" inputmode="decimal">
-          <p class="setting-hint">Use the final cooked weight if water evaporates or ingredients change weight during cooking.</p>
+          <p class="setting-hint" id="recipe-total-weight-hint">Use the final cooked weight if water evaporates or ingredients change weight during cooking.</p>
         </div>
 
         <div class="ingredient-builder">
-          <div class="field-label">Add ingredient</div>
+          <div class="field-label" id="ingredient-builder-label">Add ingredient</div>
           <div class="field-group modal-group-small">
             <input type="text" id="ingredient-name" placeholder="Ingredient name" maxlength="60" list="ingredient-library-options">
             <datalist id="ingredient-library-options"></datalist>

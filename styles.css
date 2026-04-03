@@ -490,7 +490,36 @@ select option {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
   padding: calc(16px + env(safe-area-inset-top)) 20px 8px;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lang-toggle {
+  display: inline-flex;
+  border: 1px solid var(--c-border);
+  border-radius: 999px;
+  background: var(--c-surface2);
+  overflow: hidden;
+}
+
+.lang-btn {
+  border: none;
+  background: transparent;
+  color: var(--c-muted);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 7px 10px;
+}
+
+.lang-btn.active {
+  background: var(--c-accent);
+  color: #fff;
 }
 
 .topbar-title {
