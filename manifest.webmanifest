@@ -1,0 +1,18 @@
+{
+  "name": "CalTrack",
+  "short_name": "CalTrack",
+  "description": "Offline-first calorie and macro tracking that runs entirely in your browser.",
+  "display": "standalone",
+  "start_url": "/",
+  "scope": "/",
+  "background_color": "#0f0f12",
+  "theme_color": "#0f0f12",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
