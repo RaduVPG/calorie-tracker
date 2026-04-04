@@ -1733,11 +1733,11 @@ function maybeApplyMealIngredientLibrary() {
   if (ui.recipeSelect.value) return;
 
   const name = document.getElementById('meal-name').value;
-  const grams = clampFloat(ui.recipeGrams.value, 1, 3000);
+  const enteredGrams = clampFloat(ui.recipeGrams.value, 1, 3000);
   const match = findIngredientByName(name);
 
   if (!match) {
-    if (!name.trim() || !grams) {
+    if (!name.trim() || !enteredGrams) {
       document.getElementById('meal-kcal').value = '0';
       document.getElementById('meal-p').value = '0';
       document.getElementById('meal-c').value = '0';
@@ -1746,6 +1746,8 @@ function maybeApplyMealIngredientLibrary() {
     }
     return;
   }
+
+  const grams = enteredGrams || (match.defaultUnit === 'piece' ? Number(match.defaultUnitGrams || 0) : null);
 
   if (!grams) {
     document.getElementById('meal-kcal').value = '0';
@@ -1766,13 +1768,17 @@ function maybeApplyMealIngredientLibrary() {
   const c = roundMacroValue(match.carbsPer100g * factor, 1);
   const f = roundMacroValue(match.fatPer100g * factor, 1);
 
+  if (!enteredGrams && match.defaultUnit === 'piece') {
+    document.getElementById('meal-recipe-grams').value = formatFieldNumber(grams);
+  }
+
   document.getElementById('meal-kcal').value = String(kcal);
   document.getElementById('meal-p').value = formatFieldNumber(p);
   document.getElementById('meal-c').value = formatFieldNumber(c);
   document.getElementById('meal-f').value = formatFieldNumber(f);
   ui.recipePreview.classList.remove('hidden');
   ui.recipePreview.innerHTML = `
-    <div><strong>${escapeHtml(displayIngredientName(match))}</strong> · ${formatNumber(grams)}g</div>
+    <div><strong>${escapeHtml(displayIngredientName(match))}</strong> · ${match.defaultUnit === 'piece' && !enteredGrams ? '1 piece' : `${formatNumber(grams)}g`}</div>
     <div class="recipe-preview-line">${formatNumber(kcal)} kcal · ${t('proteinWord')} ${formatNumber(p)}g · ${t('carbsWord')} ${formatNumber(c)}g · ${t('fatWord')} ${formatNumber(f)}g</div>
   `;
 }
