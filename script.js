@@ -1059,29 +1059,29 @@ async function saveState() {
 
 async function loadIngredientLibrary() {
   try {
-    const response = await fetch(INGREDIENT_LIBRARY_URL, { cache: 'force-cache' });
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 4000);
+    const response = await fetch(INGREDIENT_LIBRARY_URL, { cache: 'force-cache', signal: controller.signal });
+    window.clearTimeout(timeout);
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const raw = await response.json();
     ingredientLibrary = buildIngredientLibrary(Array.isArray(raw) ? raw : []);
-    ingredientLibraryMap = new Map();
-    ingredientLibrary.forEach((item) => {
-      getIngredientAliases(item).forEach((alias) => {
-        const key = normalizeName(alias);
-        const existing = ingredientLibraryMap.get(key);
-        if (!existing || compareIngredientQuality(item, existing) > 0) ingredientLibraryMap.set(key, item);
-      });
-    });
-    renderIngredientLibraryOptions();
-    renderLibraryMeta();
-    renderFavoriteIngredients();
   } catch (error) {
-    console.error('Failed to load ingredient library', error);
-    ingredientLibrary = [];
-    ingredientLibraryMap = new Map();
-    renderIngredientLibraryOptions();
-    renderFavoriteIngredients();
-    renderLibraryMeta(t('libraryUnavailable'));
+    console.error('Failed to load full ingredient library, using curated fallback', error);
+    ingredientLibrary = CURATED_INGREDIENTS.map(normalizeIngredientItem);
   }
+
+  ingredientLibraryMap = new Map();
+  ingredientLibrary.forEach((item) => {
+    getIngredientAliases(item).forEach((alias) => {
+      const key = normalizeName(alias);
+      const existing = ingredientLibraryMap.get(key);
+      if (!existing || compareIngredientQuality(item, existing) > 0) ingredientLibraryMap.set(key, item);
+    });
+  });
+  renderIngredientLibraryOptions();
+  renderFavoriteIngredients();
+  renderLibraryMeta(ingredientLibrary.length <= CURATED_INGREDIENTS.length ? t('libraryUnavailable') : undefined);
 }
 
 function inferDefaultUnitMeta(name, aliases = [], existingUnit, existingGrams) {
