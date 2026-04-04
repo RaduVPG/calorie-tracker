@@ -1716,6 +1716,54 @@ function updateMealRecipePreview() {
   `;
 }
 
+function maybeApplyMealIngredientLibrary() {
+  if (ui.recipeSelect.value) return;
+
+  const name = document.getElementById('meal-name').value;
+  const grams = clampFloat(ui.recipeGrams.value, 1, 3000);
+  const match = findIngredientByName(name);
+
+  if (!match) {
+    if (!name.trim() || !grams) {
+      document.getElementById('meal-kcal').value = '0';
+      document.getElementById('meal-p').value = '0';
+      document.getElementById('meal-c').value = '0';
+      document.getElementById('meal-f').value = '0';
+      ui.recipePreview.classList.add('hidden');
+    }
+    return;
+  }
+
+  if (!grams) {
+    document.getElementById('meal-kcal').value = '0';
+    document.getElementById('meal-p').value = '0';
+    document.getElementById('meal-c').value = '0';
+    document.getElementById('meal-f').value = '0';
+    ui.recipePreview.classList.remove('hidden');
+    ui.recipePreview.innerHTML = `
+      <div><strong>${escapeHtml(displayIngredientName(match))}</strong></div>
+      <div class="recipe-preview-line">${formatNumber(match.caloriesPer100g)} kcal / 100g · ${t('proteinWord')} ${formatNumber(match.proteinPer100g)}g · ${t('carbsWord')} ${formatNumber(match.carbsPer100g)}g · ${t('fatWord')} ${formatNumber(match.fatPer100g)}g</div>
+    `;
+    return;
+  }
+
+  const factor = grams / 100;
+  const kcal = roundMacroValue(match.caloriesPer100g * factor, 0);
+  const p = roundMacroValue(match.proteinPer100g * factor, 1);
+  const c = roundMacroValue(match.carbsPer100g * factor, 1);
+  const f = roundMacroValue(match.fatPer100g * factor, 1);
+
+  document.getElementById('meal-kcal').value = String(kcal);
+  document.getElementById('meal-p').value = formatFieldNumber(p);
+  document.getElementById('meal-c').value = formatFieldNumber(c);
+  document.getElementById('meal-f').value = formatFieldNumber(f);
+  ui.recipePreview.classList.remove('hidden');
+  ui.recipePreview.innerHTML = `
+    <div><strong>${escapeHtml(displayIngredientName(match))}</strong> · ${formatNumber(grams)}g</div>
+    <div class="recipe-preview-line">${formatNumber(kcal)} kcal · ${t('proteinWord')} ${formatNumber(p)}g · ${t('carbsWord')} ${formatNumber(c)}g · ${t('fatWord')} ${formatNumber(f)}g</div>
+  `;
+}
+
 function applySelectedRecipeToMeal() {
   const recipe = getRecipeById(ui.recipeSelect.value);
   const grams = clampFloat(ui.recipeGrams.value, 1, 3000);
