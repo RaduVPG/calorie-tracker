@@ -544,6 +544,11 @@ function bindEvents() {
   document.getElementById('ingredient-grams').addEventListener('input', maybeApplyIngredientLibrary);
   document.getElementById('ingredient-grams').addEventListener('change', maybeApplyIngredientLibrary);
   document.getElementById('ingredient-grams').addEventListener('blur', maybeApplyIngredientLibrary);
+  document.getElementById('meal-name').addEventListener('input', maybeApplyMealIngredientLibrary);
+  document.getElementById('meal-name').addEventListener('change', maybeApplyMealIngredientLibrary);
+  document.getElementById('meal-recipe-grams').addEventListener('input', maybeApplyMealIngredientLibrary);
+  document.getElementById('meal-recipe-grams').addEventListener('change', maybeApplyMealIngredientLibrary);
+  document.getElementById('meal-recipe-grams').addEventListener('blur', maybeApplyMealIngredientLibrary);
   ui.toggleIngredientFavorite?.addEventListener('click', toggleCurrentIngredientFavorite);
   ui.langButtons.forEach((button) => button.addEventListener('click', () => setLanguage(button.dataset.lang)));
   ui.recipeSelect.addEventListener('change', handleMealRecipeSelection);
@@ -2166,6 +2171,41 @@ function scoreIngredientMatch(item, normalizedQuery) {
   best += ingredientQualityScore(item);
   if (hasSuspiciousZeroMacros(item)) best -= 400;
   return best;
+}
+
+function goalLabel(goalAdj) {
+  return GOAL_LABELS[String(goalAdj)]?.[currentLang] || GOAL_LABELS[String(goalAdj)]?.en || 'Custom';
+}
+
+function humanizeCategory(category) {
+  return String(category || '')
+    .replaceAll('-', ' ')
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+function formatNumber(value) {
+  return Number(value || 0).toLocaleString(currentLang === 'ro' ? 'ro-RO' : 'en-GB', { maximumFractionDigits: 1 });
+}
+
+function formatFieldNumber(value) {
+  if (!Number.isFinite(Number(value))) return '';
+  return Number.isInteger(Number(value)) ? String(Number(value)) : String(Number(value).toFixed(1));
+}
+
+function showToast(message) {
+  ui.toast.textContent = message;
+  ui.toast.classList.remove('hidden');
+  window.clearTimeout(toastTimer);
+  toastTimer = window.setTimeout(() => ui.toast.classList.add('hidden'), 2400);
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
 }
 
 function goalLabel(goalAdj) {
