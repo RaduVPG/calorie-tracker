@@ -312,19 +312,6 @@ const CURATED_INGREDIENTS = [
     aliases: ['boiled potato', 'potato boiled', 'cartof fiert', 'cartofi fierti', 'cartofi fierți'],
     source: 'curated',
   },
-  {
-    name: 'Banana',
-    nameRo: 'Banană',
-    category: 'fruit',
-    serving: '100 g',
-    calories: 89,
-    caloriesPer100g: 89,
-    proteinPer100g: 1.1,
-    carbsPer100g: 22.8,
-    fatPer100g: 0.3,
-    aliases: ['banana', 'banană', 'banane'],
-    source: 'curated',
-  },
 ];
 
 const LOW_SIGNAL_CATEGORIES = new Set(['liquor-cocktails', 'beer', 'wine', 'juice-soft-drinks', 'coffee']);
@@ -359,7 +346,7 @@ const I18N = {
     yourDailyTarget: 'Your daily target',
     resultSub: 'Based on your estimated BMR, activity level, and goal.',
     kcalPerDay: 'kcal / day',
-    protein: 'Protein', carbs: 'Carbs', fat: 'Fat', proteinWord: 'Protein', carbsWord: 'Carbs', fatWord: 'Fat', bmr: 'BMR', tdee: 'TDEE', bmi: 'BMI', goal: 'Goal',
+    protein: 'Protein', carbs: 'Carbs', fat: 'Fat', bmr: 'BMR', tdee: 'TDEE', bmi: 'BMI', goal: 'Goal',
     startTracking: 'Start tracking',
     languageToggle: 'Language toggle',
     sections: 'Sections', addMealAria: 'Add meal', addRecipeAria: 'Add recipe',
@@ -428,7 +415,7 @@ const I18N = {
     yourDailyTarget: 'Ținta ta zilnică',
     resultSub: 'Bazată pe BMR-ul estimat, nivelul de activitate și obiectiv.',
     kcalPerDay: 'kcal / zi',
-    protein: 'Proteine', carbs: 'Carbohidrați', fat: 'Grăsimi', proteinWord: 'Proteine', carbsWord: 'Carbohidrați', fatWord: 'Grăsimi', bmr: 'BMR', tdee: 'TDEE', bmi: 'IMC', goal: 'Obiectiv',
+    protein: 'Proteine', carbs: 'Carbohidrați', fat: 'Grăsimi', bmr: 'BMR', tdee: 'TDEE', bmi: 'IMC', goal: 'Obiectiv',
     startTracking: 'Începe trackingul',
     languageToggle: 'Selector limbă',
     sections: 'Secțiuni', addMealAria: 'Adaugă masă', addRecipeAria: 'Adaugă rețetă',
@@ -488,12 +475,6 @@ let toastTimer = null;
 let recipeDraftIngredients = [];
 let mealEditIndex = null;
 let recipeEditId = null;
-let activeAutocompleteKey = null;
-
-const autocompleteState = {
-  meal: { items: [], activeIndex: -1, suppressNextInput: false },
-  ingredient: { items: [], activeIndex: -1, suppressNextInput: false },
-};
 
 const ui = {
   screens: Array.from(document.querySelectorAll('.screen')),
@@ -521,11 +502,8 @@ const ui = {
   recipeGrams: document.getElementById('meal-recipe-grams'),
   recipePreview: document.getElementById('meal-recipe-preview'),
   recipeDraft: document.getElementById('recipe-draft'),
+  ingredientLibraryOptions: document.getElementById('ingredient-library-options'),
   ingredientLibraryHint: document.getElementById('ingredient-library-hint'),
-  mealNameInput: document.getElementById('meal-name'),
-  mealNameSuggestions: document.getElementById('meal-name-suggestions'),
-  ingredientNameInput: document.getElementById('ingredient-name'),
-  ingredientNameSuggestions: document.getElementById('ingredient-name-suggestions'),
   langButtons: Array.from(document.querySelectorAll('.lang-btn')),
   onboardingLangWrap: document.getElementById('global-lang-wrap-onboarding'),
   favoriteIngredients: document.getElementById('favorite-ingredients'),
@@ -561,22 +539,11 @@ function bindEvents() {
   document.getElementById('save-recipe').addEventListener('click', saveRecipe);
   document.getElementById('apply-recipe').addEventListener('click', applySelectedRecipeToMeal);
 
-  ui.ingredientNameInput.addEventListener('input', handleIngredientNameInput);
-  ui.ingredientNameInput.addEventListener('change', maybeApplyIngredientLibrary);
-  ui.ingredientNameInput.addEventListener('focus', () => updateAutocompleteSuggestions('ingredient'));
-  ui.ingredientNameInput.addEventListener('keydown', (event) => handleAutocompleteKeydown('ingredient', event));
-  ui.ingredientNameInput.addEventListener('blur', () => scheduleAutocompleteClose('ingredient'));
+  document.getElementById('ingredient-name').addEventListener('input', maybeApplyIngredientLibrary);
+  document.getElementById('ingredient-name').addEventListener('change', maybeApplyIngredientLibrary);
   document.getElementById('ingredient-grams').addEventListener('input', maybeApplyIngredientLibrary);
   document.getElementById('ingredient-grams').addEventListener('change', maybeApplyIngredientLibrary);
   document.getElementById('ingredient-grams').addEventListener('blur', maybeApplyIngredientLibrary);
-  ui.mealNameInput.addEventListener('input', handleMealNameInput);
-  ui.mealNameInput.addEventListener('change', maybeApplyMealIngredientLibrary);
-  ui.mealNameInput.addEventListener('focus', () => updateAutocompleteSuggestions('meal'));
-  ui.mealNameInput.addEventListener('keydown', (event) => handleAutocompleteKeydown('meal', event));
-  ui.mealNameInput.addEventListener('blur', () => scheduleAutocompleteClose('meal'));
-  document.getElementById('meal-recipe-grams').addEventListener('input', maybeApplyMealIngredientLibrary);
-  document.getElementById('meal-recipe-grams').addEventListener('change', maybeApplyMealIngredientLibrary);
-  document.getElementById('meal-recipe-grams').addEventListener('blur', maybeApplyMealIngredientLibrary);
   ui.toggleIngredientFavorite?.addEventListener('click', toggleCurrentIngredientFavorite);
   ui.langButtons.forEach((button) => button.addEventListener('click', () => setLanguage(button.dataset.lang)));
   ui.recipeSelect.addEventListener('change', handleMealRecipeSelection);
@@ -593,17 +560,8 @@ function bindEvents() {
 
   document.addEventListener('keydown', (event) => {
     if (event.key !== 'Escape') return;
-    closeAutocomplete('meal');
-    closeAutocomplete('ingredient');
     if (!ui.mealModal.classList.contains('hidden')) closeMealModal();
     if (!ui.recipeModal.classList.contains('hidden')) closeRecipeModal();
-  });
-
-  document.addEventListener('pointerdown', (event) => {
-    if (!event.target.closest('.autocomplete-wrap')) {
-      closeAutocomplete('meal');
-      closeAutocomplete('ingredient');
-    }
   });
 }
 
@@ -618,8 +576,6 @@ async function bootstrap() {
   renderRecipeDraft();
   renderFavoriteIngredients();
   await loadIngredientLibrary();
-  updateAutocompleteSuggestions('meal');
-  updateAutocompleteSuggestions('ingredient');
 
   if (state.profile) {
     renderResult(state.profile);
@@ -835,9 +791,8 @@ function setLanguage(lang) {
   renderQuickFoods();
   renderRecipeOptions();
   renderRecipeDraft();
+  renderIngredientLibraryOptions();
   renderFavoriteIngredients();
-  updateAutocompleteSuggestions('meal');
-  updateAutocompleteSuggestions('ingredient');
   if (ingredientLibrary.length) renderLibraryMeta();
   if (state.profile) {
     renderResult(state.profile);
@@ -1084,67 +1039,36 @@ async function saveState() {
   }
 }
 
-async function fetchIngredientLibraryJson() {
-  const attempts = [
-    { url: INGREDIENT_LIBRARY_URL, options: { cache: 'force-cache' } },
-    { url: `${INGREDIENT_LIBRARY_URL}?v=20260404`, options: { cache: 'no-store' } },
-  ];
-
-  let lastError = null;
-  for (const attempt of attempts) {
-    try {
-      const response = await fetch(attempt.url, attempt.options);
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const raw = await response.json();
-      if (!Array.isArray(raw)) throw new Error('Ingredient library payload is not an array');
-      return raw;
-    } catch (error) {
-      lastError = error;
-    }
-  }
-
-  throw lastError || new Error('Ingredient library request failed');
-}
-
 async function loadIngredientLibrary() {
   try {
-    const raw = await fetchIngredientLibraryJson();
-    ingredientLibrary = buildIngredientLibrary(raw);
-  } catch (error) {
-    console.error('Failed to load full ingredient library, using curated fallback', error);
-    ingredientLibrary = CURATED_INGREDIENTS.map(normalizeIngredientItem);
-  }
-
-  ingredientLibraryMap = new Map();
-  ingredientLibrary.forEach((item) => {
-    getIngredientAliases(item).forEach((alias) => {
-      const key = normalizeName(alias);
-      const existing = ingredientLibraryMap.get(key);
-      if (!existing || compareIngredientQuality(item, existing) > 0) ingredientLibraryMap.set(key, item);
+    const response = await fetch(INGREDIENT_LIBRARY_URL, { cache: 'force-cache' });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const raw = await response.json();
+    ingredientLibrary = buildIngredientLibrary(Array.isArray(raw) ? raw : []);
+    ingredientLibraryMap = new Map();
+    ingredientLibrary.forEach((item) => {
+      getIngredientAliases(item).forEach((alias) => {
+        const key = normalizeName(alias);
+        const existing = ingredientLibraryMap.get(key);
+        if (!existing || compareIngredientQuality(item, existing) > 0) ingredientLibraryMap.set(key, item);
+      });
     });
-  });
-  renderFavoriteIngredients();
-  updateAutocompleteSuggestions('meal');
-  updateAutocompleteSuggestions('ingredient');
-  renderLibraryMeta(ingredientLibrary.length <= CURATED_INGREDIENTS.length ? t('libraryUnavailable') : undefined);
-}
-
-function inferDefaultUnitMeta(name, aliases = [], existingUnit, existingGrams) {
-  if (existingUnit && existingGrams) return { defaultUnit: existingUnit, defaultUnitGrams: existingGrams };
-  const normalized = [name, ...aliases].map((value) => normalizeName(value)).filter(Boolean);
-  for (const [key, meta] of Object.entries(DEFAULT_UNIT_OVERRIDES)) {
-    if (normalized.some((value) => value === key || value.includes(key))) {
-      return { defaultUnit: meta.unit, defaultUnitGrams: meta.grams };
-    }
+    renderIngredientLibraryOptions();
+    renderLibraryMeta();
+    renderFavoriteIngredients();
+  } catch (error) {
+    console.error('Failed to load ingredient library', error);
+    ingredientLibrary = [];
+    ingredientLibraryMap = new Map();
+    renderIngredientLibraryOptions();
+    renderFavoriteIngredients();
+    renderLibraryMeta(t('libraryUnavailable'));
   }
-  return { defaultUnit: existingUnit || null, defaultUnitGrams: existingGrams || null };
 }
 
 function normalizeIngredientItem(item) {
   const safeRo = item.nameRo && !String(item.nameRo).startsWith('QUERY LENGTH LIMIT EXCEEDED') ? String(item.nameRo).trim() : '';
   const name = String(item.name || '').trim();
-  const aliases = Array.isArray(item.aliases) ? item.aliases.map((alias) => String(alias || '').trim()).filter(Boolean) : [];
-  const unitMeta = inferDefaultUnitMeta(name, aliases, item.defaultUnit, item.defaultUnitGrams);
   return {
     ...item,
     name,
@@ -1154,9 +1078,7 @@ function normalizeIngredientItem(item) {
     carbsPer100g: Number(item.carbsPer100g || item.carbs || 0),
     fatPer100g: Number(item.fatPer100g || item.fat || 0),
     category: String(item.category || 'other'),
-    aliases,
-    defaultUnit: unitMeta.defaultUnit,
-    defaultUnitGrams: unitMeta.defaultUnitGrams,
+    aliases: Array.isArray(item.aliases) ? item.aliases.map((alias) => String(alias || '').trim()).filter(Boolean) : [],
   };
 }
 
@@ -1198,142 +1120,18 @@ function getIngredientAliases(item) {
   return Array.from(new Set([item.name, item.nameRo, ...(Array.isArray(item.aliases) ? item.aliases : [])].filter(Boolean)));
 }
 
-function getAutocompleteConfig(key) {
-  return key === 'meal'
-    ? { input: ui.mealNameInput, dropdown: ui.mealNameSuggestions, state: autocompleteState.meal }
-    : { input: ui.ingredientNameInput, dropdown: ui.ingredientNameSuggestions, state: autocompleteState.ingredient };
-}
-
-function handleMealNameInput() {
-  const config = getAutocompleteConfig('meal');
-  if (config.state.suppressNextInput) {
-    config.state.suppressNextInput = false;
-    return;
-  }
-  updateAutocompleteSuggestions('meal');
-  maybeApplyMealIngredientLibrary();
-}
-
-function handleIngredientNameInput() {
-  const config = getAutocompleteConfig('ingredient');
-  if (config.state.suppressNextInput) {
-    config.state.suppressNextInput = false;
-    return;
-  }
-  updateAutocompleteSuggestions('ingredient');
-  maybeApplyIngredientLibrary();
-}
-
-function getIngredientSuggestions(query, limit = 8) {
-  const normalized = normalizeIngredientSearchQuery(query);
-  if (!normalized) return [];
-
-  return ingredientLibrary
-    .map((item) => ({ item, score: scoreIngredientMatch(item, normalized) }))
-    .filter((entry) => entry.score > 0)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, limit)
-    .map((entry) => entry.item);
-}
-
-function updateAutocompleteSuggestions(key) {
-  const config = getAutocompleteConfig(key);
-  const query = config.input?.value || '';
-  const items = getIngredientSuggestions(query);
-  config.state.items = items;
-  config.state.activeIndex = items.length ? 0 : -1;
-  renderAutocomplete(key);
-}
-
-function renderAutocomplete(key) {
-  const config = getAutocompleteConfig(key);
-  const { dropdown, state } = config;
-  if (!dropdown) return;
-
-  if (!state.items.length || !config.input.value.trim()) {
-    dropdown.classList.add('hidden');
-    dropdown.innerHTML = '';
-    if (activeAutocompleteKey === key) activeAutocompleteKey = null;
-    return;
-  }
-
-  activeAutocompleteKey = key;
-  dropdown.classList.remove('hidden');
-  dropdown.innerHTML = state.items.map((item, index) => `
-    <button
-      class="autocomplete-item ${index === state.activeIndex ? 'active' : ''}"
-      type="button"
-      data-autocomplete-key="${key}"
-      data-autocomplete-index="${index}"
-      role="option"
-      aria-selected="${index === state.activeIndex ? 'true' : 'false'}"
-    >
-      <div class="autocomplete-title">${escapeHtml(displayIngredientName(item))}</div>
-      <div class="autocomplete-meta">${formatNumber(item.caloriesPer100g)} kcal · P ${formatNumber(item.proteinPer100g)}g · C ${formatNumber(item.carbsPer100g)}g · F ${formatNumber(item.fatPer100g)}g / 100g</div>
-    </button>
-  `).join('');
-
-  dropdown.querySelectorAll('[data-autocomplete-index]').forEach((button) => {
-    button.addEventListener('pointerdown', (event) => {
-      event.preventDefault();
-      selectAutocompleteSuggestion(key, Number(button.dataset.autocompleteIndex));
+function renderIngredientLibraryOptions() {
+  const seen = new Set();
+  const options = [];
+  ingredientLibrary.forEach((item) => {
+    getIngredientAliases(item).forEach((label) => {
+      const key = label.toLowerCase();
+      if (seen.has(key)) return;
+      seen.add(key);
+      options.push(`<option value="${escapeHtml(label)}"></option>`);
     });
   });
-}
-
-function closeAutocomplete(key) {
-  const config = getAutocompleteConfig(key);
-  config.state.items = [];
-  config.state.activeIndex = -1;
-  config.dropdown?.classList.add('hidden');
-  if (config.dropdown) config.dropdown.innerHTML = '';
-  if (activeAutocompleteKey === key) activeAutocompleteKey = null;
-}
-
-function scheduleAutocompleteClose(key) {
-  window.setTimeout(() => {
-    if (activeAutocompleteKey === key) closeAutocomplete(key);
-  }, 120);
-}
-
-function handleAutocompleteKeydown(key, event) {
-  const config = getAutocompleteConfig(key);
-  if (!config.state.items.length) return;
-
-  if (event.key === 'ArrowDown') {
-    event.preventDefault();
-    config.state.activeIndex = (config.state.activeIndex + 1) % config.state.items.length;
-    renderAutocomplete(key);
-    return;
-  }
-
-  if (event.key === 'ArrowUp') {
-    event.preventDefault();
-    config.state.activeIndex = (config.state.activeIndex - 1 + config.state.items.length) % config.state.items.length;
-    renderAutocomplete(key);
-    return;
-  }
-
-  if (event.key === 'Enter' && config.state.activeIndex >= 0) {
-    event.preventDefault();
-    selectAutocompleteSuggestion(key, config.state.activeIndex);
-    return;
-  }
-
-  if (event.key === 'Escape') closeAutocomplete(key);
-}
-
-function selectAutocompleteSuggestion(key, index) {
-  const config = getAutocompleteConfig(key);
-  const item = config.state.items[index];
-  if (!item) return;
-
-  config.state.suppressNextInput = true;
-  config.input.value = displayIngredientName(item);
-  closeAutocomplete(key);
-
-  if (key === 'meal') maybeApplyMealIngredientLibrary();
-  else maybeApplyIngredientLibrary();
+  ui.ingredientLibraryOptions.innerHTML = options.join('');
 }
 
 function renderLibraryMeta(message) {
@@ -1637,6 +1435,7 @@ function renderRecipes() {
       <div class="recipe-card-top">
         <div>
           <div class="recipe-name">${escapeHtml(recipe.name)}</div>
+          <div class="recipe-meta">${t('ingredientsCount', { count: recipe.ingredients.length, weight: roundTo(recipe.totalWeight, 0) })}</div>
         </div>
         <div class="item-actions-row">
           <button class="icon-btn" type="button" data-edit-recipe="${recipe.id}" aria-label="${escapeHtml(t('editRecipeAria', { name: recipe.name }))}">✎</button>
@@ -1802,7 +1601,6 @@ function clearMealModal() {
   ui.recipeSelect.value = '';
   ui.recipePreview.classList.add('hidden');
   ui.recipePreview.innerHTML = '';
-  closeAutocomplete('meal');
 }
 
 function fillMealModal(meal) {
@@ -1857,7 +1655,6 @@ function clearRecipeBuilderFields() {
   document.getElementById('ingredient-p').value = '0';
   document.getElementById('ingredient-c').value = '0';
   document.getElementById('ingredient-f').value = '0';
-  closeAutocomplete('ingredient');
   updateFavoriteToggleButton();
 }
 
@@ -1912,60 +1709,6 @@ function updateMealRecipePreview() {
   ui.recipePreview.innerHTML = `
     <div><strong>${escapeHtml(recipe.name)}</strong> · ${roundTo(grams, 0)}g</div>
     <div class="recipe-preview-line">${formatNumber(macros.k)} kcal · P ${formatNumber(macros.p)}g · C ${formatNumber(macros.c)}g · F ${formatNumber(macros.f)}g</div>
-  `;
-}
-
-function maybeApplyMealIngredientLibrary() {
-  if (ui.recipeSelect.value) return;
-
-  const name = document.getElementById('meal-name').value;
-  const enteredGrams = parsePositiveNumber(ui.recipeGrams.value);
-  const match = findIngredientByName(name);
-
-  if (!match) {
-    if (!name.trim() || !enteredGrams) {
-      document.getElementById('meal-kcal').value = '0';
-      document.getElementById('meal-p').value = '0';
-      document.getElementById('meal-c').value = '0';
-      document.getElementById('meal-f').value = '0';
-      ui.recipePreview.classList.add('hidden');
-    }
-    return;
-  }
-
-  const grams = enteredGrams || (match.defaultUnit === 'piece' ? Number(match.defaultUnitGrams || 0) : null);
-
-  if (!grams) {
-    document.getElementById('meal-kcal').value = String(roundMacroValue(match.caloriesPer100g, 0));
-    document.getElementById('meal-p').value = formatFieldNumber(roundMacroValue(match.proteinPer100g, 1));
-    document.getElementById('meal-c').value = formatFieldNumber(roundMacroValue(match.carbsPer100g, 1));
-    document.getElementById('meal-f').value = formatFieldNumber(roundMacroValue(match.fatPer100g, 1));
-    ui.recipePreview.classList.remove('hidden');
-    ui.recipePreview.innerHTML = `
-      <div><strong>${escapeHtml(displayIngredientName(match))}</strong> · 100g</div>
-      <div class="recipe-preview-line">${formatNumber(match.caloriesPer100g)} kcal / 100g · ${t('proteinWord')} ${formatNumber(match.proteinPer100g)}g · ${t('carbsWord')} ${formatNumber(match.carbsPer100g)}g · ${t('fatWord')} ${formatNumber(match.fatPer100g)}g</div>
-    `;
-    return;
-  }
-
-  const factor = grams / 100;
-  const kcal = roundMacroValue(match.caloriesPer100g * factor, 0);
-  const p = roundMacroValue(match.proteinPer100g * factor, 1);
-  const c = roundMacroValue(match.carbsPer100g * factor, 1);
-  const f = roundMacroValue(match.fatPer100g * factor, 1);
-
-  if (!enteredGrams && match.defaultUnit === 'piece') {
-    document.getElementById('meal-recipe-grams').value = formatFieldNumber(grams);
-  }
-
-  document.getElementById('meal-kcal').value = String(kcal);
-  document.getElementById('meal-p').value = formatFieldNumber(p);
-  document.getElementById('meal-c').value = formatFieldNumber(c);
-  document.getElementById('meal-f').value = formatFieldNumber(f);
-  ui.recipePreview.classList.remove('hidden');
-  ui.recipePreview.innerHTML = `
-    <div><strong>${escapeHtml(displayIngredientName(match))}</strong> · ${match.defaultUnit === 'piece' && !enteredGrams ? (currentLang === 'ro' ? '1 bucată' : '1 piece') : `${formatNumber(grams)}g`}</div>
-    <div class="recipe-preview-line">${formatNumber(kcal)} kcal · ${t('proteinWord')} ${formatNumber(p)}g · ${t('carbsWord')} ${formatNumber(c)}g · ${t('fatWord')} ${formatNumber(f)}g</div>
   `;
 }
 
@@ -2044,7 +1787,7 @@ function setIngredientMacroFields(kcal = 0, p = 0, c = 0, f = 0) {
 
 function maybeApplyIngredientLibrary() {
   const name = document.getElementById('ingredient-name').value;
-  const grams = parsePositiveNumber(document.getElementById('ingredient-grams').value);
+  const grams = clampFloat(document.getElementById('ingredient-grams').value, 1, 5000);
   const match = findIngredientByName(name);
   updateFavoriteToggleButton();
 
@@ -2059,12 +1802,7 @@ function maybeApplyIngredientLibrary() {
 
 function applyIngredientMacros(item, grams) {
   if (!grams) {
-    setIngredientMacroFields(
-      roundMacroValue(item.caloriesPer100g, 0),
-      roundMacroValue(item.proteinPer100g, 1),
-      roundMacroValue(item.carbsPer100g, 1),
-      roundMacroValue(item.fatPer100g, 1),
-    );
+    setIngredientMacroFields(0, 0, 0, 0);
     ui.ingredientLibraryHint.textContent = t('ingredientMatched', {
       name: displayIngredientName(item),
       kcal: formatNumber(item.caloriesPer100g),
@@ -2097,7 +1835,7 @@ function applyIngredientMacros(item, grams) {
 
 function addIngredientToDraft() {
   const item = findIngredientByName(document.getElementById('ingredient-name').value);
-  const grams = parsePositiveNumber(document.getElementById('ingredient-grams').value);
+  const grams = clampFloat(document.getElementById('ingredient-grams').value, 1, 5000);
   if (item) applyIngredientMacros(item, grams);
 
   const ingredient = sanitizeIngredient({
@@ -2358,12 +2096,6 @@ function clampFloat(value, min, max) {
   return Math.min(Math.max(number, min), max);
 }
 
-function parsePositiveNumber(value) {
-  const n = Number.parseFloat(value);
-  if (!Number.isFinite(n) || n <= 0) return null;
-  return n;
-}
-
 function roundTo(value, decimals) {
   return Number(Number(value).toFixed(decimals));
 }
@@ -2398,20 +2130,8 @@ function normalizeName(value) {
     .trim();
 }
 
-function normalizeIngredientSearchQuery(value) {
-  let normalized = normalizeName(value)
-    .replace(/\b\d+(?:[.,]\d+)?\s*(?:g|gr|gram|grams|kg|ml|l|oz|lb|lbs|serving|servings|piece|pieces|pc|pcs|x)\b/g, ' ')
-    .replace(/\b(?:buc|bucata|bucati|bucată|bucăți|portion|portie|portii|porție|porții)\b/g, ' ')
-    .replace(/\b\d+(?:[.,]\d+)?\b/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-
-  if (!normalized) normalized = normalizeName(value);
-  return normalized;
-}
-
 function findIngredientByName(name) {
-  const normalized = normalizeIngredientSearchQuery(name);
+  const normalized = normalizeName(name);
   if (!normalized) return null;
   if (ingredientLibraryMap.has(normalized)) return ingredientLibraryMap.get(normalized) || null;
 
@@ -2457,66 +2177,6 @@ function humanizeCategory(category) {
   return String(category || '')
     .replaceAll('-', ' ')
     .replace(/\b\w/g, (char) => char.toUpperCase());
-}
-
-function formatNumber(value) {
-  return Number(value || 0).toLocaleString(currentLang === 'ro' ? 'ro-RO' : 'en-GB', { maximumFractionDigits: 1 });
-}
-
-function formatFieldNumber(value) {
-  if (!Number.isFinite(Number(value))) return '';
-  return Number.isInteger(Number(value)) ? String(Number(value)) : String(Number(value).toFixed(1));
-}
-
-function showToast(message) {
-  ui.toast.textContent = message;
-  ui.toast.classList.remove('hidden');
-  window.clearTimeout(toastTimer);
-  toastTimer = window.setTimeout(() => ui.toast.classList.add('hidden'), 2400);
-}
-
-function escapeHtml(value) {
-  return String(value)
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;');
-}
-
-function goalLabel(goalAdj) {
-  return GOAL_LABELS[String(goalAdj)]?.[currentLang] || GOAL_LABELS[String(goalAdj)]?.en || 'Custom';
-}
-
-function humanizeCategory(category) {
-  return String(category || '')
-    .replaceAll('-', ' ')
-    .replace(/\b\w/g, (char) => char.toUpperCase());
-}
-
-function formatNumber(value) {
-  return Number(value || 0).toLocaleString(currentLang === 'ro' ? 'ro-RO' : 'en-GB', { maximumFractionDigits: 1 });
-}
-
-function formatFieldNumber(value) {
-  if (!Number.isFinite(Number(value))) return '';
-  return Number.isInteger(Number(value)) ? String(Number(value)) : String(Number(value).toFixed(1));
-}
-
-function showToast(message) {
-  ui.toast.textContent = message;
-  ui.toast.classList.remove('hidden');
-  window.clearTimeout(toastTimer);
-  toastTimer = window.setTimeout(() => ui.toast.classList.add('hidden'), 2400);
-}
-
-function escapeHtml(value) {
-  return String(value)
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;');
 }
 
 function formatNumber(value) {
