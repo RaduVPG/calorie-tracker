@@ -1389,11 +1389,9 @@ function renderMeals() {
 
   ui.mealsList.innerHTML = meals.map((meal, index) => {
     const name = escapeHtml(meal.n);
-    const emoji = escapeHtml(meal.emoji || '🍽️');
     const gramsNote = meal.grams ? ` · ${roundTo(meal.grams, 0)}g` : '';
     return `
       <div class="meal-item">
-        <div class="meal-emoji">${emoji}</div>
         <div class="meal-info">
           <div class="meal-name">${name}</div>
           <div class="meal-macros">P: ${formatNumber(meal.p)}g · C: ${formatNumber(meal.c)}g · F: ${formatNumber(meal.f)}g${gramsNote}</div>
