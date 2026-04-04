@@ -282,9 +282,18 @@
           </select>
         </div>
 
-        <div class="modal-grid modal-grid-inline">
-          <div class="modal-field"><label for="meal-recipe-grams" id="meal-serving-label">Serving (g)</label><input type="number" id="meal-recipe-grams" placeholder="0" min="1" max="3000" step="0.1" inputmode="decimal" value="0"></div>
-          <div class="modal-field modal-field-end"><button class="btn-ghost btn-inline" id="apply-recipe" type="button">Apply recipe</button></div>
+        <div class="modal-grid modal-grid-inline modal-grid-serving-single">
+          <div class="modal-field modal-field-span-2">
+            <label for="meal-serving-value" id="meal-serving-label">Serving</label>
+            <div class="serving-control">
+              <select id="meal-unit-mode">
+                <option value="grams">grams</option>
+                <option value="units">units</option>
+              </select>
+              <input type="number" id="meal-serving-value" placeholder="0" min="0.1" max="5000" step="0.1" inputmode="decimal" value="100">
+            </div>
+          </div>
+          <div class="modal-field modal-field-end modal-field-span-2"><button class="btn-ghost btn-inline" id="apply-recipe" type="button">Apply recipe</button></div>
         </div>
 
         <div class="recipe-preview hidden" id="meal-recipe-preview"></div>
@@ -294,19 +303,6 @@
           <input type="text" id="meal-name" placeholder="e.g. Chicken breast" maxlength="60" autocomplete="off">
           <div class="search-suggestions hidden" id="meal-ingredient-suggestions"></div>
           <p class="setting-hint" id="meal-ingredient-hint">Search the saved ingredient library to auto-fill calories and macros per 100g.</p>
-        </div>
-
-        <div class="modal-grid modal-grid-inline modal-grid-serving">
-          <div class="modal-field modal-field-span-2">
-            <label for="meal-serving-value" id="meal-manual-serving-label">Serving</label>
-            <div class="serving-control">
-              <select id="meal-unit-mode">
-                <option value="grams">grams</option>
-                <option value="units">units</option>
-              </select>
-              <input type="number" id="meal-serving-value" placeholder="0" min="0.1" max="5000" step="0.1" inputmode="decimal" value="100">
-            </div>
-          </div>
         </div>
 
         <div class="modal-grid">
