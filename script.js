@@ -1959,6 +1959,7 @@ function applyIngredientMacrosToMeal(item, resolved = resolveQuantityMode(item, 
 
 function selectRecipeIngredientSuggestion(item) {
   document.getElementById('ingredient-name').value = displayIngredientName(item);
+  if (ui.ingredientUnitMode.value === 'units' && getDefaultUnitMeta(item)) ui.ingredientQuantity.value = '1';
   hideIngredientSuggestions(ui.recipeIngredientSuggestions);
   maybeApplyIngredientLibrary();
 }
