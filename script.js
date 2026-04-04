@@ -312,6 +312,19 @@ const CURATED_INGREDIENTS = [
     aliases: ['boiled potato', 'potato boiled', 'cartof fiert', 'cartofi fierti', 'cartofi fierți'],
     source: 'curated',
   },
+  {
+    name: 'Banana',
+    nameRo: 'Banană',
+    category: 'fruit',
+    serving: '100 g',
+    calories: 89,
+    caloriesPer100g: 89,
+    proteinPer100g: 1.1,
+    carbsPer100g: 22.8,
+    fatPer100g: 0.3,
+    aliases: ['banana', 'banană', 'banane'],
+    source: 'curated',
+  },
 ];
 
 const LOW_SIGNAL_CATEGORIES = new Set(['liquor-cocktails', 'beer', 'wine', 'juice-soft-drinks', 'coffee']);
