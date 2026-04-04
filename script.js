@@ -1057,15 +1057,32 @@ async function saveState() {
   }
 }
 
+async function fetchIngredientLibraryJson() {
+  const attempts = [
+    { url: INGREDIENT_LIBRARY_URL, options: { cache: 'force-cache' } },
+    { url: `${INGREDIENT_LIBRARY_URL}?v=20260404`, options: { cache: 'no-store' } },
+  ];
+
+  let lastError = null;
+  for (const attempt of attempts) {
+    try {
+      const response = await fetch(attempt.url, attempt.options);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const raw = await response.json();
+      if (!Array.isArray(raw)) throw new Error('Ingredient library payload is not an array');
+      return raw;
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
+  throw lastError || new Error('Ingredient library request failed');
+}
+
 async function loadIngredientLibrary() {
   try {
-    const controller = new AbortController();
-    const timeout = window.setTimeout(() => controller.abort(), 4000);
-    const response = await fetch(INGREDIENT_LIBRARY_URL, { cache: 'force-cache', signal: controller.signal });
-    window.clearTimeout(timeout);
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const raw = await response.json();
-    ingredientLibrary = buildIngredientLibrary(Array.isArray(raw) ? raw : []);
+    const raw = await fetchIngredientLibraryJson();
+    ingredientLibrary = buildIngredientLibrary(raw);
   } catch (error) {
     console.error('Failed to load full ingredient library, using curated fallback', error);
     ingredientLibrary = CURATED_INGREDIENTS.map(normalizeIngredientItem);
@@ -1765,13 +1782,13 @@ function maybeApplyMealIngredientLibrary() {
   const grams = enteredGrams || (match.defaultUnit === 'piece' ? Number(match.defaultUnitGrams || 0) : null);
 
   if (!grams) {
-    document.getElementById('meal-kcal').value = '0';
-    document.getElementById('meal-p').value = '0';
-    document.getElementById('meal-c').value = '0';
-    document.getElementById('meal-f').value = '0';
+    document.getElementById('meal-kcal').value = String(roundMacroValue(match.caloriesPer100g, 0));
+    document.getElementById('meal-p').value = formatFieldNumber(roundMacroValue(match.proteinPer100g, 1));
+    document.getElementById('meal-c').value = formatFieldNumber(roundMacroValue(match.carbsPer100g, 1));
+    document.getElementById('meal-f').value = formatFieldNumber(roundMacroValue(match.fatPer100g, 1));
     ui.recipePreview.classList.remove('hidden');
     ui.recipePreview.innerHTML = `
-      <div><strong>${escapeHtml(displayIngredientName(match))}</strong></div>
+      <div><strong>${escapeHtml(displayIngredientName(match))}</strong> · 100g</div>
       <div class="recipe-preview-line">${formatNumber(match.caloriesPer100g)} kcal / 100g · ${t('proteinWord')} ${formatNumber(match.proteinPer100g)}g · ${t('carbsWord')} ${formatNumber(match.carbsPer100g)}g · ${t('fatWord')} ${formatNumber(match.fatPer100g)}g</div>
     `;
     return;
@@ -1888,7 +1905,12 @@ function maybeApplyIngredientLibrary() {
 
 function applyIngredientMacros(item, grams) {
   if (!grams) {
-    setIngredientMacroFields(0, 0, 0, 0);
+    setIngredientMacroFields(
+      roundMacroValue(item.caloriesPer100g, 0),
+      roundMacroValue(item.proteinPer100g, 1),
+      roundMacroValue(item.carbsPer100g, 1),
+      roundMacroValue(item.fatPer100g, 1),
+    );
     ui.ingredientLibraryHint.textContent = t('ingredientMatched', {
       name: displayIngredientName(item),
       kcal: formatNumber(item.caloriesPer100g),
@@ -2222,8 +2244,20 @@ function normalizeName(value) {
     .trim();
 }
 
+function normalizeIngredientSearchQuery(value) {
+  let normalized = normalizeName(value)
+    .replace(/\b\d+(?:[.,]\d+)?\s*(?:g|gr|gram|grams|kg|ml|l|oz|lb|lbs|serving|servings|piece|pieces|pc|pcs|x)\b/g, ' ')
+    .replace(/\b(?:buc|bucata|bucati|bucată|bucăți|portion|portie|portii|porție|porții)\b/g, ' ')
+    .replace(/\b\d+(?:[.,]\d+)?\b/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  if (!normalized) normalized = normalizeName(value);
+  return normalized;
+}
+
 function findIngredientByName(name) {
-  const normalized = normalizeName(name);
+  const normalized = normalizeIngredientSearchQuery(name);
   if (!normalized) return null;
   if (ingredientLibraryMap.has(normalized)) return ingredientLibraryMap.get(normalized) || null;
 
