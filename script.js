@@ -1778,7 +1778,7 @@ function maybeApplyMealIngredientLibrary() {
   document.getElementById('meal-f').value = formatFieldNumber(f);
   ui.recipePreview.classList.remove('hidden');
   ui.recipePreview.innerHTML = `
-    <div><strong>${escapeHtml(displayIngredientName(match))}</strong> · ${match.defaultUnit === 'piece' && !enteredGrams ? '1 piece' : `${formatNumber(grams)}g`}</div>
+    <div><strong>${escapeHtml(displayIngredientName(match))}</strong> · ${match.defaultUnit === 'piece' && !enteredGrams ? (currentLang === 'ro' ? '1 bucată' : '1 piece') : `${formatNumber(grams)}g`}</div>
     <div class="recipe-preview-line">${formatNumber(kcal)} kcal · ${t('proteinWord')} ${formatNumber(p)}g · ${t('carbsWord')} ${formatNumber(c)}g · ${t('fatWord')} ${formatNumber(f)}g</div>
   `;
 }
@@ -2283,6 +2283,31 @@ function humanizeCategory(category) {
   return String(category || '')
     .replaceAll('-', ' ')
     .replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+function formatNumber(value) {
+  return Number(value || 0).toLocaleString(currentLang === 'ro' ? 'ro-RO' : 'en-GB', { maximumFractionDigits: 1 });
+}
+
+function formatFieldNumber(value) {
+  if (!Number.isFinite(Number(value))) return '';
+  return Number.isInteger(Number(value)) ? String(Number(value)) : String(Number(value).toFixed(1));
+}
+
+function showToast(message) {
+  ui.toast.textContent = message;
+  ui.toast.classList.remove('hidden');
+  window.clearTimeout(toastTimer);
+  toastTimer = window.setTimeout(() => ui.toast.classList.add('hidden'), 2400);
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
 }
 
 function formatNumber(value) {
