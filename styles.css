@@ -1098,6 +1098,16 @@ select option {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.modal-field-span-2 {
+  grid-column: span 2;
+}
+
+.serving-control {
+  display: grid;
+  grid-template-columns: minmax(120px, 0.95fr) minmax(0, 1.05fr);
+  gap: 10px;
+}
+
 .modal-field-end {
   display: flex;
   align-items: end;
@@ -1127,8 +1137,13 @@ select option {
   .macro-row,
   .macro-mini,
   .modal-grid,
-  .modal-grid-ingredient {
+  .modal-grid-ingredient,
+  .serving-control {
     grid-template-columns: 1fr;
+  }
+
+  .modal-field-span-2 {
+    grid-column: span 1;
   }
 
   .tabs {
