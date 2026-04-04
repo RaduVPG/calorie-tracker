@@ -2020,8 +2020,11 @@ function selectMealIngredientSuggestion(item) {
   ui.recipeSelect.value = '';
   ui.recipePreview.classList.add('hidden');
   document.getElementById('meal-name').value = displayIngredientName(item);
+  if (ui.mealUnitMode.value === 'units' && getDefaultUnitMeta(item)) {
+    ui.mealServingValue.value = '1';
+  }
   hideIngredientSuggestions(ui.mealIngredientSuggestions);
-  applyIngredientMacrosToMeal(item);
+  maybeApplyMealIngredientLibrary();
 }
 
 
@@ -2472,6 +2475,10 @@ function escapeHtml(value) {
     .replaceAll('&', '&amp;')
     .replaceAll('<', '&lt;')
     .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+l('>', '&gt;')
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#39;');
 }
