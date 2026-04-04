@@ -1817,7 +1817,7 @@ async function saveMealFromModal() {
     p: document.getElementById('meal-p').value,
     c: document.getElementById('meal-c').value,
     f: document.getElementById('meal-f').value,
-    emoji: existingMeal?.emoji || EMOJIS[Math.floor(Math.random() * EMOJIS.length)],
+    emoji: '',
     recipeId: selectedRecipe?.id || null,
     grams: resolvedMeal.grams,
     quantity: resolvedMeal.quantity,
