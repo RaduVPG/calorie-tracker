@@ -1224,7 +1224,11 @@ function pruneHistory(history) {
 }
 
 function showScreen(targetId) {
-  ui.screens.forEach((screen) => screen.classList.toggle('active', screen.id === targetId));
+  ui.screens.forEach((screen) => {
+    const active = screen.id === targetId;
+    screen.classList.toggle('active', active);
+    screen.style.display = active ? 'flex' : 'none';
+  });
   ui.onboardingLangWrap?.classList.toggle('hidden', targetId === 's-main');
 }
 
@@ -2475,10 +2479,6 @@ function escapeHtml(value) {
     .replaceAll('&', '&amp;')
     .replaceAll('<', '&lt;')
     .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;');
-}
-l('>', '&gt;')
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#39;');
 }
