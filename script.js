@@ -1989,9 +1989,6 @@ function maybeApplyMealIngredientLibrary() {
     return;
   }
 
-  if (ui.mealUnitMode.value === 'units' && !resolved.defaultUnit) {
-    ui.mealUnitMode.value = 'grams';
-  }
   applyIngredientMacrosToMeal(match, resolved);
 }
 
