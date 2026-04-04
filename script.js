@@ -350,7 +350,7 @@ const I18N = {
     startTracking: 'Start tracking',
     languageToggle: 'Language toggle',
     sections: 'Sections', addMealAria: 'Add meal', addRecipeAria: 'Add recipe',
-    logMeal: 'Log a meal', editMeal: 'Edit meal', quickAdd: 'Quick add', savedRecipe: 'Saved recipe', noneManual: 'None — manual entry', servingG: 'Serving (g)', applyRecipe: 'Apply recipe',
+    logMeal: 'Log a meal', editMeal: 'Edit meal', quickAdd: 'Quick add', savedRecipe: 'Saved recipe', noneManual: 'None — manual entry', servingG: 'Serving (g)', applyRecipe: 'Apply recipe', quantity: 'Quantity', unit: 'Unit', gramsMode: 'grams', unitsMode: 'units',
     foodName: 'Food name', addMeal: 'Add meal', updateMeal: 'Save meal', cancel: 'Cancel', createRecipe: 'Create recipe', editRecipe: 'Edit recipe', recipeName: 'Recipe name',
     totalCookedWeight: 'Total cooked recipe weight (g)', totalCookedWeightHint: 'Use the final cooked weight if water evaporates or ingredients change weight during cooking.',
     addIngredient: 'Add ingredient', ingredientBuilder: 'Add ingredient', saveRecipe: 'Save recipe', updateRecipe: 'Save recipe changes', loadingLibrary: 'Loading ingredient library…',
@@ -420,7 +420,7 @@ const I18N = {
     startTracking: 'Începe trackingul',
     languageToggle: 'Selector limbă',
     sections: 'Secțiuni', addMealAria: 'Adaugă masă', addRecipeAria: 'Adaugă rețetă',
-    logMeal: 'Adaugă o masă', editMeal: 'Editează masa', quickAdd: 'Adăugare rapidă', savedRecipe: 'Rețetă salvată', noneManual: 'Niciuna — introducere manuală', servingG: 'Porție (g)', applyRecipe: 'Aplică rețeta',
+    logMeal: 'Adaugă o masă', editMeal: 'Editează masa', quickAdd: 'Adăugare rapidă', savedRecipe: 'Rețetă salvată', noneManual: 'Niciuna — introducere manuală', servingG: 'Porție (g)', applyRecipe: 'Aplică rețeta', quantity: 'Cantitate', unit: 'Unitate', gramsMode: 'grame', unitsMode: 'bucăți',
     foodName: 'Nume aliment', addMeal: 'Adaugă masa', updateMeal: 'Salvează masa', cancel: 'Anulează', createRecipe: 'Creează rețetă', editRecipe: 'Editează rețeta', recipeName: 'Nume rețetă',
     totalCookedWeight: 'Greutatea finală gătită a rețetei (g)', totalCookedWeightHint: 'Folosește greutatea finală gătită dacă apa se evaporă sau ingredientele își schimbă greutatea în timpul gătitului.',
     addIngredient: 'Adaugă ingredient', ingredientBuilder: 'Adaugă ingredient', saveRecipe: 'Salvează rețeta', updateRecipe: 'Salvează modificările', loadingLibrary: 'Se încarcă biblioteca de ingrediente…',
@@ -508,6 +508,10 @@ const ui = {
   mealIngredientHint: document.getElementById('meal-ingredient-hint'),
   recipeIngredientSuggestions: document.getElementById('recipe-ingredient-suggestions'),
   mealIngredientSuggestions: document.getElementById('meal-ingredient-suggestions'),
+  mealQuantity: document.getElementById('meal-quantity'),
+  mealUnitMode: document.getElementById('meal-unit-mode'),
+  ingredientQuantity: document.getElementById('ingredient-quantity'),
+  ingredientUnitMode: document.getElementById('ingredient-unit-mode'),
   langButtons: Array.from(document.querySelectorAll('.lang-btn')),
   onboardingLangWrap: document.getElementById('global-lang-wrap-onboarding'),
   favoriteIngredients: document.getElementById('favorite-ingredients'),
@@ -548,8 +552,14 @@ function bindEvents() {
   document.getElementById('ingredient-grams').addEventListener('input', maybeApplyIngredientLibrary);
   document.getElementById('ingredient-grams').addEventListener('change', maybeApplyIngredientLibrary);
   document.getElementById('ingredient-grams').addEventListener('blur', maybeApplyIngredientLibrary);
+  ui.ingredientQuantity.addEventListener('input', maybeApplyIngredientLibrary);
+  ui.ingredientQuantity.addEventListener('change', maybeApplyIngredientLibrary);
+  ui.ingredientUnitMode.addEventListener('change', maybeApplyIngredientLibrary);
   document.getElementById('meal-name').addEventListener('input', handleMealIngredientInput);
   document.getElementById('meal-name').addEventListener('change', handleMealIngredientInput);
+  ui.mealQuantity.addEventListener('input', maybeApplyMealIngredientLibrary);
+  ui.mealQuantity.addEventListener('change', maybeApplyMealIngredientLibrary);
+  ui.mealUnitMode.addEventListener('change', maybeApplyMealIngredientLibrary);
   ui.toggleIngredientFavorite?.addEventListener('click', toggleCurrentIngredientFavorite);
   ui.langButtons.forEach((button) => button.addEventListener('click', () => setLanguage(button.dataset.lang)));
   ui.recipeSelect.addEventListener('change', handleMealRecipeSelection);
@@ -893,6 +903,8 @@ function applyTranslations() {
   setText('quick-add-label', 'quickAdd');
   setText('meal-recipe-label', 'savedRecipe');
   setText('meal-serving-label', 'servingG');
+  setText('meal-quantity-label', 'quantity');
+  setText('meal-unit-mode-label', 'unit');
   setText('apply-recipe', 'applyRecipe');
   setText('meal-name-label', 'foodName');
   setText('add-meal', mealEditIndex === null ? 'addMeal' : 'updateMeal');
@@ -902,6 +914,8 @@ function applyTranslations() {
   setText('recipe-total-weight-label', 'totalCookedWeight');
   setText('recipe-total-weight-hint', 'totalCookedWeightHint');
   setText('ingredient-builder-label', 'ingredientBuilder');
+  setText('ingredient-quantity-label', 'quantity');
+  setText('ingredient-unit-mode-label', 'unit');
   setText('favorite-ingredients-label', 'favoriteIngredients');
   setText('add-ingredient', 'addIngredient');
   setText('save-recipe', recipeEditId ? 'updateRecipe' : 'saveRecipe');
@@ -909,6 +923,16 @@ function applyTranslations() {
   document.getElementById('meal-name').placeholder = t('mealPlaceholder');
   document.getElementById('recipe-name').placeholder = t('recipePlaceholder');
   document.getElementById('ingredient-name').placeholder = t('ingredientSearchPlaceholder');
+  if (ui.mealUnitMode) {
+    const currentMealUnitMode = ui.mealUnitMode.value || 'grams';
+    ui.mealUnitMode.innerHTML = `<option value="grams">${escapeHtml(t('gramsMode'))}</option><option value="units">${escapeHtml(t('unitsMode'))}</option>`;
+    ui.mealUnitMode.value = currentMealUnitMode;
+  }
+  if (ui.ingredientUnitMode) {
+    const currentIngredientUnitMode = ui.ingredientUnitMode.value || 'grams';
+    ui.ingredientUnitMode.innerHTML = `<option value="grams">${escapeHtml(t('gramsMode'))}</option><option value="units">${escapeHtml(t('unitsMode'))}</option>`;
+    ui.ingredientUnitMode.value = currentIngredientUnitMode;
+  }
   ui.toggleIngredientFavorite?.setAttribute('aria-label', t('toggleFavoriteIngredient'));
   if (!ingredientLibrary.length) {
     ui.libraryMetaCard.textContent = t('loadingLibrary');
@@ -990,6 +1014,10 @@ function sanitizeMeal(meal) {
     emoji: String(meal.emoji || meal.e || '🍽️').slice(0, 2),
     recipeId: meal.recipeId ? String(meal.recipeId) : null,
     grams: clampFloat(meal.grams, 1, 5000),
+    quantity: clampFloat(meal.quantity, 0.1, 5000),
+    unitMode: meal.unitMode === 'units' ? 'units' : 'grams',
+    unitLabel: meal.unitLabel ? String(meal.unitLabel).slice(0, 24) : null,
+    unitWeightGrams: clampFloat(meal.unitWeightGrams, 1, 1000),
   };
 }
 
@@ -1006,6 +1034,10 @@ function sanitizeIngredient(ingredient) {
     p: clampFloat(ingredient.p, 0, 400) ?? 0,
     c: clampFloat(ingredient.c, 0, 600) ?? 0,
     f: clampFloat(ingredient.f, 0, 300) ?? 0,
+    quantity: clampFloat(ingredient.quantity, 0.1, 5000),
+    unitMode: ingredient.unitMode === 'units' ? 'units' : 'grams',
+    unitLabel: ingredient.unitLabel ? String(ingredient.unitLabel).slice(0, 24) : null,
+    unitWeightGrams: clampFloat(ingredient.unitWeightGrams, 1, 1000),
   };
 }
 
@@ -1595,6 +1627,8 @@ function clearMealModal() {
   ['meal-name', 'meal-kcal', 'meal-p', 'meal-c', 'meal-f', 'meal-recipe-grams'].forEach((id) => {
     document.getElementById(id).value = '';
   });
+  ui.mealQuantity.value = '100';
+  ui.mealUnitMode.value = 'grams';
   ui.recipeSelect.value = '';
   ui.recipePreview.classList.add('hidden');
   ui.recipePreview.innerHTML = '';
@@ -1608,6 +1642,8 @@ function fillMealModal(meal) {
   document.getElementById('meal-p').value = formatFieldNumber(meal.p);
   document.getElementById('meal-c').value = formatFieldNumber(meal.c);
   document.getElementById('meal-f').value = formatFieldNumber(meal.f);
+  ui.mealQuantity.value = formatFieldNumber(meal.quantity || meal.grams || 100);
+  ui.mealUnitMode.value = meal.unitMode === 'units' ? 'units' : 'grams';
   ui.recipeSelect.value = meal.recipeId || '';
   document.getElementById('meal-recipe-grams').value = meal.grams ? String(roundTo(meal.grams, 0)) : '';
   updateMealRecipePreview();
@@ -1649,6 +1685,8 @@ function openRecipeModal(recipeId = null) {
 
 function clearRecipeBuilderFields() {
   document.getElementById('ingredient-name').value = '';
+  ui.ingredientQuantity.value = '100';
+  ui.ingredientUnitMode.value = 'grams';
   document.getElementById('ingredient-grams').value = '0';
   document.getElementById('ingredient-kcal').value = '0';
   document.getElementById('ingredient-p').value = '0';
@@ -1749,6 +1787,15 @@ async function saveMealFromModal() {
     document.getElementById('meal-f').value = macros.f;
   }
 
+  const mealMatch = selectedRecipe ? null : findIngredientByName(document.getElementById('meal-name').value);
+  const resolvedMeal = selectedRecipe ? {
+    grams,
+    quantity: grams,
+    unitMode: 'grams',
+    unitLabel: null,
+    unitWeightGrams: null,
+  } : resolveQuantityMode(mealMatch, ui.mealQuantity.value, ui.mealUnitMode.value);
+
   const existingMeal = mealEditIndex !== null ? getMealsForDay()[mealEditIndex] : null;
   const meal = sanitizeMeal({
     id: existingMeal?.id,
@@ -1759,7 +1806,11 @@ async function saveMealFromModal() {
     f: document.getElementById('meal-f').value,
     emoji: existingMeal?.emoji || EMOJIS[Math.floor(Math.random() * EMOJIS.length)],
     recipeId: selectedRecipe?.id || null,
-    grams: selectedRecipe && grams ? grams : null,
+    grams: resolvedMeal.grams,
+    quantity: resolvedMeal.quantity,
+    unitMode: resolvedMeal.unitMode,
+    unitLabel: resolvedMeal.unitLabel,
+    unitWeightGrams: resolvedMeal.unitWeightGrams,
   });
 
   if (!meal) {
@@ -1788,19 +1839,59 @@ function setIngredientMacroFields(kcal = 0, p = 0, c = 0, f = 0) {
   document.getElementById('ingredient-f').value = formatFieldNumber(f);
 }
 
+
+function getDefaultUnitMeta(item) {
+  if (!item) return null;
+  const aliases = getIngredientAliases(item).map((alias) => normalizeName(alias)).filter(Boolean);
+  const rule = DEFAULT_UNIT_WEIGHT_RULES.find((entry) => entry.aliases.some((alias) => aliases.includes(normalizeName(alias))));
+  if (!rule) return null;
+  return { grams: rule.grams, label: rule.unitLabel[currentLang] || rule.unitLabel.en };
+}
+
+function resolveQuantityMode(item, quantityValue, modeValue) {
+  const quantity = clampFloat(quantityValue, 0.1, 5000);
+  const defaultUnit = getDefaultUnitMeta(item);
+  const unitMode = modeValue === 'units' && defaultUnit ? 'units' : 'grams';
+  const grams = unitMode === 'units' ? roundMacroValue((quantity || 0) * defaultUnit.grams, 1) : quantity;
+  return {
+    quantity,
+    grams,
+    unitMode,
+    unitWeightGrams: unitMode === 'units' ? defaultUnit.grams : null,
+    unitLabel: unitMode === 'units' ? defaultUnit.label : null,
+    defaultUnit,
+  };
+}
+
+function setMealMacroFields(kcal = 0, p = 0, c = 0, f = 0) {
+  document.getElementById('meal-kcal').value = String(kcal);
+  document.getElementById('meal-p').value = formatFieldNumber(p);
+  document.getElementById('meal-c').value = formatFieldNumber(c);
+  document.getElementById('meal-f').value = formatFieldNumber(f);
+}
+
+function formatIngredientAmount(item) {
+  if (item?.unitMode === 'units' && item.quantity && item.unitLabel) {
+    return `${formatNumber(item.quantity)} ${item.unitLabel} · ${roundTo(item.grams || 0, 0)}g`;
+  }
+  return `${roundTo(item?.grams || 0, 0)}g`;
+}
+
 function maybeApplyIngredientLibrary() {
   const name = document.getElementById('ingredient-name').value;
-  const grams = clampFloat(document.getElementById('ingredient-grams').value, 1, 5000);
   const match = findIngredientByName(name);
+  const resolved = resolveQuantityMode(match, ui.ingredientQuantity.value, ui.ingredientUnitMode.value);
+  document.getElementById('ingredient-grams').value = resolved.grams ? formatFieldNumber(resolved.grams) : '0';
   updateFavoriteToggleButton();
 
   if (!match) {
-    if (!name.trim() || !grams) setIngredientMacroFields(0, 0, 0, 0);
+    if (!name.trim() || !resolved.grams) setIngredientMacroFields(0, 0, 0, 0);
     ui.ingredientLibraryHint.textContent = name.trim() ? t('ingredientNoMatch') : t('ingredientLibraryHint');
     return;
   }
 
-  applyIngredientMacros(match, grams);
+  if (ui.ingredientUnitMode.value === 'units' && !resolved.defaultUnit) ui.ingredientUnitMode.value = 'grams';
+  applyIngredientMacros(match, resolved.grams, resolved);
 }
 
 function handleRecipeIngredientInput() {
@@ -1823,19 +1914,24 @@ function handleMealIngredientInput() {
 function maybeApplyMealIngredientLibrary() {
   const name = document.getElementById('meal-name').value;
   const match = findIngredientByName(name);
+  const resolved = resolveQuantityMode(match, ui.mealQuantity.value, ui.mealUnitMode.value);
   if (!match) {
     ui.mealIngredientHint.textContent = name.trim() ? t('ingredientNoMatch') : t('ingredientLibraryHint');
     return;
   }
 
-  applyIngredientMacrosToMeal(match);
+  if (ui.mealUnitMode.value === 'units' && !resolved.defaultUnit) ui.mealUnitMode.value = 'grams';
+  applyIngredientMacrosToMeal(match, resolved);
 }
 
-function applyIngredientMacrosToMeal(item) {
-  document.getElementById('meal-kcal').value = String(Math.round(item.caloriesPer100g || 0));
-  document.getElementById('meal-p').value = formatFieldNumber(item.proteinPer100g || 0);
-  document.getElementById('meal-c').value = formatFieldNumber(item.carbsPer100g || 0);
-  document.getElementById('meal-f').value = formatFieldNumber(item.fatPer100g || 0);
+function applyIngredientMacrosToMeal(item, resolved = resolveQuantityMode(item, ui.mealQuantity.value, ui.mealUnitMode.value)) {
+  const grams = resolved.grams || 0;
+  const factor = grams / 100;
+  const kcal = roundMacroValue((item.caloriesPer100g || 0) * factor, 0);
+  const p = roundMacroValue((item.proteinPer100g || 0) * factor, 1);
+  const c = roundMacroValue((item.carbsPer100g || 0) * factor, 1);
+  const f = roundMacroValue((item.fatPer100g || 0) * factor, 1);
+  setMealMacroFields(kcal, p, c, f);
   ui.mealIngredientHint.textContent = t('ingredientMatched', {
     name: displayIngredientName(item),
     kcal: formatNumber(item.caloriesPer100g),
@@ -1843,7 +1939,7 @@ function applyIngredientMacrosToMeal(item) {
     c: formatNumber(item.carbsPer100g),
     f: formatNumber(item.fatPer100g),
     category: humanizeCategory(item.category),
-  }) + ` · ${t('per100g')}`;
+  }) + ` · ${formatIngredientAmount(resolved)} → ${formatNumber(kcal)} kcal / P ${formatNumber(p)}g / C ${formatNumber(c)}g / F ${formatNumber(f)}g`;
 }
 
 function selectRecipeIngredientSuggestion(item) {
@@ -1859,6 +1955,7 @@ function selectMealIngredientSuggestion(item) {
   hideIngredientSuggestions(ui.mealIngredientSuggestions);
   applyIngredientMacrosToMeal(item);
 }
+
 
 function renderIngredientSuggestions(query, container, onSelect) {
   if (!container) return;
@@ -1902,7 +1999,7 @@ function getIngredientSuggestions(query) {
     .map((entry) => entry.item);
 }
 
-function applyIngredientMacros(item, grams) {
+function applyIngredientMacros(item, grams, resolved = null) {
   if (!grams) {
     setIngredientMacroFields(0, 0, 0, 0);
     ui.ingredientLibraryHint.textContent = t('ingredientMatched', {
@@ -1924,6 +2021,7 @@ function applyIngredientMacros(item, grams) {
   const f = roundMacroValue(item.fatPer100g * factor, 1);
 
   setIngredientMacroFields(kcal, p, c, f);
+  const amountLabel = resolved ? formatIngredientAmount(resolved) : `${formatNumber(grams)}g`;
   ui.ingredientLibraryHint.textContent = t('ingredientMatched', {
     name: displayIngredientName(item),
     kcal: formatNumber(item.caloriesPer100g),
@@ -1931,7 +2029,7 @@ function applyIngredientMacros(item, grams) {
     c: formatNumber(item.carbsPer100g),
     f: formatNumber(item.fatPer100g),
     category: humanizeCategory(item.category),
-  }) + ` · ${formatNumber(grams)}g → ${formatNumber(kcal)} kcal / P ${formatNumber(p)}g / C ${formatNumber(c)}g / F ${formatNumber(f)}g`;
+  }) + ` · ${amountLabel} → ${formatNumber(kcal)} kcal / P ${formatNumber(p)}g / C ${formatNumber(c)}g / F ${formatNumber(f)}g`;
   updateFavoriteToggleButton();
 }
 
@@ -1943,6 +2041,10 @@ function addIngredientToDraft() {
   const ingredient = sanitizeIngredient({
     name: document.getElementById('ingredient-name').value,
     grams: document.getElementById('ingredient-grams').value,
+    quantity: ui.ingredientQuantity.value,
+    unitMode: ui.ingredientUnitMode.value,
+    unitLabel: resolveQuantityMode(item, ui.ingredientQuantity.value, ui.ingredientUnitMode.value).unitLabel,
+    unitWeightGrams: resolveQuantityMode(item, ui.ingredientQuantity.value, ui.ingredientUnitMode.value).unitWeightGrams,
     kcal: document.getElementById('ingredient-kcal').value || 0,
     p: document.getElementById('ingredient-p').value || 0,
     c: document.getElementById('ingredient-c').value || 0,
@@ -1979,7 +2081,7 @@ function renderRecipeDraft() {
         const favorite = isFavoriteIngredient(ingredient.name);
         return `
         <div class="ingredient-row ingredient-row-strong">
-          <span>${favorite ? '★ ' : ''}${escapeHtml(ingName)} · ${roundTo(ingredient.grams, 0)}g</span>
+          <span>${favorite ? '★ ' : ''}${escapeHtml(ingName)} · ${formatIngredientAmount(ingredient)}</span>
           <button class="meal-del" type="button" data-remove-ingredient="${index}">✕</button>
         </div>
       `;}).join('')}
