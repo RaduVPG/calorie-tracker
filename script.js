@@ -516,6 +516,7 @@ const ui = {
   recipeModal: document.getElementById('recipe-modal'),
   toast: document.getElementById('toast'),
   recipeSelect: document.getElementById('meal-recipe-select'),
+  recipeGrams: document.getElementById('meal-recipe-grams'),
   recipePreview: document.getElementById('meal-recipe-preview'),
   recipeDraft: document.getElementById('recipe-draft'),
   ingredientLibraryHint: document.getElementById('ingredient-library-hint'),
@@ -571,12 +572,13 @@ function bindEvents() {
   ui.ingredientUnitMode.addEventListener('change', maybeApplyIngredientLibrary);
   document.getElementById('meal-name').addEventListener('input', handleMealIngredientInput);
   document.getElementById('meal-name').addEventListener('change', handleMealIngredientInput);
-  ui.mealServingValue.addEventListener('input', handleMealServingChange);
-  ui.mealServingValue.addEventListener('change', handleMealServingChange);
-  ui.mealUnitMode.addEventListener('change', handleMealServingChange);
+  ui.mealServingValue.addEventListener('input', maybeApplyMealIngredientLibrary);
+  ui.mealServingValue.addEventListener('change', maybeApplyMealIngredientLibrary);
+  ui.mealUnitMode.addEventListener('change', maybeApplyMealIngredientLibrary);
   ui.toggleIngredientFavorite?.addEventListener('click', toggleCurrentIngredientFavorite);
   ui.langButtons.forEach((button) => button.addEventListener('click', () => setLanguage(button.dataset.lang)));
   ui.recipeSelect.addEventListener('change', handleMealRecipeSelection);
+  ui.recipeGrams.addEventListener('input', updateMealRecipePreview);
 
   [ui.mealModal, ui.recipeModal].forEach((modal) => {
     modal.addEventListener('click', (event) => {
@@ -915,7 +917,8 @@ function applyTranslations() {
   setText('modal-title', mealEditIndex === null ? 'logMeal' : 'editMeal');
   setText('quick-add-label', 'quickAdd');
   setText('meal-recipe-label', 'savedRecipe');
-  setText('meal-serving-label', 'serving');
+  setText('meal-serving-label', 'servingG');
+  setText('meal-manual-serving-label', 'serving');
   setText('apply-recipe', 'applyRecipe');
   setText('meal-name-label', 'foodName');
   setText('add-meal', mealEditIndex === null ? 'addMeal' : 'updateMeal');
@@ -1107,50 +1110,17 @@ async function loadIngredientLibrary() {
     renderFavoriteIngredients();
   } catch (error) {
     console.error('Failed to load ingredient library', error);
-    ingredientLibrary = CURATED_INGREDIENTS.map(normalizeIngredientItem);
+    ingredientLibrary = [];
     ingredientLibraryMap = new Map();
-    ingredientLibrary.forEach((item) => {
-      getIngredientAliases(item).forEach((alias) => {
-        const key = normalizeName(alias);
-        const existing = ingredientLibraryMap.get(key);
-        if (!existing || compareIngredientQuality(item, existing) > 0) ingredientLibraryMap.set(key, item);
-      });
-    });
     renderIngredientLibraryOptions();
     renderFavoriteIngredients();
     renderLibraryMeta(t('libraryUnavailable'));
   }
 }
 
-function inferDefaultUnitMeta(item, aliases) {
-  if (Number(item.defaultUnitGrams) > 0) {
-    return {
-      defaultUnitGrams: Number(item.defaultUnitGrams),
-      defaultUnit: item.defaultUnit || 'piece',
-      defaultUnitLabel: item.defaultUnitLabel || (currentLang === 'ro' ? 'bucată' : 'piece'),
-    };
-  }
-  const haystack = [String(item.name || ''), String(item.nameRo || ''), ...aliases]
-    .map((v) => normalizeName(v))
-    .filter(Boolean);
-  for (const rule of DEFAULT_UNIT_RULES) {
-    const matched = rule.keys.some((key) => haystack.some((value) => value === normalizeName(key) || value.includes(normalizeName(key))));
-    if (matched) {
-      return {
-        defaultUnitGrams: rule.grams,
-        defaultUnit: 'piece',
-        defaultUnitLabel: currentLang === 'ro' ? rule.labelRo : rule.labelEn,
-      };
-    }
-  }
-  return { defaultUnitGrams: null, defaultUnit: null, defaultUnitLabel: null };
-}
-
 function normalizeIngredientItem(item) {
   const safeRo = item.nameRo && !String(item.nameRo).startsWith('QUERY LENGTH LIMIT EXCEEDED') ? String(item.nameRo).trim() : '';
   const name = String(item.name || '').trim();
-  const aliases = Array.isArray(item.aliases) ? item.aliases.map((alias) => String(alias || '').trim()).filter(Boolean) : [];
-  const unitMeta = inferDefaultUnitMeta(item, aliases);
   return {
     ...item,
     name,
@@ -1160,10 +1130,7 @@ function normalizeIngredientItem(item) {
     carbsPer100g: Number(item.carbsPer100g || item.carbs || 0),
     fatPer100g: Number(item.fatPer100g || item.fat || 0),
     category: String(item.category || 'other'),
-    aliases,
-    defaultUnitGrams: unitMeta.defaultUnitGrams,
-    defaultUnit: unitMeta.defaultUnit,
-    defaultUnitLabel: unitMeta.defaultUnitLabel,
+    aliases: Array.isArray(item.aliases) ? item.aliases.map((alias) => String(alias || '').trim()).filter(Boolean) : [],
   };
 }
 
@@ -1231,11 +1198,7 @@ function pruneHistory(history) {
 }
 
 function showScreen(targetId) {
-  ui.screens.forEach((screen) => {
-    const active = screen.id === targetId;
-    screen.classList.toggle('active', active);
-    screen.style.display = active ? 'flex' : 'none';
-  });
+  ui.screens.forEach((screen) => screen.classList.toggle('active', screen.id === targetId));
   ui.onboardingLangWrap?.classList.toggle('hidden', targetId === 's-main');
 }
 
@@ -1674,7 +1637,7 @@ function openMealModal(index = null) {
 }
 
 function clearMealModal() {
-  ['meal-name', 'meal-kcal', 'meal-p', 'meal-c', 'meal-f'].forEach((id) => {
+  ['meal-name', 'meal-kcal', 'meal-p', 'meal-c', 'meal-f', 'meal-recipe-grams'].forEach((id) => {
     document.getElementById(id).value = '';
   });
   ui.mealServingValue.value = '100';
@@ -1695,6 +1658,7 @@ function fillMealModal(meal) {
   ui.mealServingValue.value = formatFieldNumber(meal.quantity || meal.grams || 100);
   ui.mealUnitMode.value = meal.unitMode === 'units' ? 'units' : 'grams';
   ui.recipeSelect.value = meal.recipeId || '';
+  document.getElementById('meal-recipe-grams').value = meal.grams ? String(roundTo(meal.grams, 0)) : '';
   updateMealRecipePreview();
 }
 
@@ -1779,18 +1743,16 @@ function handleMealRecipeSelection() {
   if (!ui.recipeSelect.value) {
     ui.recipePreview.classList.add('hidden');
     ui.mealIngredientHint.textContent = t('ingredientLibraryHint');
-    maybeApplyMealIngredientLibrary();
     return;
   }
 
-  if (!ui.mealServingValue.value) ui.mealServingValue.value = '100';
-  if (ui.mealUnitMode.value === 'units') ui.mealUnitMode.value = 'grams';
+  if (!ui.recipeGrams.value) ui.recipeGrams.value = '100';
   applySelectedRecipeToMeal();
 }
 
 function updateMealRecipePreview() {
   const recipe = getRecipeById(ui.recipeSelect.value);
-  const grams = resolveMealServingGrams();
+  const grams = clampFloat(ui.recipeGrams.value, 1, 3000);
   if (!recipe || !grams) {
     ui.recipePreview.classList.add('hidden');
     return;
@@ -1806,7 +1768,7 @@ function updateMealRecipePreview() {
 
 function applySelectedRecipeToMeal() {
   const recipe = getRecipeById(ui.recipeSelect.value);
-  const grams = resolveMealServingGrams();
+  const grams = clampFloat(ui.recipeGrams.value, 1, 3000);
   if (!recipe) {
     showToast(t('pickSavedRecipe'));
     return;
@@ -1827,7 +1789,7 @@ function applySelectedRecipeToMeal() {
 
 async function saveMealFromModal() {
   const selectedRecipe = getRecipeById(ui.recipeSelect.value);
-  const grams = resolveMealServingGrams();
+  const grams = clampFloat(ui.recipeGrams.value, 1, 3000);
 
   if (selectedRecipe && grams) {
     const macros = calculateRecipeServing(selectedRecipe, grams);
@@ -1968,28 +1930,6 @@ function handleMealIngredientInput() {
   maybeApplyMealIngredientLibrary();
 }
 
-function handleMealServingChange() {
-  const recipe = getRecipeById(ui.recipeSelect.value);
-  if (recipe) {
-    if (ui.mealUnitMode.value === 'units') ui.mealUnitMode.value = 'grams';
-    updateMealRecipePreview();
-    applySelectedRecipeToMeal();
-    return;
-  }
-  maybeApplyMealIngredientLibrary();
-}
-
-function resolveMealServingGrams() {
-  if (ui.mealUnitMode.value === 'units') {
-    const match = findIngredientByName(document.getElementById('meal-name').value);
-    if (match && getDefaultUnitMeta(match) && !parsePositiveNumber(ui.mealServingValue.value)) {
-      ui.mealServingValue.value = '1';
-    }
-    return resolveQuantityMode(match, ui.mealServingValue.value, ui.mealUnitMode.value).grams;
-  }
-  return clampFloat(ui.mealServingValue.value, 1, 3000);
-}
-
 function maybeApplyMealIngredientLibrary() {
   const name = document.getElementById('meal-name').value;
   const match = findIngredientByName(name);
@@ -1999,6 +1939,9 @@ function maybeApplyMealIngredientLibrary() {
     return;
   }
 
+  if (ui.mealUnitMode.value === 'units' && !resolved.defaultUnit) {
+    ui.mealUnitMode.value = 'grams';
+  }
   applyIngredientMacrosToMeal(match, resolved);
 }
 
@@ -2031,11 +1974,8 @@ function selectMealIngredientSuggestion(item) {
   ui.recipeSelect.value = '';
   ui.recipePreview.classList.add('hidden');
   document.getElementById('meal-name').value = displayIngredientName(item);
-  if (ui.mealUnitMode.value === 'units' && getDefaultUnitMeta(item)) {
-    ui.mealServingValue.value = '1';
-  }
   hideIngredientSuggestions(ui.mealIngredientSuggestions);
-  maybeApplyMealIngredientLibrary();
+  applyIngredientMacrosToMeal(item);
 }
 
 
