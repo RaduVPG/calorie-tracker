@@ -1748,7 +1748,7 @@ function maybeApplyMealIngredientLibrary() {
   if (ui.recipeSelect.value) return;
 
   const name = document.getElementById('meal-name').value;
-  const enteredGrams = clampFloat(ui.recipeGrams.value, 1, 3000);
+  const enteredGrams = parsePositiveNumber(ui.recipeGrams.value);
   const match = findIngredientByName(name);
 
   if (!match) {
@@ -1873,7 +1873,7 @@ function setIngredientMacroFields(kcal = 0, p = 0, c = 0, f = 0) {
 
 function maybeApplyIngredientLibrary() {
   const name = document.getElementById('ingredient-name').value;
-  const grams = clampFloat(document.getElementById('ingredient-grams').value, 1, 5000);
+  const grams = parsePositiveNumber(document.getElementById('ingredient-grams').value);
   const match = findIngredientByName(name);
   updateFavoriteToggleButton();
 
@@ -1921,7 +1921,7 @@ function applyIngredientMacros(item, grams) {
 
 function addIngredientToDraft() {
   const item = findIngredientByName(document.getElementById('ingredient-name').value);
-  const grams = clampFloat(document.getElementById('ingredient-grams').value, 1, 5000);
+  const grams = parsePositiveNumber(document.getElementById('ingredient-grams').value);
   if (item) applyIngredientMacros(item, grams);
 
   const ingredient = sanitizeIngredient({
@@ -2180,6 +2180,12 @@ function clampFloat(value, min, max) {
   const number = Number.parseFloat(value);
   if (!Number.isFinite(number)) return null;
   return Math.min(Math.max(number, min), max);
+}
+
+function parsePositiveNumber(value) {
+  const n = Number.parseFloat(value);
+  if (!Number.isFinite(n) || n <= 0) return null;
+  return n;
 }
 
 function roundTo(value, decimals) {
