@@ -1093,7 +1093,7 @@ async function saveState() {
 
 async function loadIngredientLibrary() {
   try {
-    const response = await fetch(INGREDIENT_LIBRARY_URL, { cache: 'force-cache' });
+    const response = await fetch(INGREDIENT_LIBRARY_URL, { cache: 'no-store' });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const raw = await response.json();
     ingredientLibrary = buildIngredientLibrary(Array.isArray(raw) ? raw : []);
