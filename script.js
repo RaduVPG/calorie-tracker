@@ -1084,9 +1084,22 @@ async function loadIngredientLibrary() {
   }
 }
 
+function inferDefaultUnitMeta(name, aliases = [], existingUnit, existingGrams) {
+  if (existingUnit && existingGrams) return { defaultUnit: existingUnit, defaultUnitGrams: existingGrams };
+  const normalized = [name, ...aliases].map((value) => normalizeName(value)).filter(Boolean);
+  for (const [key, meta] of Object.entries(DEFAULT_UNIT_OVERRIDES)) {
+    if (normalized.some((value) => value === key || value.includes(key))) {
+      return { defaultUnit: meta.unit, defaultUnitGrams: meta.grams };
+    }
+  }
+  return { defaultUnit: existingUnit || null, defaultUnitGrams: existingGrams || null };
+}
+
 function normalizeIngredientItem(item) {
   const safeRo = item.nameRo && !String(item.nameRo).startsWith('QUERY LENGTH LIMIT EXCEEDED') ? String(item.nameRo).trim() : '';
   const name = String(item.name || '').trim();
+  const aliases = Array.isArray(item.aliases) ? item.aliases.map((alias) => String(alias || '').trim()).filter(Boolean) : [];
+  const unitMeta = inferDefaultUnitMeta(name, aliases, item.defaultUnit, item.defaultUnitGrams);
   return {
     ...item,
     name,
@@ -1096,7 +1109,9 @@ function normalizeIngredientItem(item) {
     carbsPer100g: Number(item.carbsPer100g || item.carbs || 0),
     fatPer100g: Number(item.fatPer100g || item.fat || 0),
     category: String(item.category || 'other'),
-    aliases: Array.isArray(item.aliases) ? item.aliases.map((alias) => String(alias || '').trim()).filter(Boolean) : [],
+    aliases,
+    defaultUnit: unitMeta.defaultUnit,
+    defaultUnitGrams: unitMeta.defaultUnitGrams,
   };
 }
 
