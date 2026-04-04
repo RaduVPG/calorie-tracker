@@ -1107,8 +1107,15 @@ async function loadIngredientLibrary() {
     renderFavoriteIngredients();
   } catch (error) {
     console.error('Failed to load ingredient library', error);
-    ingredientLibrary = [];
+    ingredientLibrary = CURATED_INGREDIENTS.map(normalizeIngredientItem);
     ingredientLibraryMap = new Map();
+    ingredientLibrary.forEach((item) => {
+      getIngredientAliases(item).forEach((alias) => {
+        const key = normalizeName(alias);
+        const existing = ingredientLibraryMap.get(key);
+        if (!existing || compareIngredientQuality(item, existing) > 0) ingredientLibraryMap.set(key, item);
+      });
+    });
     renderIngredientLibraryOptions();
     renderFavoriteIngredients();
     renderLibraryMeta(t('libraryUnavailable'));
