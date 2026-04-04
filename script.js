@@ -523,8 +523,6 @@ const ui = {
   mealIngredientHint: document.getElementById('meal-ingredient-hint'),
   recipeIngredientSuggestions: document.getElementById('recipe-ingredient-suggestions'),
   mealIngredientSuggestions: document.getElementById('meal-ingredient-suggestions'),
-  mealServingValue: document.getElementById('meal-serving-value'),
-  mealUnitMode: document.getElementById('meal-unit-mode'),
   ingredientServingValue: document.getElementById('ingredient-serving-value'),
   ingredientUnitMode: document.getElementById('ingredient-unit-mode'),
   langButtons: Array.from(document.querySelectorAll('.lang-btn')),
