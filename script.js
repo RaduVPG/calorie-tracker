@@ -488,6 +488,12 @@ let toastTimer = null;
 let recipeDraftIngredients = [];
 let mealEditIndex = null;
 let recipeEditId = null;
+let activeAutocompleteKey = null;
+
+const autocompleteState = {
+  meal: { items: [], activeIndex: -1, suppressNextInput: false },
+  ingredient: { items: [], activeIndex: -1, suppressNextInput: false },
+};
 
 const ui = {
   screens: Array.from(document.querySelectorAll('.screen')),
@@ -515,8 +521,11 @@ const ui = {
   recipeGrams: document.getElementById('meal-recipe-grams'),
   recipePreview: document.getElementById('meal-recipe-preview'),
   recipeDraft: document.getElementById('recipe-draft'),
-  ingredientLibraryOptions: document.getElementById('ingredient-library-options'),
   ingredientLibraryHint: document.getElementById('ingredient-library-hint'),
+  mealNameInput: document.getElementById('meal-name'),
+  mealNameSuggestions: document.getElementById('meal-name-suggestions'),
+  ingredientNameInput: document.getElementById('ingredient-name'),
+  ingredientNameSuggestions: document.getElementById('ingredient-name-suggestions'),
   langButtons: Array.from(document.querySelectorAll('.lang-btn')),
   onboardingLangWrap: document.getElementById('global-lang-wrap-onboarding'),
   favoriteIngredients: document.getElementById('favorite-ingredients'),
@@ -552,13 +561,19 @@ function bindEvents() {
   document.getElementById('save-recipe').addEventListener('click', saveRecipe);
   document.getElementById('apply-recipe').addEventListener('click', applySelectedRecipeToMeal);
 
-  document.getElementById('ingredient-name').addEventListener('input', maybeApplyIngredientLibrary);
-  document.getElementById('ingredient-name').addEventListener('change', maybeApplyIngredientLibrary);
+  ui.ingredientNameInput.addEventListener('input', handleIngredientNameInput);
+  ui.ingredientNameInput.addEventListener('change', maybeApplyIngredientLibrary);
+  ui.ingredientNameInput.addEventListener('focus', () => updateAutocompleteSuggestions('ingredient'));
+  ui.ingredientNameInput.addEventListener('keydown', (event) => handleAutocompleteKeydown('ingredient', event));
+  ui.ingredientNameInput.addEventListener('blur', () => scheduleAutocompleteClose('ingredient'));
   document.getElementById('ingredient-grams').addEventListener('input', maybeApplyIngredientLibrary);
   document.getElementById('ingredient-grams').addEventListener('change', maybeApplyIngredientLibrary);
   document.getElementById('ingredient-grams').addEventListener('blur', maybeApplyIngredientLibrary);
-  document.getElementById('meal-name').addEventListener('input', maybeApplyMealIngredientLibrary);
-  document.getElementById('meal-name').addEventListener('change', maybeApplyMealIngredientLibrary);
+  ui.mealNameInput.addEventListener('input', handleMealNameInput);
+  ui.mealNameInput.addEventListener('change', maybeApplyMealIngredientLibrary);
+  ui.mealNameInput.addEventListener('focus', () => updateAutocompleteSuggestions('meal'));
+  ui.mealNameInput.addEventListener('keydown', (event) => handleAutocompleteKeydown('meal', event));
+  ui.mealNameInput.addEventListener('blur', () => scheduleAutocompleteClose('meal'));
   document.getElementById('meal-recipe-grams').addEventListener('input', maybeApplyMealIngredientLibrary);
   document.getElementById('meal-recipe-grams').addEventListener('change', maybeApplyMealIngredientLibrary);
   document.getElementById('meal-recipe-grams').addEventListener('blur', maybeApplyMealIngredientLibrary);
@@ -578,8 +593,17 @@ function bindEvents() {
 
   document.addEventListener('keydown', (event) => {
     if (event.key !== 'Escape') return;
+    closeAutocomplete('meal');
+    closeAutocomplete('ingredient');
     if (!ui.mealModal.classList.contains('hidden')) closeMealModal();
     if (!ui.recipeModal.classList.contains('hidden')) closeRecipeModal();
+  });
+
+  document.addEventListener('pointerdown', (event) => {
+    if (!event.target.closest('.autocomplete-wrap')) {
+      closeAutocomplete('meal');
+      closeAutocomplete('ingredient');
+    }
   });
 }
 
@@ -594,6 +618,8 @@ async function bootstrap() {
   renderRecipeDraft();
   renderFavoriteIngredients();
   await loadIngredientLibrary();
+  updateAutocompleteSuggestions('meal');
+  updateAutocompleteSuggestions('ingredient');
 
   if (state.profile) {
     renderResult(state.profile);
@@ -809,8 +835,9 @@ function setLanguage(lang) {
   renderQuickFoods();
   renderRecipeOptions();
   renderRecipeDraft();
-  renderIngredientLibraryOptions();
   renderFavoriteIngredients();
+  updateAutocompleteSuggestions('meal');
+  updateAutocompleteSuggestions('ingredient');
   if (ingredientLibrary.length) renderLibraryMeta();
   if (state.profile) {
     renderResult(state.profile);
@@ -1096,8 +1123,9 @@ async function loadIngredientLibrary() {
       if (!existing || compareIngredientQuality(item, existing) > 0) ingredientLibraryMap.set(key, item);
     });
   });
-  renderIngredientLibraryOptions();
   renderFavoriteIngredients();
+  updateAutocompleteSuggestions('meal');
+  updateAutocompleteSuggestions('ingredient');
   renderLibraryMeta(ingredientLibrary.length <= CURATED_INGREDIENTS.length ? t('libraryUnavailable') : undefined);
 }
 
@@ -1170,18 +1198,142 @@ function getIngredientAliases(item) {
   return Array.from(new Set([item.name, item.nameRo, ...(Array.isArray(item.aliases) ? item.aliases : [])].filter(Boolean)));
 }
 
-function renderIngredientLibraryOptions() {
-  const seen = new Set();
-  const options = [];
-  ingredientLibrary.forEach((item) => {
-    getIngredientAliases(item).forEach((label) => {
-      const key = label.toLowerCase();
-      if (seen.has(key)) return;
-      seen.add(key);
-      options.push(`<option value="${escapeHtml(label)}"></option>`);
+function getAutocompleteConfig(key) {
+  return key === 'meal'
+    ? { input: ui.mealNameInput, dropdown: ui.mealNameSuggestions, state: autocompleteState.meal }
+    : { input: ui.ingredientNameInput, dropdown: ui.ingredientNameSuggestions, state: autocompleteState.ingredient };
+}
+
+function handleMealNameInput() {
+  const config = getAutocompleteConfig('meal');
+  if (config.state.suppressNextInput) {
+    config.state.suppressNextInput = false;
+    return;
+  }
+  updateAutocompleteSuggestions('meal');
+  maybeApplyMealIngredientLibrary();
+}
+
+function handleIngredientNameInput() {
+  const config = getAutocompleteConfig('ingredient');
+  if (config.state.suppressNextInput) {
+    config.state.suppressNextInput = false;
+    return;
+  }
+  updateAutocompleteSuggestions('ingredient');
+  maybeApplyIngredientLibrary();
+}
+
+function getIngredientSuggestions(query, limit = 8) {
+  const normalized = normalizeIngredientSearchQuery(query);
+  if (!normalized) return [];
+
+  return ingredientLibrary
+    .map((item) => ({ item, score: scoreIngredientMatch(item, normalized) }))
+    .filter((entry) => entry.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit)
+    .map((entry) => entry.item);
+}
+
+function updateAutocompleteSuggestions(key) {
+  const config = getAutocompleteConfig(key);
+  const query = config.input?.value || '';
+  const items = getIngredientSuggestions(query);
+  config.state.items = items;
+  config.state.activeIndex = items.length ? 0 : -1;
+  renderAutocomplete(key);
+}
+
+function renderAutocomplete(key) {
+  const config = getAutocompleteConfig(key);
+  const { dropdown, state } = config;
+  if (!dropdown) return;
+
+  if (!state.items.length || !config.input.value.trim()) {
+    dropdown.classList.add('hidden');
+    dropdown.innerHTML = '';
+    if (activeAutocompleteKey === key) activeAutocompleteKey = null;
+    return;
+  }
+
+  activeAutocompleteKey = key;
+  dropdown.classList.remove('hidden');
+  dropdown.innerHTML = state.items.map((item, index) => `
+    <button
+      class="autocomplete-item ${index === state.activeIndex ? 'active' : ''}"
+      type="button"
+      data-autocomplete-key="${key}"
+      data-autocomplete-index="${index}"
+      role="option"
+      aria-selected="${index === state.activeIndex ? 'true' : 'false'}"
+    >
+      <div class="autocomplete-title">${escapeHtml(displayIngredientName(item))}</div>
+      <div class="autocomplete-meta">${formatNumber(item.caloriesPer100g)} kcal · P ${formatNumber(item.proteinPer100g)}g · C ${formatNumber(item.carbsPer100g)}g · F ${formatNumber(item.fatPer100g)}g / 100g</div>
+    </button>
+  `).join('');
+
+  dropdown.querySelectorAll('[data-autocomplete-index]').forEach((button) => {
+    button.addEventListener('pointerdown', (event) => {
+      event.preventDefault();
+      selectAutocompleteSuggestion(key, Number(button.dataset.autocompleteIndex));
     });
   });
-  ui.ingredientLibraryOptions.innerHTML = options.join('');
+}
+
+function closeAutocomplete(key) {
+  const config = getAutocompleteConfig(key);
+  config.state.items = [];
+  config.state.activeIndex = -1;
+  config.dropdown?.classList.add('hidden');
+  if (config.dropdown) config.dropdown.innerHTML = '';
+  if (activeAutocompleteKey === key) activeAutocompleteKey = null;
+}
+
+function scheduleAutocompleteClose(key) {
+  window.setTimeout(() => {
+    if (activeAutocompleteKey === key) closeAutocomplete(key);
+  }, 120);
+}
+
+function handleAutocompleteKeydown(key, event) {
+  const config = getAutocompleteConfig(key);
+  if (!config.state.items.length) return;
+
+  if (event.key === 'ArrowDown') {
+    event.preventDefault();
+    config.state.activeIndex = (config.state.activeIndex + 1) % config.state.items.length;
+    renderAutocomplete(key);
+    return;
+  }
+
+  if (event.key === 'ArrowUp') {
+    event.preventDefault();
+    config.state.activeIndex = (config.state.activeIndex - 1 + config.state.items.length) % config.state.items.length;
+    renderAutocomplete(key);
+    return;
+  }
+
+  if (event.key === 'Enter' && config.state.activeIndex >= 0) {
+    event.preventDefault();
+    selectAutocompleteSuggestion(key, config.state.activeIndex);
+    return;
+  }
+
+  if (event.key === 'Escape') closeAutocomplete(key);
+}
+
+function selectAutocompleteSuggestion(key, index) {
+  const config = getAutocompleteConfig(key);
+  const item = config.state.items[index];
+  if (!item) return;
+
+  config.state.suppressNextInput = true;
+  config.input.value = displayIngredientName(item);
+  closeAutocomplete(key);
+
+  if (key === 'meal') maybeApplyMealIngredientLibrary();
+  else maybeApplyIngredientLibrary();
 }
 
 function renderLibraryMeta(message) {
@@ -1650,6 +1802,7 @@ function clearMealModal() {
   ui.recipeSelect.value = '';
   ui.recipePreview.classList.add('hidden');
   ui.recipePreview.innerHTML = '';
+  closeAutocomplete('meal');
 }
 
 function fillMealModal(meal) {
@@ -1704,6 +1857,7 @@ function clearRecipeBuilderFields() {
   document.getElementById('ingredient-p').value = '0';
   document.getElementById('ingredient-c').value = '0';
   document.getElementById('ingredient-f').value = '0';
+  closeAutocomplete('ingredient');
   updateFavoriteToggleButton();
 }
 
