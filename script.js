@@ -1982,6 +1982,9 @@ function handleMealServingChange() {
 function resolveMealServingGrams() {
   if (ui.mealUnitMode.value === 'units') {
     const match = findIngredientByName(document.getElementById('meal-name').value);
+    if (match && getDefaultUnitMeta(match) && !parsePositiveNumber(ui.mealServingValue.value)) {
+      ui.mealServingValue.value = '1';
+    }
     return resolveQuantityMode(match, ui.mealServingValue.value, ui.mealUnitMode.value).grams;
   }
   return clampFloat(ui.mealServingValue.value, 1, 3000);
