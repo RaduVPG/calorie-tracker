@@ -291,7 +291,9 @@
 
         <div class="field-group modal-group">
           <label class="field-label" for="meal-name" id="meal-name-label">Food name</label>
-          <input type="text" id="meal-name" placeholder="e.g. Chicken breast" maxlength="60">
+          <input type="text" id="meal-name" placeholder="e.g. Chicken breast" maxlength="60" autocomplete="off">
+          <div class="search-suggestions hidden" id="meal-ingredient-suggestions"></div>
+          <p class="setting-hint" id="meal-ingredient-hint">Search the saved ingredient library to auto-fill calories and macros per 100g.</p>
         </div>
 
         <div class="modal-grid">
@@ -328,10 +330,10 @@
           <div class="field-label" id="ingredient-builder-label">Add ingredient</div>
           <div class="field-group modal-group-small">
             <div class="ingredient-input-row">
-              <input type="text" id="ingredient-name" placeholder="Ingredient name" maxlength="80" list="ingredient-library-options">
+              <input type="text" id="ingredient-name" placeholder="Ingredient name" maxlength="80" autocomplete="off">
               <button class="favorite-toggle-btn" id="toggle-ingredient-favorite" type="button" aria-label="Toggle ingredient favorite">☆</button>
             </div>
-            <datalist id="ingredient-library-options"></datalist>
+            <div class="search-suggestions hidden" id="recipe-ingredient-suggestions"></div>
             <p class="setting-hint" id="ingredient-library-hint">Search the saved ingredient library to auto-fill calories per 100g.</p>
           </div>
           <div class="favorite-ingredients-wrap">

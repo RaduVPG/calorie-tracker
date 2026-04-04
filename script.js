@@ -390,6 +390,7 @@ const I18N = {
     favoriteIngredients: 'Favorite ingredients', noFavoriteIngredients: 'Star ingredients to keep them handy here.',
     favoriteIngredientAria: 'Favorite ingredient {name}', unfavoriteIngredientAria: 'Remove {name} from favorites', toggleFavoriteIngredient: 'Toggle ingredient favorite',
     ingredientFavorited: '{name} added to favorites.', ingredientUnfavorited: '{name} removed from favorites.',
+    proteinWord: 'Protein', carbsWord: 'Carbs', fatWord: 'Fat',
     editingBadge: 'Editing', duplicateRecipeNamesFixed: 'Recipe names stay unique and linked meals keep working after edits.'
   },
   ro: {
@@ -459,6 +460,7 @@ const I18N = {
     favoriteIngredients: 'Ingrediente favorite', noFavoriteIngredients: 'Pune stea ingredientelor ca să le ai rapid aici.',
     favoriteIngredientAria: 'Ingredient favorit {name}', unfavoriteIngredientAria: 'Scoate {name} din favorite', toggleFavoriteIngredient: 'Schimbă starea de favorit',
     ingredientFavorited: '{name} a fost adăugat la favorite.', ingredientUnfavorited: '{name} a fost scos din favorite.',
+    proteinWord: 'Proteine', carbsWord: 'Carbohidrați', fatWord: 'Grăsimi',
     editingBadge: 'Editare', duplicateRecipeNamesFixed: 'Numele rețetelor rămân unice, iar mesele legate de ele continuă să funcționeze după editări.'
   }
 };
@@ -502,8 +504,10 @@ const ui = {
   recipeGrams: document.getElementById('meal-recipe-grams'),
   recipePreview: document.getElementById('meal-recipe-preview'),
   recipeDraft: document.getElementById('recipe-draft'),
-  ingredientLibraryOptions: document.getElementById('ingredient-library-options'),
   ingredientLibraryHint: document.getElementById('ingredient-library-hint'),
+  mealIngredientHint: document.getElementById('meal-ingredient-hint'),
+  recipeIngredientSuggestions: document.getElementById('recipe-ingredient-suggestions'),
+  mealIngredientSuggestions: document.getElementById('meal-ingredient-suggestions'),
   langButtons: Array.from(document.querySelectorAll('.lang-btn')),
   onboardingLangWrap: document.getElementById('global-lang-wrap-onboarding'),
   favoriteIngredients: document.getElementById('favorite-ingredients'),
@@ -539,11 +543,13 @@ function bindEvents() {
   document.getElementById('save-recipe').addEventListener('click', saveRecipe);
   document.getElementById('apply-recipe').addEventListener('click', applySelectedRecipeToMeal);
 
-  document.getElementById('ingredient-name').addEventListener('input', maybeApplyIngredientLibrary);
-  document.getElementById('ingredient-name').addEventListener('change', maybeApplyIngredientLibrary);
+  document.getElementById('ingredient-name').addEventListener('input', handleRecipeIngredientInput);
+  document.getElementById('ingredient-name').addEventListener('change', handleRecipeIngredientInput);
   document.getElementById('ingredient-grams').addEventListener('input', maybeApplyIngredientLibrary);
   document.getElementById('ingredient-grams').addEventListener('change', maybeApplyIngredientLibrary);
   document.getElementById('ingredient-grams').addEventListener('blur', maybeApplyIngredientLibrary);
+  document.getElementById('meal-name').addEventListener('input', handleMealIngredientInput);
+  document.getElementById('meal-name').addEventListener('change', handleMealIngredientInput);
   ui.toggleIngredientFavorite?.addEventListener('click', toggleCurrentIngredientFavorite);
   ui.langButtons.forEach((button) => button.addEventListener('click', () => setLanguage(button.dataset.lang)));
   ui.recipeSelect.addEventListener('change', handleMealRecipeSelection);
@@ -908,6 +914,7 @@ function applyTranslations() {
     ui.libraryMetaCard.textContent = t('loadingLibrary');
   }
   ui.ingredientLibraryHint.textContent = t('ingredientLibraryHint');
+  if (ui.mealIngredientHint) ui.mealIngredientHint.textContent = t('ingredientLibraryHint');
   renderRecipeOptions();
 }
 
@@ -1121,17 +1128,7 @@ function getIngredientAliases(item) {
 }
 
 function renderIngredientLibraryOptions() {
-  const seen = new Set();
-  const options = [];
-  ingredientLibrary.forEach((item) => {
-    getIngredientAliases(item).forEach((label) => {
-      const key = label.toLowerCase();
-      if (seen.has(key)) return;
-      seen.add(key);
-      options.push(`<option value="${escapeHtml(label)}"></option>`);
-    });
-  });
-  ui.ingredientLibraryOptions.innerHTML = options.join('');
+  // Kept as a no-op because mobile Safari is unreliable with datalist-based ingredient search.
 }
 
 function renderLibraryMeta(message) {
@@ -1601,6 +1598,8 @@ function clearMealModal() {
   ui.recipeSelect.value = '';
   ui.recipePreview.classList.add('hidden');
   ui.recipePreview.innerHTML = '';
+  hideIngredientSuggestions(ui.mealIngredientSuggestions);
+  ui.mealIngredientHint.textContent = t('ingredientLibraryHint');
 }
 
 function fillMealModal(meal) {
@@ -1655,6 +1654,7 @@ function clearRecipeBuilderFields() {
   document.getElementById('ingredient-p').value = '0';
   document.getElementById('ingredient-c').value = '0';
   document.getElementById('ingredient-f').value = '0';
+  hideIngredientSuggestions(ui.recipeIngredientSuggestions);
   updateFavoriteToggleButton();
 }
 
@@ -1668,6 +1668,7 @@ function closeRecipeModal() {
   ['ingredient-name', 'ingredient-grams', 'ingredient-kcal', 'ingredient-p', 'ingredient-c', 'ingredient-f'].forEach((id) => {
     document.getElementById(id).value = id === 'ingredient-name' ? '' : '0';
   });
+  hideIngredientSuggestions(ui.recipeIngredientSuggestions);
   ui.ingredientLibraryHint.textContent = t('ingredientLibraryHint');
   renderRecipeDraft();
   renderFavoriteIngredients();
@@ -1687,8 +1688,10 @@ function fillQuick(index) {
 }
 
 function handleMealRecipeSelection() {
+  hideIngredientSuggestions(ui.mealIngredientSuggestions);
   if (!ui.recipeSelect.value) {
     ui.recipePreview.classList.add('hidden');
+    ui.mealIngredientHint.textContent = t('ingredientLibraryHint');
     return;
   }
 
@@ -1798,6 +1801,105 @@ function maybeApplyIngredientLibrary() {
   }
 
   applyIngredientMacros(match, grams);
+}
+
+function handleRecipeIngredientInput() {
+  maybeApplyIngredientLibrary();
+  renderIngredientSuggestions(document.getElementById('ingredient-name').value, ui.recipeIngredientSuggestions, selectRecipeIngredientSuggestion);
+}
+
+function handleMealIngredientInput() {
+  const name = document.getElementById('meal-name').value;
+  const recipeSelected = Boolean(ui.recipeSelect.value);
+  if (recipeSelected) {
+    hideIngredientSuggestions(ui.mealIngredientSuggestions);
+    return;
+  }
+
+  renderIngredientSuggestions(name, ui.mealIngredientSuggestions, selectMealIngredientSuggestion);
+  maybeApplyMealIngredientLibrary();
+}
+
+function maybeApplyMealIngredientLibrary() {
+  const name = document.getElementById('meal-name').value;
+  const match = findIngredientByName(name);
+  if (!match) {
+    ui.mealIngredientHint.textContent = name.trim() ? t('ingredientNoMatch') : t('ingredientLibraryHint');
+    return;
+  }
+
+  applyIngredientMacrosToMeal(match);
+}
+
+function applyIngredientMacrosToMeal(item) {
+  document.getElementById('meal-kcal').value = String(Math.round(item.caloriesPer100g || 0));
+  document.getElementById('meal-p').value = formatFieldNumber(item.proteinPer100g || 0);
+  document.getElementById('meal-c').value = formatFieldNumber(item.carbsPer100g || 0);
+  document.getElementById('meal-f').value = formatFieldNumber(item.fatPer100g || 0);
+  ui.mealIngredientHint.textContent = t('ingredientMatched', {
+    name: displayIngredientName(item),
+    kcal: formatNumber(item.caloriesPer100g),
+    p: formatNumber(item.proteinPer100g),
+    c: formatNumber(item.carbsPer100g),
+    f: formatNumber(item.fatPer100g),
+    category: humanizeCategory(item.category),
+  }) + ` · ${t('per100g')}`;
+}
+
+function selectRecipeIngredientSuggestion(item) {
+  document.getElementById('ingredient-name').value = displayIngredientName(item);
+  hideIngredientSuggestions(ui.recipeIngredientSuggestions);
+  maybeApplyIngredientLibrary();
+}
+
+function selectMealIngredientSuggestion(item) {
+  ui.recipeSelect.value = '';
+  ui.recipePreview.classList.add('hidden');
+  document.getElementById('meal-name').value = displayIngredientName(item);
+  hideIngredientSuggestions(ui.mealIngredientSuggestions);
+  applyIngredientMacrosToMeal(item);
+}
+
+function renderIngredientSuggestions(query, container, onSelect) {
+  if (!container) return;
+  const suggestions = getIngredientSuggestions(query);
+  if (!suggestions.length) {
+    hideIngredientSuggestions(container);
+    return;
+  }
+
+  container.innerHTML = suggestions.map((item, index) => `
+    <button class="search-suggestion-btn ${index === 0 ? 'active' : ''}" type="button" data-suggestion-key="${escapeHtml(item.name)}">
+      <div class="search-suggestion-name">${escapeHtml(displayIngredientName(item))}</div>
+      <div class="search-suggestion-meta">${formatNumber(item.caloriesPer100g)} kcal · P ${formatNumber(item.proteinPer100g)}g · C ${formatNumber(item.carbsPer100g)}g · F ${formatNumber(item.fatPer100g)}g / 100g · ${escapeHtml(humanizeCategory(item.category))}</div>
+    </button>
+  `).join('');
+  container.classList.remove('hidden');
+
+  container.querySelectorAll('[data-suggestion-key]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const item = ingredientLibrary.find((entry) => entry.name === button.dataset.suggestionKey);
+      if (item) onSelect(item);
+    });
+  });
+}
+
+function hideIngredientSuggestions(container) {
+  if (!container) return;
+  container.innerHTML = '';
+  container.classList.add('hidden');
+}
+
+function getIngredientSuggestions(query) {
+  const normalized = normalizeName(query);
+  if (!normalized || normalized.length < 2 || !ingredientLibrary.length) return [];
+
+  return ingredientLibrary
+    .map((item) => ({ item, score: scoreIngredientMatch(item, normalized) }))
+    .filter((entry) => entry.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 6)
+    .map((entry) => entry.item);
 }
 
 function applyIngredientMacros(item, grams) {
