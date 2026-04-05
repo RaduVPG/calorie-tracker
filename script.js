@@ -1788,6 +1788,15 @@ function applySelectedRecipeToMeal() {
 async function saveMealFromModal() {
   const selectedRecipe = getRecipeById(ui.recipeSelect.value);
   const grams = clampFloat(ui.recipeGrams.value, 1, 3000);
+  const manualCaloriesInput = document.getElementById('meal-manual-kcal');
+  const manualCaloriesOnly = manualCaloriesInput ? (clampInt(manualCaloriesInput.value, 0, 5000) ?? 0) : 0;
+
+  if (!selectedRecipe && manualCaloriesOnly > 0) {
+    document.getElementById('meal-kcal').value = String(manualCaloriesOnly);
+    document.getElementById('meal-p').value = '0';
+    document.getElementById('meal-c').value = '0';
+    document.getElementById('meal-f').value = '0';
+  }
 
   if (selectedRecipe && grams) {
     const macros = calculateRecipeServing(selectedRecipe, grams);
