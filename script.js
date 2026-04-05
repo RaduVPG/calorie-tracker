@@ -1807,6 +1807,13 @@ async function saveMealFromModal() {
     unitWeightGrams: null,
   } : resolveQuantityMode(mealMatch, ui.mealServingValue.value, ui.mealUnitMode.value);
 
+  if (!selectedRecipe && manualCaloriesOnly > 0) {
+    document.getElementById('meal-kcal').value = String(manualCaloriesOnly);
+    document.getElementById('meal-p').value = '0';
+    document.getElementById('meal-c').value = '0';
+    document.getElementById('meal-f').value = '0';
+  }
+
   const existingMeal = mealEditIndex !== null ? getMealsForDay()[mealEditIndex] : null;
   const meal = sanitizeMeal({
     id: existingMeal?.id,
