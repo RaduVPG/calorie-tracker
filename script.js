@@ -491,6 +491,7 @@ let selectedGoalAdj = state.profile?.goalAdj || -500;
 let toastTimer = null;
 let recipeDraftIngredients = [];
 let mealEditIndex = null;
+let selectedMealType = 'breakfast';
 let recipeEditId = null;
 
 const ui = {
@@ -505,6 +506,7 @@ const ui = {
   tabs: Array.from(document.querySelectorAll('.tab')),
   tabContents: Array.from(document.querySelectorAll('.tab-content')),
   mealsList: document.getElementById('meals-list'),
+  mealTypeTabs: Array.from(document.querySelectorAll('[data-meal-type]')),
   historyTab: document.getElementById('tab-history'),
   recipesTab: document.getElementById('tab-recipes'),
   recipesList: document.getElementById('recipes-list'),
@@ -554,6 +556,7 @@ function bindEvents() {
   ui.tabs.forEach((tab) => tab.addEventListener('click', () => switchTab(tab.dataset.tab)));
 
   document.getElementById('open-modal').addEventListener('click', () => openMealModal());
+  ui.mealTypeTabs.forEach((button) => button.addEventListener('click', () => setMealType(button.dataset.mealType || 'breakfast')));
   document.getElementById('cancel-meal').addEventListener('click', closeMealModal);
   document.getElementById('add-meal').addEventListener('click', saveMealFromModal);
   document.getElementById('open-recipe-modal').addEventListener('click', () => openRecipeModal());
@@ -1014,12 +1017,14 @@ function sanitizeMeal(meal) {
   if (!meal || typeof meal !== 'object') return null;
 
   const name = String(meal.n || '').trim().slice(0, 80);
+  const mealType = ['breakfast', 'lunch', 'dinner'].includes(meal.mealType) ? meal.mealType : 'breakfast';
   const kcal = clampInt(meal.k, 1, 5000);
   if (!name || !kcal) return null;
 
   return {
     id: String(meal.id || `meal_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`),
     n: name,
+    mealType,
     k: kcal,
     p: clampFloat(meal.p, 0, 400) ?? 0,
     c: clampFloat(meal.c, 0, 600) ?? 0,
@@ -1379,6 +1384,19 @@ function renderTotals() {
   `).join('');
 }
 
+function mealTypeLabel(mealType) {
+  if (mealType === 'lunch') return currentLang === 'ro' ? 'Prânz' : 'Lunch';
+  if (mealType === 'dinner') return currentLang === 'ro' ? 'Cină' : 'Dinner';
+  return currentLang === 'ro' ? 'Mic dejun' : 'Breakfast';
+}
+
+function setMealType(mealType = 'breakfast') {
+  selectedMealType = ['breakfast', 'lunch', 'dinner'].includes(mealType) ? mealType : 'breakfast';
+  ui.mealTypeTabs.forEach((button) => {
+    button.classList.toggle('active', button.dataset.mealType === selectedMealType);
+  });
+}
+
 function renderMeals() {
   const meals = getMealsForDay();
 
@@ -1387,25 +1405,34 @@ function renderMeals() {
     return;
   }
 
-  ui.mealsList.innerHTML = meals.map((meal, index) => {
-    const name = escapeHtml(meal.n);
-    const gramsNote = meal.grams ? ` · ${roundTo(meal.grams, 0)}g` : '';
-    return `
-      <div class="meal-item">
-        <div class="meal-info">
-          <div class="meal-name">${name}</div>
-          <div class="meal-macros">P: ${formatNumber(meal.p)}g · C: ${formatNumber(meal.c)}g · F: ${formatNumber(meal.f)}g${gramsNote}</div>
-        </div>
-        <div class="meal-actions">
-          <div class="meal-kcal">${formatNumber(meal.k)}</div>
-          <div class="item-actions-row">
-            <button class="icon-btn" type="button" data-edit-meal="${index}" aria-label="${escapeHtml(t('editMealAria', { name: meal.n }))}">✎</button>
-            <button class="icon-btn danger" type="button" data-del-index="${index}" aria-label="${escapeHtml(t('deleteMealAria', { name: meal.n }))}">✕</button>
+  const groupedMeals = ['breakfast', 'lunch', 'dinner']
+    .map((mealType) => ({ mealType, items: meals.map((meal, index) => ({ meal, index })).filter(({ meal }) => (meal.mealType || 'breakfast') === mealType) }))
+    .filter((group) => group.items.length);
+
+  ui.mealsList.innerHTML = groupedMeals.map((group) => `
+    <div class="meal-group">
+      <div class="field-label">${mealTypeLabel(group.mealType)}</div>
+      ${group.items.map(({ meal, index }) => {
+        const name = escapeHtml(meal.n);
+        const gramsNote = meal.grams ? ` · ${roundTo(meal.grams, 0)}g` : '';
+        return `
+          <div class="meal-item">
+            <div class="meal-info">
+              <div class="meal-name">${name}</div>
+              <div class="meal-macros">P: ${formatNumber(meal.p)}g · C: ${formatNumber(meal.c)}g · F: ${formatNumber(meal.f)}g${gramsNote}</div>
+            </div>
+            <div class="meal-actions">
+              <div class="meal-kcal">${formatNumber(meal.k)}</div>
+              <div class="item-actions-row">
+                <button class="icon-btn" type="button" data-edit-meal="${index}" aria-label="${escapeHtml(t('editMealAria', { name: meal.n }))}">✎</button>
+                <button class="icon-btn danger" type="button" data-del-index="${index}" aria-label="${escapeHtml(t('deleteMealAria', { name: meal.n }))}">✕</button>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-    `;
-  }).join('');
+        `;
+      }).join('')}
+    </div>
+  `).join('');
 
   ui.mealsList.querySelectorAll('[data-del-index]').forEach((button) => {
     button.addEventListener('click', () => deleteMeal(Number(button.dataset.delIndex)));
@@ -1641,6 +1668,7 @@ function clearMealModal() {
   ui.mealServingValue.value = '100';
   ui.mealUnitMode.value = 'grams';
   ui.recipeSelect.value = '';
+  setMealType('breakfast');
   ui.recipePreview.classList.add('hidden');
   ui.recipePreview.innerHTML = '';
   hideIngredientSuggestions(ui.mealIngredientSuggestions);
@@ -1648,6 +1676,7 @@ function clearMealModal() {
 }
 
 function fillMealModal(meal) {
+  setMealType(meal.mealType || 'breakfast');
   document.getElementById('meal-name').value = meal.n || '';
   document.getElementById('meal-kcal').value = meal.k || '';
   document.getElementById('meal-p').value = formatFieldNumber(meal.p);
@@ -1827,6 +1856,7 @@ async function saveMealFromModal() {
   const meal = sanitizeMeal({
     id: existingMeal?.id,
     n: document.getElementById('meal-name').value,
+    mealType: selectedMealType,
     k: document.getElementById('meal-kcal').value,
     p: document.getElementById('meal-p').value,
     c: document.getElementById('meal-c').value,
